@@ -1,9 +1,9 @@
 <?php
 
-namespace Thoughtco\ABTester\Http\Controllers;
+namespace Thoughtco\StatamicABTester\Http\Controllers;
 
 use Statamic\Http\Controllers\Controller;
-use Thoughtco\ABTester\Facades\Experiment;
+use Thoughtco\StatamicABTester\Facades\Experiment;
 
 class ExperimentResultsController extends Controller
 {

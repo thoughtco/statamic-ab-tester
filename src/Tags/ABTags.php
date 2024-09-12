@@ -1,11 +1,11 @@
 <?php
 
-namespace Thoughtco\ABTester\Tags;
+namespace Thoughtco\StatamicABTester\Tags;
 
 use Statamic\Facades;
 use Statamic\Tags\Tags;
-use Thoughtco\ABTester\Experiment as ExperimentModel;
-use Thoughtco\ABTester\Facades\Experiment;
+use Thoughtco\StatamicABTester\Experiment as ExperimentModel;
+use Thoughtco\StatamicABTester\Facades\Experiment;
 
 class ABTags extends Tags
 {

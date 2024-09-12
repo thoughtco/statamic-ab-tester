@@ -48,13 +48,13 @@ This tag marks an A/B test as a failure.
 
 ### Facade
 This package provides a facade for interacting with experiments:
-`\Thoughtco\ABTester\Experiment`
+`\Thoughtco\StatamicABTester\Experiment`
 
 #### get an experiment
-`$experiment = \Thoughtco\ABTester\Experiment::find('experiment_handle');`
+`$experiment = \Thoughtco\StatamicABTester\Experiment::find('experiment_handle');`
 
 #### get all experiments
-`\Thoughtco\ABTester\Experiment::all();`
+`\Thoughtco\StatamicABTester\Experiment::all();`
 
 
 ### Experiment

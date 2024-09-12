@@ -1,8 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Thoughtco\ABTester\Http\Controllers\ExperimentResultsController;
-use Thoughtco\ABTester\Http\Controllers\ExperimentsController;
+use Thoughtco\StatamicABTester\Http\Controllers\ExperimentResultsController;
+use Thoughtco\StatamicABTester\Http\Controllers\ExperimentsController;
 
 Route::get('ab/experiments', [ExperimentsController::class, 'index'])->name('ab.experiments.index');
 Route::get('ab/experiments/create', [ExperimentsController::class, 'create'])->name('ab.experiments.create');

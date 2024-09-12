@@ -1,11 +1,11 @@
 <?php
 
-namespace Thoughtco\ABTester;
+namespace Thoughtco\StatamicABTester;
 
 use Statamic\Facades\CP\Nav;
 use Statamic\Providers\AddonServiceProvider;
 
-class ABTesterServiceProvider extends AddonServiceProvider
+class ServiceProvider extends AddonServiceProvider
 {
     protected $tags = [
         Tags\ABTags::class,
@@ -17,7 +17,6 @@ class ABTesterServiceProvider extends AddonServiceProvider
 
     protected $scripts = [
         __DIR__.'/../resources/dist/js/ab.js',
-        // __DIR__.'/../resources/dist/js/ab-fieldtype.js',
     ];
 
     public function boot()
@@ -26,10 +25,10 @@ class ABTesterServiceProvider extends AddonServiceProvider
 
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'ab');
 
-        $this->mergeConfigFrom(__DIR__.'/../config/ab-tester.php', 'ab');
+        $this->mergeConfigFrom(__DIR__ . '/../config/statamic-ab-tester.php', 'statamic-ab-tester');
 
         $this->publishes([
-            __DIR__.'/../config/ab-tester.php' => config_path('ab-tester.php'),
+            __DIR__ . '/../config/statamic-ab-tester.php' => config_path('statamic-ab-tester.php'),
         ], 'config');
 
         Nav::extend(function ($nav) {

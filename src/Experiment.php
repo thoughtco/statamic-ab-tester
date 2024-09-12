@@ -1,6 +1,6 @@
 <?php
 
-namespace Thoughtco\ABTester;
+namespace Thoughtco\StatamicABTester;
 
 use Illuminate\Contracts\Support\Arrayable;
 use Statamic\Facades\Blueprint;
@@ -26,7 +26,7 @@ class Experiment implements Arrayable
 
     public function all()
     {
-        return collect(Folder::getFilesByType(config('ab.experiments_path'), 'yaml'))->map(function ($file) {
+        return collect(Folder::getFilesByType(config('statamic-ab-tester.experiments_path'), 'yaml'))->map(function ($file) {
             return (new Experiment)->find(pathinfo($file)['filename']);
         });
     }
@@ -68,12 +68,12 @@ class Experiment implements Arrayable
 
     public function path()
     {
-        return config('ab.experiments_path')."/{$this->handle()}.yaml";
+        return config('statamic-ab-tester.experiments_path')."/{$this->handle()}.yaml";
     }
 
     public function resultsPath()
     {
-        return config('ab.results_path')."/{$this->handle()}.yaml";
+        return config('statamic-ab-tester.results_path')."/{$this->handle()}.yaml";
     }
 
     public function hydrate()
@@ -199,7 +199,7 @@ class Experiment implements Arrayable
         }
     }
 
-    protected function save()
+    public function save()
     {
         $data = $this->toArray();
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Thoughtco\ABTester\Facades;
+namespace Thoughtco\StatamicABTester\Facades;
 
 use Illuminate\Support\Facades\Facade;
 
@@ -8,6 +8,6 @@ class Experiment extends Facade
 {
     protected static function getFacadeAccessor()
     {
-        return \Thoughtco\ABTester\Experiment::class;
+        return \Thoughtco\StatamicABTester\Experiment::class;
     }
 }

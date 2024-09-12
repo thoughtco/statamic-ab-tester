@@ -9,7 +9,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Thoughtco\\ABTester\\": "src"
+            "Thoughtco\\StatamicABTester\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Thoughtco\\StatamicABTester\\Tests\\": "tests"
         }
     },
     "authors": [
@@ -29,12 +34,12 @@
     "extra": {
         "statamic": {
             "name": "A/B Tester",
-            "description": "",
-            "version": "1.0.0-beta.1"
+            "description": "Run A/B Tests in your Statamic install",
+            "version": "0.1"
         },
         "laravel": {
             "providers": [
-                "Thoughtco\\ABTester\\ABTesterServiceProvider"
+                "ServiceProvider"
             ]
         }
     },
@@ -42,7 +47,12 @@
     "prefer-stable": true,
     "config": {
         "allow-plugins": {
-            "pixelfear/composer-dist-plugin": true
+            "pixelfear/composer-dist-plugin": true,
+            "pestphp/pest-plugin": true
         }
+    },
+    "require-dev": {
+        "orchestra/testbench": "^7.0 || ^8.0",
+        "pestphp/pest": "^2.35"
     }
 }
