@@ -39,11 +39,4 @@ class ServiceProvider extends AddonServiceProvider
                 ->icon('color');
         });
     }
-
-    //    protected function schedule($schedule)
-    //    {
-    //        $schedule->call(function () {
-    //            Experiment::all()->each->persistResults();
-    //        })->everyMinute(); // increase to every 5/10/15 min?
-    //    }
 }
