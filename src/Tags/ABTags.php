@@ -36,7 +36,7 @@ class ABTags extends Tags
             }
         }
 
-        $variantHandle = $variant['slug'];
+        $variantHandle = $variant['id'];
 
         $experiment->recordHit($variantHandle);
 
@@ -110,6 +110,6 @@ class ABTags extends Tags
 
     private function variantFromHandle(ExperimentModel $experiment, string $variantHandle): ?array
     {
-        return $experiment->variants()->firstWhere('slug', $variantHandle);
+        return $experiment->variants()->firstWhere('id', $variantHandle);
     }
 }

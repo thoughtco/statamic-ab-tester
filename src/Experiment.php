@@ -3,13 +3,11 @@
 namespace Thoughtco\ABTester;
 
 use Illuminate\Contracts\Support\Arrayable;
-use Illuminate\Support\Facades\Cache;
 use Statamic\Facades\Blueprint;
 use Statamic\Facades\File;
 use Statamic\Facades\Folder;
 use Statamic\Facades\YAML;
 use Statamic\Support\Arr;
-use Statamic\Support\Str;
 use Statamic\Support\Traits\FluentlyGetsAndSets;
 
 class Experiment implements Arrayable
@@ -17,6 +15,8 @@ class Experiment implements Arrayable
     use FluentlyGetsAndSets;
 
     protected $handle;
+
+    protected $results = [];
 
     protected $title;
 
@@ -86,43 +86,34 @@ class Experiment implements Arrayable
                 $this->{$property} = $value;
             });
 
-        return $this;
-    }
+        $this->hydrateResults();
 
-    public function check($variant)
-    {
-        return $this->visitorVariant() !== $variant;
+        return $this;
     }
 
     public function recordHit($variant)
     {
-        $key = "{$variant}.hits";
+        $this->results[$variant]['hits']++;
 
-        $this->hydrateResult($key);
-
-        Cache::increment($this->cacheKey($key));
+        $this->saveResults();
 
         return $this;
     }
 
     public function recordFailure($variant)
     {
-        $key = "{$variant}.failed";
+        $this->results[$variant]['failed']++;
 
-        $this->hydrateResult($key);
-
-        Cache::increment($this->cacheKey($key));
+        $this->saveResults();
 
         return $this;
     }
 
     public function recordSuccess($variant)
     {
-        $key = "{$variant}.completed";
+        $this->results[$variant]['successful']++;
 
-        $this->hydrateResult($key);
-
-        Cache::increment($this->cacheKey($key));
+        $this->saveResults();
 
         return $this;
     }
@@ -144,7 +135,7 @@ class Experiment implements Arrayable
                 'validate' => 'required',
                 'options' => [
                     'entry' => 'Entry',
-                    'manual' => 'Manual'
+                    'manual' => 'Manual',
                 ],
                 'max_items' => 1,
             ],
@@ -153,10 +144,10 @@ class Experiment implements Arrayable
                 'mode' => 'stacked',
                 'fields' => [
                     [
-                        'handle' => 'slug',
+                        'handle' => 'label',
                         'field' => [
-                            'label' => __('Handle'),
-                            'type' => 'slug',
+                            'label' => __('Label'),
+                            'type' => 'text',
                             'validate' => 'required',
                         ],
                     ],
@@ -169,7 +160,7 @@ class Experiment implements Arrayable
                             'max_items' => 1,
                             'validate' => 'required',
                             'if' => [
-                                'root.type' => 'equals entry'
+                                'root.type' => 'equals entry',
                             ],
                         ],
                     ],
@@ -226,83 +217,41 @@ class Experiment implements Arrayable
         }
 
         return collect($this->variants())->map(function ($variant) {
-            return $this->getResultsFor($variant['slug']);
+            return $this->getResultsFor($variant['id']);
         })->toArray();
     }
 
-    public function persistResults()
+    public function saveResults()
     {
-        $results = collect($this->results())->keyBy('id')->map(function ($variant) {
-            return [
-                'hits' => $variant['hits'],
-                'completed' => $variant['completed'],
-                'failed' => $variant['failed'],
-            ];
-        })->toArray();
-
-        File::put($this->resultsPath(), YAML::dump($results));
+        File::put($this->resultsPath(), YAML::dump($this->results));
 
         return $this;
     }
 
     protected function getResultsFor($variant)
     {
-        $hitsKey = "{$variant}.hits";
-        $completedKey = "{$variant}.completed";
-        $failedKey = "{$variant}.failed";
-
-        $this->hydrateResult($hitsKey);
-        $this->hydrateResult($completedKey);
-        $this->hydrateResult($failedKey);
-
-        return [
-            'id' => $variant,
-            'hits' => Cache::get($this->cacheKey($hitsKey)),
-            'completed' => Cache::get($this->cacheKey($completedKey)),
-            'failed' => Cache::get($this->cacheKey($failedKey))
-        ];
+        return array_merge(['label' => Arr::get($this->variants()->firstWhere('id', $variant) ?? [], 'label', $variant)], $this->results[$variant]);
     }
 
-    protected function hydrateResult($key)
+    protected function hydrateResults()
     {
-        if (! is_null(Cache::get($this->cacheKey($key)))) {
-            return;
-        }
+        $this->results = YAML::file($this->resultsPath())->parse() ?? [];
 
-        $results = YAML::parse(File::get($this->resultsPath()));
+        $this->variants()->each(function ($variant) {
+            if (! Arr::has($this->results, $variant['id'].'.hits')) {
+                Arr::set($this->results, $variant['id'].'.hits', 0);
+            }
 
-        Cache::forever($this->cacheKey($key), Arr::get($results, $key, '0'));
+            if (! Arr::has($this->results, $variant['id'].'.successful')) {
+                Arr::set($this->results, $variant['id'].'.successful', 0);
+            }
+
+            if (! Arr::has($this->results, $variant['id'].'.failed')) {
+                Arr::set($this->results, $variant['id'].'.failed', 0);
+            }
+        });
 
         return $this;
-    }
-
-    protected function visitorVariant()
-    {
-        return $this->variants()[$this->getVariantIndex()];
-    }
-
-    protected function getVariantIndex()
-    {
-        if (session()->has($sessionKey = "ab.{$this->handle()}.variant")) {
-            return session($sessionKey);
-        }
-
-        $count = count($this->variants());
-        $ip = rand(0, $count - 1); // request()->ip();
-        $key = array_sum(explode('.', $ip));
-
-        while (strlen($key) > strlen($count)) {
-            $key = array_sum(str_split($key));
-        }
-
-        session()->put($sessionKey, $visitorVariant = $key % $count);
-
-        return $visitorVariant;
-    }
-
-    protected function cacheKey($suffix)
-    {
-        return 'ab_experiment.'.$this->handle().Str::ensureLeft($suffix, '.');
     }
 
     public function fields()

@@ -2,7 +2,6 @@
 
 namespace Thoughtco\ABTester;
 
-use Illuminate\Support\Facades\Cache;
 use Statamic\Facades\CP\Nav;
 use Statamic\Providers\AddonServiceProvider;
 
@@ -45,8 +44,6 @@ class ABTesterServiceProvider extends AddonServiceProvider
                 ->active('ab/experiments')
                 ->icon('color');
         });
-
-        $this->persistResults();
     }
 
     //    protected function schedule($schedule)
@@ -55,15 +52,4 @@ class ABTesterServiceProvider extends AddonServiceProvider
     //            Experiment::all()->each->persistResults();
     //        })->everyMinute(); // increase to every 5/10/15 min?
     //    }
-
-    protected function persistResults()
-    {
-        if (Cache::has('ab.results_persisted')) {
-            return;
-        }
-
-        Facades\Experiment::all()->each->persistResults();
-
-        Cache::put('ab.results_persisted', true, now()->addMinutes(15));
-    }
 }

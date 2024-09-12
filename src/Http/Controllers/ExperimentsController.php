@@ -30,9 +30,9 @@ class ExperimentsController extends Controller
         return view('ab::experiments.show', [
             'experiment' => Experiment::find($experiment),
             'columns' => [
-                Column::make('id')->label(__('Variant')),
+                Column::make('label')->label(__('Variant')),
                 Column::make('hits')->label(__('Hits')),
-                Column::make('completed')->label(__('Completed')),
+                Column::make('successful')->label(__('Successful')),
                 Column::make('failed')->label(__('Failed')),
             ],
         ]);
