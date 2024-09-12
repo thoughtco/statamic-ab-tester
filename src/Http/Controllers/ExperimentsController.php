@@ -41,7 +41,7 @@ class ExperimentsController extends Controller
     public function create()
     {
         $blueprint = Experiment::blueprint();
-        $fields = $blueprint->fields();
+        $fields = $blueprint->fields()->addValues([])->preProcess();
 
         return view('ab::experiments.create', [
             'blueprint' => $blueprint->toPublishArray(),
@@ -67,8 +67,7 @@ class ExperimentsController extends Controller
 
         $blueprint = Experiment::blueprint();
 
-        //$fields = $blueprint->fields()->addValues($experiment->fields())->preProcess();
-        $fields = $blueprint->fields()->addValues([])->preProcess();
+        $fields = $blueprint->fields()->addValues($experiment->fields())->preProcess();
 
         return view('ab::experiments.edit', [
             'experiment' => $experiment,

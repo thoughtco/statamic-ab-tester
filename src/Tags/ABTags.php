@@ -4,6 +4,7 @@ namespace Thoughtco\ABTester\Tags;
 
 use Statamic\Facades;
 use Statamic\Tags\Tags;
+use Thoughtco\ABTester\Experiment as ExperimentModel;
 use Thoughtco\ABTester\Facades\Experiment;
 
 class ABTags extends Tags
@@ -22,12 +23,15 @@ class ABTags extends Tags
 
         $variants = $experiment->variants();
 
-        if ($variantHandle = session()->get('statamic.ab.'.$handle)) {
-            $variant = $variants->firstWhere('slug', $variantHandle);
+        $useSession = $this->params->bool('session');
+
+        $variant = false;
+        if ($useSession && ($variantHandle = session()->get('statamic.ab.'.$handle))) {
+            $variant = $this->variantFromHandle($experiment, $variantHandle);
         }
 
         if (! $variant) {
-            if (!$variant = $variants->random()) {
+            if (! $variant = $variants->random()) {
                 return $this->parse();
             }
         }
@@ -36,7 +40,7 @@ class ABTags extends Tags
 
         $experiment->recordHit($variantHandle);
 
-        if ($this->params->bool('session')) {
+        if ($useSession) {
             session()->put('statamic.ab.'.$handle, $variantHandle);
         }
 
@@ -48,7 +52,7 @@ class ABTags extends Tags
 
         return $this->parse(array_merge($mergeData, [
             'experiment' => $handle,
-            'variant' => $variantHandle, // $variant['handle'] ??
+            'variant' => $this->variantFromHandle($experiment, $variantHandle),
         ]));
     }
 
@@ -74,7 +78,7 @@ class ABTags extends Tags
 
         return $this->parse([
             'experiment' => $handle,
-            'variant' => $variant, // $variant['handle'] ??
+            'variant' => $this->variantFromHandle($experiment, $variantHandle),
         ]);
     }
 
@@ -100,7 +104,12 @@ class ABTags extends Tags
 
         return $this->parse([
             'experiment' => $handle,
-            'variant' => $variant, // $variant['handle'] ??
+            'variant' => $this->variantFromHandle($experiment, $variantHandle),
         ]);
+    }
+
+    private function variantFromHandle(ExperimentModel $experiment, string $variantHandle): ?array
+    {
+        return $experiment->variants()->firstWhere('slug', $variantHandle);
     }
 }
