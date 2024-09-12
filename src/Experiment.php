@@ -144,7 +144,6 @@ class Experiment implements Arrayable
                 'validate' => 'required',
                 'options' => [
                     'entry' => 'Entry',
-                    'global' => 'Global',
                     'manual' => 'Manual'
                 ],
                 'max_items' => 1,
@@ -171,18 +170,6 @@ class Experiment implements Arrayable
                             'validate' => 'required',
                             'if' => [
                                 'root.type' => 'equals entry'
-                            ],
-                        ],
-                    ],
-                    [
-                        'handle' => 'global',
-                        'field' => [
-                            'label' => __('Global - make custom field type'),
-                            'type' => 'code',
-                            'max_items' => 1,
-                            'validate' => 'required',
-                            'if' => [
-                                'root.type' => 'equals global'
                             ],
                         ],
                     ],
@@ -237,7 +224,6 @@ class Experiment implements Arrayable
         if (! is_null($variant)) {
             return $this->getResultsFor($variant);
         }
-
 
         return collect($this->variants())->map(function ($variant) {
             return $this->getResultsFor($variant['slug']);
