@@ -1,0 +1,48 @@
+{
+    "name": "thoughtco/statamic-ab-tester",
+    "type": "statamic-addon",
+    "description": "",
+    "license": "MIT",
+    "require": {
+        "statamic/cms": "^5.0",
+        "laravel/pint": "^1.17"
+    },
+    "autoload": {
+        "psr-4": {
+            "Thoughtco\\ABTester\\": "src"
+        }
+    },
+    "authors": [
+        {
+            "name": "Aryeh Raber",
+            "email": "aryeh.raber@gmail.com",
+            "homepage": "https://aryeh.dev",
+            "role": "Developer"
+        },
+        {
+            "name": "Ryan Mitchell",
+            "email": "ryan@thoughtcollective.com",
+            "homepage": "https://www.thoughtcollective.com",
+            "role": "Developer"
+        }
+    ],
+    "extra": {
+        "statamic": {
+            "name": "A/B Tester",
+            "description": "",
+            "version": "1.0.0-beta.1"
+        },
+        "laravel": {
+            "providers": [
+                "Thoughtco\\ABTester\\ABTesterServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "config": {
+        "allow-plugins": {
+            "pixelfear/composer-dist-plugin": true
+        }
+    }
+}
