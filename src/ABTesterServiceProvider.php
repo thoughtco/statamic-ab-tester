@@ -7,17 +7,12 @@ use Statamic\Providers\AddonServiceProvider;
 
 class ABTesterServiceProvider extends AddonServiceProvider
 {
-    // protected $fieldtypes = [
-    //     \Thoughtco\ABTester\Fieldtypes\ABFieldtype::class,
-    // ];
-
     protected $tags = [
         Tags\ABTags::class,
     ];
 
     protected $routes = [
         'cp' => __DIR__.'/../routes/cp.php',
-        'web' => __DIR__.'/../routes/web.php',
     ];
 
     protected $scripts = [

@@ -72,6 +72,3 @@ Use this to mark an experiment as being successful:
 Use this to mark an experiment as being a failure:
 `$experiment->recordFailure($variantHandle);`
 
-
-
-### Endpoints
