@@ -77,6 +77,18 @@ abstract class ExperimentRepository implements RepositoryContract
                 ],
                 'validate' => 'array',
             ],
+            'start_at' => [
+                'type' => 'date',
+                'label' => __('Start at'),
+                'time_enabled' => true,
+                'validate' => 'required',
+            ],
+            'end_at' => [
+                'type' => 'date',
+                'label' => __('End at'),
+                'time_enabled' => true,
+                'validate' => 'required',
+            ]
         ]);
     }
 }

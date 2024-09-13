@@ -21,6 +21,14 @@ class ABTags extends Tags
             return $this->parse();
         }
 
+        if ($experiment->startAt() && now()->isBefore($experiment->startAt())) {
+            return $this->parse();
+        }
+
+        if ($experiment->endAt() && now()->isAfter($experiment->endAt())) {
+            return $this->parse();
+        }
+
         $variants = $experiment->variants();
 
         $useSession = $this->params->bool('session');

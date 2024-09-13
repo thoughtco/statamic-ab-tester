@@ -3,6 +3,7 @@
 namespace Thoughtco\StatamicABTester\Experiment;
 
 use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Support\Carbon;
 use Statamic\Data\ContainsData;
 use Statamic\Facades\File;
 use Statamic\Facades\YAML;
@@ -17,9 +18,13 @@ abstract class Experiment implements Arrayable, ExperimentContract
 
     protected $afterSaveCallbacks = [];
 
+    protected $endAt;
+
     protected $handle;
 
     protected $results = [];
+
+    protected $startAt;
 
     protected $title;
 
@@ -28,6 +33,22 @@ abstract class Experiment implements Arrayable, ExperimentContract
     protected $variants = [];
 
     protected $withEvents = true;
+
+    public function endAt($endAt = null)
+    {
+        return $this->fluentlyGetOrSet('endAt')
+            ->getter(function ($endAt) {
+                if (! $endAt) {
+                    return;
+                }
+
+                return $endAt instanceof Carbon ? $endAt : Carbon::createFromTimestamp($endAt);
+            })
+            ->setter(function ($endAt) {
+                return $endAt instanceof Carbon ? $endAt : ($endAt ? Carbon::parse($endAt) : null);
+            })
+            ->args(func_get_args());
+    }
 
     public function handle($handle = null)
     {
@@ -49,6 +70,22 @@ abstract class Experiment implements Arrayable, ExperimentContract
         })->toArray();
 
         return $this;
+    }
+
+    public function startAt($startAt = null)
+    {
+        return $this->fluentlyGetOrSet('startAt')
+            ->getter(function ($startAt) {
+                if (! $startAt) {
+                    return;
+                }
+
+                return $startAt instanceof Carbon ? $startAt : Carbon::createFromTimestamp($startAt);
+            })
+            ->setter(function ($startAt) {
+                return $startAt instanceof Carbon ? $startAt : ($startAt ? Carbon::parse($startAt) : null);
+            })
+            ->args(func_get_args());
     }
 
     public function title($title = null)
