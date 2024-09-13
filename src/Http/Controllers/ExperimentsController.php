@@ -82,7 +82,9 @@ class ExperimentsController extends CpController
     {
         abort_unless($experiment = Experiment::find($experiment), 404);
 
-        $fields = Experiment::blueprint()->fields()->addValues($experiment->fields())->preProcess();
+        $blueprint = Experiment::blueprint();
+
+        $fields = $blueprint->fields()->addValues($experiment->toArray())->preProcess();
 
         return view('ab::experiments.edit', [
             'experiment' => $experiment,
