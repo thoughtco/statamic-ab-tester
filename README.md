@@ -36,11 +36,23 @@ This tag marks an A/B test as successful.
 {{ ab:success experiment="experiment_handle" variant="variant_handle" }}
 ```
 
+or if you've used session="true" on the ab tag:
+
+```antlers
+{{ ab:success experiment="experiment_handle" from_session="true" }}
+```
+
 #### ab:failure
 This tag marks an A/B test as a failure.
 
 ```antlers
 {{ ab:failure experiment="experiment_handle" variant="variant_handle" }}
+```
+
+or if you've used session="true" on the ab tag:
+
+```antlers
+{{ ab:failure experiment="experiment_handle" from_session="true" }}
 ```
 
 

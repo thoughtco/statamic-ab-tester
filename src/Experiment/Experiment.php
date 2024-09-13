@@ -76,6 +76,10 @@ abstract class Experiment implements Arrayable, ExperimentContract
             $this->results([]);
         }
 
+        if (! Arr::has($this->results, $variant)) {
+            return $this;
+        }
+
         $this->results[$variant]['hits']++;
 
         $this->save();
@@ -89,6 +93,10 @@ abstract class Experiment implements Arrayable, ExperimentContract
             $this->results([]);
         }
 
+        if (! Arr::has($this->results, $variant)) {
+            return $this;
+        }
+
         $this->results[$variant]['failed']++;
 
         $this->save();
@@ -100,6 +108,10 @@ abstract class Experiment implements Arrayable, ExperimentContract
     {
         if (! $this->results) {
             $this->results([]);
+        }
+
+        if (! Arr::has($this->results, $variant)) {
+            return $this;
         }
 
         $this->results[$variant]['successful']++;

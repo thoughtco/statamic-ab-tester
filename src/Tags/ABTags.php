@@ -62,8 +62,17 @@ class ABTags extends Tags
             return $this->parse();
         }
 
-        if (! $variantHandle = $this->params->pull('variant')) {
-            return $this->parse();
+        $variantHandle = false;
+        if ($this->params->bool('from_session')) {
+            if (! $variantHandle = session()->get('statamic.ab.'.$experimentHandle)) {
+                return $this->parse();
+            }
+        }
+
+        if (! $variantHandle) {
+            if (! $variantHandle = $this->params->pull('variant')) {
+                return $this->parse();
+            }
         }
 
         if (! $experiment = Experiment::find($experimentHandle)) {
@@ -88,8 +97,17 @@ class ABTags extends Tags
             return $this->parse();
         }
 
-        if (! $variantHandle = $this->params->pull('variant')) {
-            return $this->parse();
+        $variantHandle = false;
+        if ($this->params->bool('from_session')) {
+            if (! $variantHandle = session()->get('statamic.ab.'.$experimentHandle)) {
+                return $this->parse();
+            }
+        }
+
+        if (! $variantHandle) {
+            if (! $variantHandle = $this->params->pull('variant')) {
+                return $this->parse();
+            }
         }
 
         if (! $experiment = Experiment::find($experimentHandle)) {
