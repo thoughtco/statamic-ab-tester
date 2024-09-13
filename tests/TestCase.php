@@ -37,6 +37,6 @@ abstract class TestCase extends AddonTestCase
             Encrypter::generateKey($app['config']['app.cipher'])
         ));
 
-        $app['config']->set('statamic-ab-tester', require(__DIR__.'/../config/statamic-ab-tester.php'));
+        $app['config']->set('statamic-ab-tester', require (__DIR__.'/../config/statamic-ab-tester.php'));
     }
 }

@@ -9,6 +9,7 @@ Route::get('ab/experiments/create', [ExperimentsController::class, 'create'])->n
 Route::get('ab/experiments/{experiment}', [ExperimentsController::class, 'show'])->name('ab.experiments.show');
 Route::post('ab/experiments', [ExperimentsController::class, 'store'])->name('ab.experiments.store');
 Route::get('ab/experiments/{experiment}/edit', [ExperimentsController::class, 'edit'])->name('ab.experiments.edit');
+Route::delete('ab/experiments/{experiment}/delete', [ExperimentsController::class, 'destroy'])->name('ab.experiments.delete');
 Route::patch('ab/experiments/{experiment}', [ExperimentsController::class, 'update'])->name('ab.experiments.update');
 
 Route::get('ab/experiments/{experiment}/results', [ExperimentResultsController::class, 'show'])->name('ab.experiments.results.show');

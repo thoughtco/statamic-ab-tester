@@ -3,7 +3,7 @@
 uses(\Thoughtco\StatamicABTester\Tests\TestCase::class);
 
 use Statamic\Facades;
-use Thoughtco\StatamicABTester\Experiment;
+use Thoughtco\StatamicABTester\Experiment\Stache\Experiment;
 
 it('returns a variant', function () {
     (new Experiment)

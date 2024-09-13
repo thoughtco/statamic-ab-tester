@@ -19,12 +19,17 @@
           <template slot="actions" slot-scope="{ row: experiment, index }">
             <dropdown-list>
               <dropdown-item :text="__('Edit')" :redirect="experiment.edit_url"></dropdown-item>
-              <dropdown-item
-                class="warning"
-                text="{{ __('Delete') }}"
-                @click="confirmDeleteRow(experiment.slug, index)"
-                v-if="experiment.deletable"
-              ></dropdown-item>
+                <dropdown-item
+                    :text="__('Delete')"
+                    class="warning"
+                    @click="$refs[`deleter_${experiment.handle}`].confirm()"
+                >
+                    <resource-deleter
+                        :ref="`deleter_${experiment.handle}`"
+                        :resource="experiment"
+                        @deleted="location.reload()">
+                    </resource-deleter>
+                </dropdown-item>
             </dropdown-list>
           </template>
         </data-list-table>

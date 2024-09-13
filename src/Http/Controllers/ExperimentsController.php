@@ -3,11 +3,12 @@
 namespace Thoughtco\StatamicABTester\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Statamic\CP\Column;
-use Statamic\Http\Controllers\Controller;
+use Statamic\Http\Controllers\CP\CpController;
 use Thoughtco\StatamicABTester\Facades\Experiment;
 
-class ExperimentsController extends Controller
+class ExperimentsController extends CpController
 {
     public function index()
     {
@@ -16,6 +17,7 @@ class ExperimentsController extends Controller
                 return $experiment->toArray() + [
                     'url' => cp_route('ab.experiments.show', $experiment->handle()),
                     'edit_url' => cp_route('ab.experiments.edit', $experiment->handle()),
+                    'delete_url' => cp_route('ab.experiments.delete', $experiment->handle()),
                 ];
             }),
             'columns' => [
@@ -56,7 +58,22 @@ class ExperimentsController extends Controller
 
         $fields->validate();
 
-        $experiment = Experiment::create($fields->process()->values());
+        $values = $fields->process()->values();
+
+        if (Experiment::find($values->get('handle'))) {
+            throw ValidationException::withMessages(['handle' => __('Experiment with this handle already exists.')]);
+
+            return;
+        }
+
+        $experiment = tap(Experiment::make()
+            ->title($values->get('title'))
+            ->handle($values->get('handle'))
+            ->variants($values->get('variants'))
+            ->type($values->get('type')))
+            ->save();
+
+        session()->flash('success', __('Experiment Created'));
 
         return ['redirect' => cp_route('ab.experiments.show', $experiment->handle())];
     }
@@ -65,9 +82,7 @@ class ExperimentsController extends Controller
     {
         abort_unless($experiment = Experiment::find($experiment), 404);
 
-        $blueprint = Experiment::blueprint();
-
-        $fields = $blueprint->fields()->addValues($experiment->fields())->preProcess();
+        $fields = Experiment::blueprint()->fields()->addValues($experiment->fields())->preProcess();
 
         return view('ab::experiments.edit', [
             'experiment' => $experiment,
@@ -79,18 +94,28 @@ class ExperimentsController extends Controller
 
     public function update(Request $request, $experiment)
     {
-        $blueprint = Experiment::blueprint();
-        $experiment = Experiment::find($experiment);
+        abort_unless($experiment = Experiment::find($experiment), 404);
 
-        $fields = $blueprint->fields()->addValues($request->all());
+        $fields = Experiment::blueprint()->fields()->addValues($request->all());
 
         $fields->validate();
 
-        if ($redirect = $experiment->update($fields->process()->values())) {
-            return ['redirect' => $redirect];
-        }
+        $values = $fields->process()->values();
 
-        return response()->noContent();
+        $experiment->title($values->get('title'))
+            ->handle($values->get('handle'))
+            ->variants($values->get('variants'))
+            ->type($values->get('type'))
+            ->save();
+
+        $this->success(__('Saved'));
+    }
+
+    public function destroy($experiment)
+    {
+        abort_unless($experiment = Experiment::find($experiment), 404);
+
+        $experiment->delete();
     }
 
     public function results($experiment)

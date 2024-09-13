@@ -4,7 +4,7 @@ namespace Thoughtco\StatamicABTester\Tags;
 
 use Statamic\Facades;
 use Statamic\Tags\Tags;
-use Thoughtco\StatamicABTester\Experiment as ExperimentModel;
+use Thoughtco\StatamicABTester\Experiment\Stache\Experiment as ExperimentModel;
 use Thoughtco\StatamicABTester\Facades\Experiment;
 
 class ABTags extends Tags

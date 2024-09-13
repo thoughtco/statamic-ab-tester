@@ -3,7 +3,9 @@
 namespace Thoughtco\StatamicABTester;
 
 use Statamic\Facades\CP\Nav;
+use Statamic\Facades\Stache;
 use Statamic\Providers\AddonServiceProvider;
+use Statamic\Statamic;
 
 class ServiceProvider extends AddonServiceProvider
 {
@@ -25,10 +27,10 @@ class ServiceProvider extends AddonServiceProvider
 
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'ab');
 
-        $this->mergeConfigFrom(__DIR__ . '/../config/statamic-ab-tester.php', 'statamic-ab-tester');
+        $this->mergeConfigFrom(__DIR__.'/../config/statamic-ab-tester.php', 'statamic-ab-tester');
 
         $this->publishes([
-            __DIR__ . '/../config/statamic-ab-tester.php' => config_path('statamic-ab-tester.php'),
+            __DIR__.'/../config/statamic-ab-tester.php' => config_path('statamic-ab-tester.php'),
         ], 'config');
 
         Nav::extend(function ($nav) {
@@ -38,5 +40,9 @@ class ServiceProvider extends AddonServiceProvider
                 ->active('ab/experiments')
                 ->icon('color');
         });
+
+        Stache::registerStore((new Experiment\Stache\ExperimentStore)->directory(config('statamic-ab-tester.experiments_path')));
+
+        Statamic::repository(Contracts\ExperimentRepository::class, Experiment\Stache\ExperimentRepository::class);
     }
 }
