@@ -10,6 +10,7 @@ use Statamic\Facades\YAML;
 use Statamic\Support\Arr;
 use Statamic\Support\Traits\FluentlyGetsAndSets;
 use Thoughtco\StatamicABTester\Contracts\Experiment as ExperimentContract;
+use Thoughtco\StatamicABTester\Events;
 use Thoughtco\StatamicABTester\Facades\Experiment as ExperimentFacade;
 
 abstract class Experiment implements Arrayable, ExperimentContract
@@ -160,13 +161,13 @@ abstract class Experiment implements Arrayable, ExperimentContract
 
     public function delete()
     {
-        //        if (Events\LiveblogDeleting::dispatch($this) === false) {
-        //            return false;
-        //        }
+        if (Events\ExperimentDeleting::dispatch($this) === false) {
+            return false;
+        }
 
         ExperimentFacade::delete($this);
 
-        //Events\LiveblogDeleted::dispatch($this);
+        Events\ExperimentDeleted::dispatch($this);
 
         return true;
     }
@@ -195,15 +196,15 @@ abstract class Experiment implements Arrayable, ExperimentContract
         $afterSaveCallbacks = $this->afterSaveCallbacks;
         $this->afterSaveCallbacks = [];
 
-        //        if ($withEvents) {
-        //            if ($isNew && Events\LiveblogCreating::dispatch($this) === false) {
-        //                return false;
-        //            }
-        //
-        //            if (Events\LiveblogSaving::dispatch($this) === false) {
-        //                return false;
-        //            }
-        //        }
+        if ($withEvents) {
+            if ($isNew && Events\ExperimentCreating::dispatch($this) === false) {
+                return false;
+            }
+
+            if (Events\ExperimentSaving::dispatch($this) === false) {
+                return false;
+            }
+        }
 
         ExperimentFacade::save($this);
 
@@ -211,13 +212,13 @@ abstract class Experiment implements Arrayable, ExperimentContract
             $callback($this);
         }
 
-        //        if ($withEvents) {
-        //            if ($isNew) {
-        //                Events\LiveblogCreated::dispatch($this);
-        //            }
-        //
-        //            Events\LiveblogSaved::dispatch($this);
-        //        }
+        if ($withEvents) {
+            if ($isNew) {
+                Events\ExperimentCreated::dispatch($this);
+            }
+
+            Events\ExperimentSaved::dispatch($this);
+        }
 
         return true;
     }

@@ -88,7 +88,7 @@ abstract class ExperimentRepository implements RepositoryContract
                 'label' => __('End at'),
                 'time_enabled' => true,
                 'validate' => 'required',
-            ]
+            ],
         ]);
     }
 }
