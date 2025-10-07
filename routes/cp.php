@@ -24,6 +24,11 @@ Route::name('ab.goals.')->prefix('ab/goals')->group(function () {
     Route::get('/json', [GoalsController::class, 'json'])->name('json');
     Route::get('/actions', [GoalsController::class, 'json'])->name('actions');
     Route::get('/create', [GoalsController::class, 'create'])->name('create');
+
+    Route::get('/{goal}', [GoalsController::class, 'show'])->name('show');
     Route::post('/', [GoalsController::class, 'store'])->name('store');
+    Route::get('/{goal}/edit', [GoalsController::class, 'edit'])->name('edit');
+    Route::delete('/{goal}/delete', [GoalsController::class, 'destroy'])->name('delete');
+    Route::patch('/{goal}', [GoalsController::class, 'update'])->name('update');
 
 });

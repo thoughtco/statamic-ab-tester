@@ -18,13 +18,7 @@ class ExperimentsController extends CpController
     public function index()
     {
         return view('ab::experiments.index', [
-            'experiments' => Experiment::all()->map(function ($experiment) {
-                return $experiment->toArray() + [
-                    'url' => cp_route('ab.experiments.show', $experiment->id()),
-                    'edit_url' => cp_route('ab.experiments.edit', $experiment->id()),
-                    'delete_url' => cp_route('ab.experiments.delete', $experiment->id()),
-                ];
-            }),
+            'experimentsIsEmpty' => Experiment::query()->count() <= 0,
             'columns' => (new Columns([
                 Column::make('title')->label(__('Title')),
                 Column::make('id')->label(__('ID')),
@@ -41,6 +35,10 @@ class ExperimentsController extends CpController
 
         if ($searchQuery = $request->search ?? false) {
             $query->where('title', 'like', '%'.$searchQuery.'%');
+        }
+
+        if ($request->input('sort')) {
+            $query->reorder($request->input('sort'), $request->input('order'));
         }
 
         $activeFilterBadges = $this->queryFilters($query, $request->filters, []);

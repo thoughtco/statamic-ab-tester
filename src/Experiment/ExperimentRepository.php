@@ -49,7 +49,7 @@ abstract class ExperimentRepository implements RepositoryContract
             'goals' => [
                 'type' => 'select',
                 'validate' => 'required',
-                'options' => Goal::all()->map(fn ($goal) => ['value' => $goal->title(), 'key' => $goal->id()])->all(),
+                'options' => Goal::all()->map(fn ($goal) => ['value' => $goal->title(), 'key' => $goal->handle()])->all(),
                 'multiple' => true,
             ],
             'start_at' => [

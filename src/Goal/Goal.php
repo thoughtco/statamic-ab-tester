@@ -15,19 +15,9 @@ abstract class Goal implements Arrayable, GoalContract
 
     protected $afterSaveCallbacks = [];
 
-    protected $endAt;
-
-    protected $goals = [];
-
-    protected $id;
-
-    protected $results = [];
-
-    protected $startAt;
+    protected $handle;
 
     protected $title;
-
-    protected $type;
 
     protected $withEvents = true;
 
@@ -37,7 +27,7 @@ abstract class Goal implements Arrayable, GoalContract
         $this->supplements = collect();
     }
 
-    public function handle($id = null)
+    public function handle($handle = null)
     {
         return $this->fluentlyGetOrSet('handle')->args(func_get_args());
     }

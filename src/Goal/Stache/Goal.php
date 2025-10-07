@@ -7,7 +7,7 @@ use Statamic\Data\TracksQueriedColumns;
 use Statamic\Data\TracksQueriedRelations;
 use Statamic\Facades\Stache;
 use Statamic\Support\Arr;
-use Thoughtco\StatamicABTester\Goals\Goal as BaseGoal;
+use Thoughtco\StatamicABTester\Goal\Goal as BaseGoal;
 
 class Goal extends BaseGoal
 {

@@ -10,7 +10,7 @@ use Statamic\Http\Controllers\CP\CpController;
 use Statamic\Query\Scopes\Filters\Concerns\QueriesFilters;
 use Thoughtco\StatamicABTester\Facades\Experiment;
 use Thoughtco\StatamicABTester\Facades\Goal;
-use Thoughtco\StatamicABTester\Http\Resources\ExperimentsResource;
+use Thoughtco\StatamicABTester\Http\Resources\GoalsResource;
 
 class GoalsController extends CpController
 {
@@ -19,13 +19,6 @@ class GoalsController extends CpController
     public function index()
     {
         return view('ab::goals.index', [
-            'experiments' => Experiment::all()->map(function ($experiment) {
-                return $experiment->toArray() + [
-                    'url' => cp_route('ab.experiments.show', $experiment->id()),
-                    'edit_url' => cp_route('ab.experiments.edit', $experiment->id()),
-                    'delete_url' => cp_route('ab.experiments.delete', $experiment->id()),
-                ];
-            }),
             'columns' => (new Columns([
                 Column::make('title')->label(__('Title')),
                 Column::make('handle')->label(__('Handle')),
@@ -44,11 +37,15 @@ class GoalsController extends CpController
             $query->where('title', 'like', '%'.$searchQuery.'%');
         }
 
+        if ($request->input('sort')) {
+            $query->reorder($request->input('sort'), $request->input('order'));
+        }
+
         $activeFilterBadges = $this->queryFilters($query, $request->filters, []);
 
         $results = $query->paginate($request->input('perPage', config('statamic.cp.pagination_size')));
 
-        return (new ExperimentsResource($results))
+        return (new GoalsResource($results))
             ->setColumnPreferenceKey('ab.goals.columns')
             ->additional([
                 'meta' => [
@@ -85,85 +82,69 @@ class GoalsController extends CpController
 
     public function store(Request $request)
     {
-        $request->validate([
-            'entry_id' => ['required'],
-            'title' => ['required'],
-            'fields' => ['required', 'array'],
-            'goals' => ['required', 'array'],
-            'values' => ['required', 'array'],
-        ]);
+        $fields = Goal::blueprint()->fields()->addValues($request->all());
 
-        $fields = Experiment::blueprint()->fields()->only($request->input('fields', []))->addValues($request->input('values', []));
+        $fields->validate();
 
-        try {
-            $fields->validate();
-        } catch (ValidationException $e) {
-            throw ValidationException::withMessages(collect($e->errors())->mapWithKeys(fn ($errors, $key) => ['values.'.$key => $errors])->all());
+        if (Goal::find($request->input('handle'))) {
+            throw ValidationException::withMessages([
+                'handle' => __('A goal with this handle already exists.'),
+            ]);
         }
 
         $values = $fields->process()->values();
 
-        $experiment = tap(
-            Experiment::make()
+        $goal = tap(
+            Goal::make()
                 ->title($values->get('title'))
-                ->goals($values->get('goals'))
-                ->type('entry') // for now we only have one experiment type, but that will change
-                ->data([
-                    'entry_id' => $values->get('entry_id'),
-                    'fields' => $values->get('fields'),
-                    'values' => $values->get('values'),
-                ])
+                ->handle($values->get('handle'))
+                ->data($values->except(['title', 'handle'])->all())
         )
             ->save();
 
-        session()->flash('success', __('Experiment Created'));
+        session()->flash('success', __('Goal Created'));
 
-        return ['redirect' => cp_route('ab.experiments.show', $experiment->id())];
+        return ['redirect' => cp_route('ab.goal.show', $goal->handle())];
     }
 
-    public function edit($experiment)
+    public function edit($goal)
     {
-        abort_unless($experiment = Experiment::find($experiment), 404);
+        abort_unless($goal = Experiment::find($goal), 404);
 
-        $blueprint = Experiment::blueprint();
+        $blueprint = Goal::blueprint();
 
-        $fields = $blueprint->fields()->addValues($experiment->toArray())->preProcess();
+        $fields = $blueprint->fields()->addValues($goal->toArray())->preProcess();
 
         return view('ab::goals.edit', [
-            'experiment' => $experiment,
+            'goal' => $goal,
             'blueprint' => $blueprint->toPublishArray(),
             'values' => $fields->values(),
             'meta' => $fields->meta(),
         ]);
     }
 
-    public function update(Request $request, $experiment)
+    public function update(Request $request, $goal)
     {
-        abort_unless($experiment = Experiment::find($experiment), 404);
+        abort_unless($goal = Goal::find($goal), 404);
 
-        $fields = Experiment::blueprint()->fields()->addValues($request->all());
+        $fields = Goal::blueprint()->fields()->addValues($request->all());
 
         $fields->validate();
 
         $values = $fields->process()->values();
 
-        $experiment->title($values->get('title'))
-            ->goals($values->get('goals'))
-            ->type($values->get('type'))
+        $goal->title($values->get('title'))
+            ->handle($values->get('handle'))
+            ->data($values->except(['title', 'handle'])->all())
             ->save();
 
-        $this->success(__('Experiment Saved'));
+        $this->success(__('Goal Saved'));
     }
 
-    public function destroy($experiment)
+    public function destroy($goal)
     {
-        abort_unless($experiment = Experiment::find($experiment), 404);
+        abort_unless($goal = Goal::find($goal), 404);
 
-        $experiment->delete();
-    }
-
-    public function results($experiment)
-    {
-        return response(['results' => Experiment::find($experiment)->results()]);
+        $goal->delete();
     }
 }

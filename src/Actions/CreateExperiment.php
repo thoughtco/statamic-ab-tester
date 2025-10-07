@@ -66,7 +66,7 @@ class CreateExperiment extends Action
                 'entry_id' => $item->id(),
                 'exists' => false, // Statamic::cpRoute('ab.experiments.index'),
                 'fields' => $blueprint->fields()->toPublishArray(),
-                'goals' => Goal::all()->map(fn ($goal) => ['value' => $goal->title(), 'key' => $goal->id()])->all(),
+                'goals' => Goal::all()->map(fn ($goal) => ['label' => $goal->title(), 'value' => $goal->handle()])->all(),
                 'route' => Statamic::cpRoute('ab.experiments.store'),
                 'values' => $blueprint->fields()->values(),
             ],

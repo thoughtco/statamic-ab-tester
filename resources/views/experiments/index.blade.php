@@ -2,7 +2,7 @@
 @section('title', Statamic::crumb(__('A/B'), __('Experiments')))
 
 @section('content')
-  @unless($experiments->isEmpty())
+  @unless($experimentsIsEmpty)
 
     <ui-header title="{{ __('A/B Experiments') }}" icon="labs-idea-experimental-flask" />
 
@@ -30,13 +30,12 @@
 
       <ui-empty-state-menu :heading="__('Add your first experiment with these easy steps')">
           <ui-empty-state-item
-              :href="editUrl"
+              href="{{ cp_route('ab.goals.create') }}"
               icon="favorite-trophy"
               :heading="__('Add a goal')"
               :description="__('statamic::messages.collection_next_steps_configure_description')"
           />
           <ui-empty-state-item
-              :href="editUrl"
               icon="labs-idea-experimental-flask"
               :heading="__('Add an A/B version')"
               :description="__('statamic::messages.collection_next_steps_configure_description')"

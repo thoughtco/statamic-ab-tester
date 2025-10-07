@@ -11,6 +11,7 @@
         :initial-values="{{ Js::from($values) }}"
         :initial-meta="{{ Js::from($meta) }}"
         submit-url="{{ cp_route('ab.goals.store') }}"
+        submit-method="POST"
     >
     </ui-publish-form>
 
