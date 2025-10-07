@@ -3,6 +3,7 @@
 namespace Thoughtco\StatamicABTester;
 
 use Statamic\Facades\CP\Nav;
+use Statamic\Facades\Permission;
 use Statamic\Facades\Stache;
 use Statamic\Providers\AddonServiceProvider;
 use Statamic\Statamic;
@@ -17,32 +18,63 @@ class ServiceProvider extends AddonServiceProvider
         'cp' => __DIR__.'/../routes/cp.php',
     ];
 
-    protected $scripts = [
-        __DIR__.'/../resources/dist/js/ab.js',
+    protected $vite = [
+        'input' => ['resources/js/cp.js'],
+        'publicDirectory' => 'dist',
+        'hotFile' => __DIR__.'/../dist/hot',
     ];
 
     public function boot()
     {
         parent::boot();
 
-        $this->loadViewsFrom(__DIR__.'/../resources/views', 'ab');
+        $this->loadViewsFrom(__DIR__ . '/../resources/views', 'ab');
 
-        $this->mergeConfigFrom(__DIR__.'/../config/statamic-ab-tester.php', 'statamic-ab-tester');
+        $this->mergeConfigFrom(__DIR__ . '/../config/statamic-ab-tester.php', 'statamic-ab-tester');
 
         $this->publishes([
-            __DIR__.'/../config/statamic-ab-tester.php' => config_path('statamic-ab-tester.php'),
+            __DIR__ . '/../config/statamic-ab-tester.php' => config_path('statamic-ab-tester.php'),
         ], 'config');
 
+        $this->createAddonNavigation()
+            ->createAddonStacheRepository()
+            ->createAddonPermissions();
+    }
+
+    private function createAddonNavigation()
+    {
         Nav::extend(function ($nav) {
-            $nav->create(__('A/B Experiments'))
-                ->section(__('Tools'))
+            $nav->create(__('Experiments'))
+                ->section(__('A/B Experiments'))
                 ->route('ab.experiments.index')
-                ->active('ab/experiments')
-                ->icon('color');
+                ->icon('labs-idea-experimental-flask');
+
+            $nav->create(__('Goals'))
+                ->section(__('A/B Experiments'))
+                ->route('ab.experiments.index')
+                ->icon('favorite-trophy');
         });
 
+        return $this;
+    }
+
+    private function createAddonStacheRepository()
+    {
         Stache::registerStore((new Experiment\Stache\ExperimentStore)->directory(config('statamic-ab-tester.experiments_path')));
 
         Statamic::repository(Contracts\ExperimentRepository::class, Experiment\Stache\ExperimentRepository::class);
+
+        return $this;
+    }
+
+    private function createAddonPermissions()
+    {
+        Permission::group('ab-tester', 'A/B Tester', function () {
+            Permission::register('create a/b experiments')
+                ->label(__('Create Experiments'))
+                ->description(__('Enable the action on item views to create experiments.'));
+        });
+
+        return $this;
     }
 }

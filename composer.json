@@ -4,7 +4,7 @@
     "description": "",
     "license": "MIT",
     "require": {
-        "statamic/cms": "^5.0"
+        "statamic/cms": "v6.0.0-alpha.10"
     },
     "require-dev": {
         "laravel/pint": "^1.17"
@@ -54,7 +54,7 @@
         }
     },
     "require-dev": {
-        "orchestra/testbench": "^7.0 || ^8.0",
+        "orchestra/testbench": "^9.0 || ^10.0",
         "pestphp/pest": "^2.35"
     }
 }

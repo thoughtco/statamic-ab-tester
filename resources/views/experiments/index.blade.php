@@ -37,13 +37,26 @@
     </data-list>
 
   @else
+      <header class="py-8 mt-8 text-center starting-style-transition" v-cloak>
+          <h1 class="text-[25px] font-medium antialiased flex justify-center items-center gap-3">
+              <span>A/B Experiments</span>
+          </h1>
+      </header>
 
-    @include('statamic::partials.create-first', [
-      'resource' => __('Experiment'),
-      'description' => 'Stop guessing and start testing!',
-      'svg' => 'empty/collection',
-      'route' => cp_route('ab.experiments.create'),
-    ])
+      <ui-empty-state-menu :heading="__('Add your first experiment with these easy steps')">
+          <ui-empty-state-item
+              :href="editUrl"
+              icon="favorite-trophy"
+              :heading="__('Add a goal')"
+              :description="__('statamic::messages.collection_next_steps_configure_description')"
+          />
+          <ui-empty-state-item
+              :href="editUrl"
+              icon="labs-idea-experimental-flask"
+              :heading="__('Add an A/B version')"
+              :description="__('statamic::messages.collection_next_steps_configure_description')"
+          />
+      </ui-empty-state-menu>
 
   @endunless
 @stop

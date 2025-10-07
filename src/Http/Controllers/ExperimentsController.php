@@ -40,23 +40,23 @@ class ExperimentsController extends CpController
         ]);
     }
 
-    public function create()
-    {
-        $blueprint = Experiment::blueprint();
-        $fields = $blueprint->fields()->addValues([])->preProcess();
-
-        return view('ab::experiments.create', [
-            'blueprint' => $blueprint->toPublishArray(),
-            'values' => $fields->values(),
-            'meta' => $fields->meta(),
-        ]);
-    }
-
     public function store(Request $request)
     {
-        $fields = Experiment::blueprint()->fields()->addValues($request->all());
+        $request->validate([
+            'entry_id' => ['required'],
+            'title' => ['required'],
+            'fields' => ['required', 'array'],
+            'goals' => ['required', 'array'],
+            'values' => ['required', 'array'],
+        ]);
 
-        $fields->validate();
+        $fields = Experiment::blueprint()->fields()->only($request->input('fields', []))->addValues($request->input('values', []));
+
+        try {
+            $fields->validate();
+        } catch (ValidationException $e) {
+            throw ValidationException::withMessages(collect($e->errors())->mapWithKeys(fn ($errors, $key) => ['values.'.$key => $errors])->all());
+        }
 
         $values = $fields->process()->values();
 
@@ -68,9 +68,13 @@ class ExperimentsController extends CpController
 
         $experiment = tap(Experiment::make()
             ->title($values->get('title'))
-            ->handle($values->get('handle'))
-            ->variants($values->get('variants'))
-            ->type($values->get('type')))
+            ->goals($values->get('goals'))
+            ->type('entry') // for now we only have one experiment type, but that will change
+            ->data([
+                'entry_id' => $values->get('entry_id'),
+                'fields' => $values->get('fields'),
+                'values' => $values->get('values'),
+            ]))
             ->save();
 
         session()->flash('success', __('Experiment Created'));
