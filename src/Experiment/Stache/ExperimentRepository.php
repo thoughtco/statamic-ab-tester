@@ -9,6 +9,8 @@ use Thoughtco\StatamicABTester\Experiment\ExperimentRepository as BaseRepository
 
 class ExperimentRepository extends BaseRepository
 {
+    protected $store;
+
     public function __construct()
     {
         $this->store = Stache::store('experiments');
@@ -17,7 +19,7 @@ class ExperimentRepository extends BaseRepository
     public function save($entry)
     {
         if (! $entry->id()) {
-            $entry->id($this->store->generateId());
+            $entry->id(Stache::generateId());
         }
 
         $this->store->save($entry);

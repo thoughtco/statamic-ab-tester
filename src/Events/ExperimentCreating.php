@@ -4,10 +4,9 @@ namespace Thoughtco\StatamicABTester\Events;
 
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Queue\SerializesModels;
-use Statamic\Contracts\Git\ProvidesCommitMessage;
 use Statamic\Events\Event;
 
-class ExperimentCreating extends Event implements ProvidesCommitMessage
+class ExperimentCreating extends Event
 {
     use InteractsWithSockets, SerializesModels;
 

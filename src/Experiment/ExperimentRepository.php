@@ -16,7 +16,7 @@ abstract class ExperimentRepository implements RepositoryContract
 
     public function find($id): ?ExperimentContract
     {
-        return $this->query()->where('handle', $id)->first();
+        return $this->query()->where('id', $id)->first();
     }
 
     public function make(): ExperimentContract

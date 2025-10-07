@@ -51,7 +51,7 @@ class ServiceProvider extends AddonServiceProvider
 
             $nav->create(__('Goals'))
                 ->section(__('A/B Experiments'))
-                ->route('ab.experiments.index')
+                ->route('ab.goals.index')
                 ->icon('favorite-trophy');
         });
 

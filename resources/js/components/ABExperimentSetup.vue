@@ -61,12 +61,14 @@
         try {
             let response = await axios.post(action.ab_tester.route, data);
         } catch (error) {
-            errors.value = error.response.data.errors;
+            errors.value = error.response.data?.errors ?? {};
+
+            Statamic.$toast.error('Error creating experiment.');
 
             return;
         }
 
-        response = response.json();
+        response = await response.json();
 
         if (response.redirect) {
             location.href = response.redirect;
@@ -88,7 +90,7 @@
         <template v-else>
             <ui-description>To setup your A/B Experiment, select the fields you want to vary and enter the alternative values:</ui-description>
 
-            <ui-field class="mt-4" :error="errors.__abtester_selectedFields ?? ''">
+            <ui-field class="mt-4" :error="errors.fields ?? ''">
                 <ui-label>Select field(s):</ui-label>
 
                 <ui-combobox
@@ -116,7 +118,7 @@
                 </PublishContainer>
             </ui-card-panel>
 
-            <ui-field class="mt-4" v-if="selectedFields.length" :error="errors.__abtester_selectedGoals ?? ''">
+            <ui-field class="mt-4" v-if="selectedFields.length" :error="errors.goals ?? ''">
                 <ui-label>Select goal(s):</ui-label>
 
                 <ui-combobox
@@ -130,7 +132,7 @@
                 />
             </ui-field>
 
-            <ui-field class="mt-8" :error="errors.__abtester_title ?? ''" v-if="selectedFields.length && selectedGoals.length">
+            <ui-field class="mt-8" :error="errors.title ?? ''" v-if="selectedFields.length && selectedGoals.length">
                 <ui-label>Now, give your experiment a name:</ui-label>
 
                 <ui-input

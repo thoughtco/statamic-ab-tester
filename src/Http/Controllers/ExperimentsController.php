@@ -5,26 +5,55 @@ namespace Thoughtco\StatamicABTester\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Statamic\CP\Column;
+use Statamic\CP\Columns;
 use Statamic\Http\Controllers\CP\CpController;
+use Statamic\Query\Scopes\Filters\Concerns\QueriesFilters;
 use Thoughtco\StatamicABTester\Facades\Experiment;
+use Thoughtco\StatamicABTester\Http\Resources\ExperimentsResource;
 
 class ExperimentsController extends CpController
 {
+    use QueriesFilters;
+
     public function index()
     {
         return view('ab::experiments.index', [
             'experiments' => Experiment::all()->map(function ($experiment) {
                 return $experiment->toArray() + [
-                    'url' => cp_route('ab.experiments.show', $experiment->handle()),
-                    'edit_url' => cp_route('ab.experiments.edit', $experiment->handle()),
-                    'delete_url' => cp_route('ab.experiments.delete', $experiment->handle()),
+                    'url' => cp_route('ab.experiments.show', $experiment->id()),
+                    'edit_url' => cp_route('ab.experiments.edit', $experiment->id()),
+                    'delete_url' => cp_route('ab.experiments.delete', $experiment->id()),
                 ];
             }),
-            'columns' => [
+            'columns' => (new Columns([
                 Column::make('title')->label(__('Title')),
-                Column::make('handle')->label(__('Handle')),
-            ],
+                Column::make('id')->label(__('ID')),
+            ]))
+                ->setPreferred('ab.experiments.columns')
+                ->rejectUnlisted()
+                ->values(),
         ]);
+    }
+
+    public function json(Request $request)
+    {
+        $query = Experiment::query();
+
+        if ($searchQuery = $request->search ?? false) {
+            $query->where('title', 'like', '%'.$searchQuery.'%');
+        }
+
+        $activeFilterBadges = $this->queryFilters($query, $request->filters, []);
+
+        $results = $query->paginate($request->input('perPage', config('statamic.cp.pagination_size')));
+
+        return (new ExperimentsResource($results))
+            ->setColumnPreferenceKey('ab.experiments.columns')
+            ->additional([
+                'meta' => [
+                    'activeFilterBadges' => $activeFilterBadges,
+                ],
+            ]);
     }
 
     public function show($experiment)
@@ -60,20 +89,22 @@ class ExperimentsController extends CpController
 
         $values = $fields->process()->values();
 
-        $experiment = tap(Experiment::make()
-            ->title($values->get('title'))
-            ->goals($values->get('goals'))
-            ->type('entry') // for now we only have one experiment type, but that will change
-            ->data([
-                'entry_id' => $values->get('entry_id'),
-                'fields' => $values->get('fields'),
-                'values' => $values->get('values'),
-            ]))
+        $experiment = tap(
+            Experiment::make()
+                ->title($values->get('title'))
+                ->goals($values->get('goals'))
+                ->type('entry') // for now we only have one experiment type, but that will change
+                ->data([
+                    'entry_id' => $values->get('entry_id'),
+                    'fields' => $values->get('fields'),
+                    'values' => $values->get('values'),
+                ])
+        )
             ->save();
 
         session()->flash('success', __('Experiment Created'));
 
-        return ['redirect' => cp_route('ab.experiments.show', $experiment->handle())];
+        return ['redirect' => cp_route('ab.experiments.show', $experiment->id())];
     }
 
     public function edit($experiment)

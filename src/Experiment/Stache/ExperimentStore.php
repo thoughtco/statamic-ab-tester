@@ -5,6 +5,7 @@ namespace Thoughtco\StatamicABTester\Experiment\Stache;
 use Statamic\Facades\Path;
 use Statamic\Facades\YAML;
 use Statamic\Stache\Stores\BasicStore;
+use Statamic\Support\Arr;
 use Statamic\Support\Str;
 use Symfony\Component\Finder\SplFileInfo;
 use Thoughtco\StatamicABTester\Facades;
@@ -28,24 +29,24 @@ class ExperimentStore extends BasicStore
     public function makeItemFromFile($path, $contents)
     {
         $relative = Str::after($path, $this->directory);
-        $handle = Str::before($relative, '.yaml');
+        $id = Str::before($relative, '.yaml');
 
         $data = YAML::file($path)->parse($contents);
 
         return Facades\Experiment::make()
-            ->handle($handle)
+            ->id($id)
             ->title($data['title'] ?? '')
             ->type($data['type'] ?? '')
-            ->variants($data['variants'] ?? [])
+            ->goals($data['goals'] ?? [])
             ->results($data['results'] ?? [])
             ->startAt($data['start_at'] ?? null)
             ->endAt($data['end_at'] ?? null)
-            ->data($data['data'] ?? []);
+            ->data(Arr::except($data, ['title', 'type', 'goals', 'results', 'start_at', 'end_at']));
     }
 
     public function getItemKey($item)
     {
-        return $item->handle();
+        return $item->id();
     }
 
     public function filter($file)

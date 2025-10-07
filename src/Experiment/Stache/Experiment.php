@@ -22,7 +22,7 @@ class Experiment extends BaseExperiment
     {
         return vsprintf('%s/%s.%s', [
             rtrim(Stache::store('experiments')->directory(), '/'),
-            $this->handle(),
+            $this->id(),
             $this->fileExtension(),
         ]);
     }
@@ -32,6 +32,7 @@ class Experiment extends BaseExperiment
         return Arr::removeNullValues(array_merge($this->data->all(), [
             'id' => $this->id(),
             'title' => $this->title(),
+            'type' => $this->type(),
             'goals' => $this->goals,
             'results' => $this->results,
             'start_at' => $this->startAt,

@@ -81,9 +81,9 @@ abstract class Experiment implements Arrayable, ExperimentContract
             });
         }
 
-        $this->results = collect($this->variants())->mapWithKeys(function ($variant) use ($results) {
-            return [$variant['id'] => Arr::get($results, $variant['id'], ['hits' => 0, 'successful' => 0, 'failed' => 0])];
-        })->toArray();
+        //        $this->results = collect($this->variants())->mapWithKeys(function ($variant) use ($results) {
+        //            return [$variant['id'] => Arr::get($results, $variant['id'], ['hits' => 0, 'successful' => 0, 'failed' => 0])];
+        //        })->toArray();
 
         return $this;
     }
@@ -194,7 +194,7 @@ abstract class Experiment implements Arrayable, ExperimentContract
 
     public function save()
     {
-        $isNew = is_null(ExperimentFacade::find($this->handle()));
+        $isNew = is_null(ExperimentFacade::find($this->id()));
 
         $withEvents = $this->withEvents;
         $this->withEvents = true;
@@ -250,9 +250,8 @@ abstract class Experiment implements Arrayable, ExperimentContract
     public function toArray()
     {
         return [
-            'handle' => $this->handle,
+            'id' => $this->id,
             'title' => $this->title,
-            'variants' => $this->variants,
             'type' => $this->type,
             'results' => $this->results,
         ];

@@ -4,37 +4,22 @@
 @section('content')
   @unless($experiments->isEmpty())
 
-    <div class="flex items-center justify-between mb-3">
-      <h1 class="flex-1">{{ __('A/B Experiments') }}</h1>
+    <ui-header title="{{ __('A/B Experiments') }}" />
 
-      <a href="{{ cp_route('ab.experiments.create') }}" class="btn-primary">{{ __('Create Experiment') }}</a>
-    </div>
-
-    <data-list :columns='@json($columns)' :rows='@json($experiments)'>
-      <div class="card p-0" slot-scope="{ filteredRows: rows }">
-        <data-list-table :rows="rows">
-          <template slot="cell-title" slot-scope="{ row: experiment }">
-            <a :href="experiment.url" v-text="experiment.title" />
-          </template>
-          <template slot="actions" slot-scope="{ row: experiment, index }">
-            <dropdown-list>
-              <dropdown-item :text="__('Edit')" :redirect="experiment.edit_url"></dropdown-item>
-                <dropdown-item
-                    :text="__('Delete')"
-                    class="warning"
-                    @click="$refs[`deleter_${experiment.handle}`].confirm()"
-                >
-                    <resource-deleter
-                        :ref="`deleter_${experiment.handle}`"
-                        :resource="experiment"
-                        @deleted="location.reload()">
-                    </resource-deleter>
-                </dropdown-item>
-            </dropdown-list>
-          </template>
-        </data-list-table>
-      </div>
-    </data-list>
+    <ui-listing
+        url="{{ cp_route('ab.experiments.json') }}"
+        :columns="{{ $columns }}"
+        action-url="{{ cp_route('ab.experiments.actions') }}"
+    >
+        <template #cell-title="{ row }">
+            <a class="title-index-field" :href="row.edit_url" @click.stop>
+                <span v-text="row.title" />
+            </a>
+        </template>
+        <template #prepended-row-actions="{ row }">
+            <p>Yo</p>
+        </template>
+    </ui-listing>
 
   @else
       <header class="py-8 mt-8 text-center starting-style-transition" v-cloak>
