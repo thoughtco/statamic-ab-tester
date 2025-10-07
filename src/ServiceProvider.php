@@ -28,12 +28,12 @@ class ServiceProvider extends AddonServiceProvider
     {
         parent::boot();
 
-        $this->loadViewsFrom(__DIR__ . '/../resources/views', 'ab');
+        $this->loadViewsFrom(__DIR__.'/../resources/views', 'ab');
 
-        $this->mergeConfigFrom(__DIR__ . '/../config/statamic-ab-tester.php', 'statamic-ab-tester');
+        $this->mergeConfigFrom(__DIR__.'/../config/statamic-ab-tester.php', 'statamic-ab-tester');
 
         $this->publishes([
-            __DIR__ . '/../config/statamic-ab-tester.php' => config_path('statamic-ab-tester.php'),
+            __DIR__.'/../config/statamic-ab-tester.php' => config_path('statamic-ab-tester.php'),
         ], 'config');
 
         $this->createAddonNavigation()

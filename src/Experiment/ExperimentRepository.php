@@ -36,11 +36,6 @@ abstract class ExperimentRepository implements RepositoryContract
                 'type' => 'text',
                 'validate' => 'required',
             ],
-            'handle' => [
-                'type' => 'slug',
-                'validate' => ['required', 'alpha_dash'],
-                'from' => 'title',
-            ],
             'type' => [
                 'type' => 'select',
                 'validate' => 'required',

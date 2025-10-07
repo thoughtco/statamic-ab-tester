@@ -12,7 +12,7 @@ it('returns a variant', function () {
         ->type('manual')
         ->variants([
             ['id' => 'one', 'label' => 'One'],
-            //['id' => 'two', 'label' => 'One'],
+            // ['id' => 'two', 'label' => 'One'],
         ])
         ->save();
 
@@ -39,7 +39,7 @@ it('returns an entry', function () {
         ->type('entry')
         ->variants([
             ['id' => 'one', 'label' => 'One', 'entry' => 'one'],
-            //['id' => 'two', 'label' => 'One'],
+            // ['id' => 'two', 'label' => 'One'],
         ])
         ->save();
 
@@ -56,7 +56,7 @@ it('does nothing when start date is in the future', function () {
         ->startAt(now()->addDays(1))
         ->variants([
             ['id' => 'one', 'label' => 'One'],
-            //['id' => 'two', 'label' => 'One'],
+            // ['id' => 'two', 'label' => 'One'],
         ])
         ->save();
 
@@ -73,7 +73,7 @@ it('works when start date is in the past', function () {
         ->startAt(now()->subDays(1))
         ->variants([
             ['id' => 'one', 'label' => 'One'],
-            //['id' => 'two', 'label' => 'One'],
+            // ['id' => 'two', 'label' => 'One'],
         ])
         ->save();
 
@@ -90,7 +90,7 @@ it('does nothing when end date is in the past', function () {
         ->endAt(now()->subDays(1))
         ->variants([
             ['id' => 'one', 'label' => 'One'],
-            //['id' => 'two', 'label' => 'One'],
+            // ['id' => 'two', 'label' => 'One'],
         ])
         ->save();
 
@@ -107,7 +107,7 @@ it('works when start date is in the future', function () {
         ->endAt(now()->addDays(1))
         ->variants([
             ['id' => 'one', 'label' => 'One'],
-            //['id' => 'two', 'label' => 'One'],
+            // ['id' => 'two', 'label' => 'One'],
         ])
         ->save();
 

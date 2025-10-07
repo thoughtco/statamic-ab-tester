@@ -60,12 +60,6 @@ class ExperimentsController extends CpController
 
         $values = $fields->process()->values();
 
-        if (Experiment::find($values->get('handle'))) {
-            throw ValidationException::withMessages(['handle' => __('Experiment with this handle already exists.')]);
-
-            return;
-        }
-
         $experiment = tap(Experiment::make()
             ->title($values->get('title'))
             ->goals($values->get('goals'))

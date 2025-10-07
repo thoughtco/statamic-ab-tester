@@ -4,8 +4,6 @@ namespace Thoughtco\StatamicABTester\Actions;
 
 use Statamic\Actions\Action;
 use Statamic\Contracts\Entries\Entry;
-use Statamic\Contracts\Taxonomies\Term;
-use Statamic\Facades\Blink;
 use Statamic\Statamic;
 use Thoughtco\StatamicCacheTracker\Facades\Tracker;
 
@@ -65,7 +63,7 @@ class CreateExperiment extends Action
             'meta' => $blueprint->fields()->meta(),
             'ab_tester' => [
                 'entry_id' => $item->id(),
-                'exists' => false,//Statamic::cpRoute('ab.experiments.index'),
+                'exists' => false, // Statamic::cpRoute('ab.experiments.index'),
                 'fields' => $blueprint->fields()->toPublishArray(),
                 'goals' => [
                     ['value' => 1, 'label' => 'Goal 1'],

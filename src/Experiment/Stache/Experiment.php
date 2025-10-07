@@ -29,13 +29,13 @@ class Experiment extends BaseExperiment
 
     public function fileData()
     {
-        return Arr::removeNullValues([
-            'handle' => $this->handle(),
+        return Arr::removeNullValues(array_merge($this->data->all(), [
+            'id' => $this->id(),
             'title' => $this->title(),
-            'variants' => $this->variants,
+            'goals' => $this->goals,
             'results' => $this->results,
             'start_at' => $this->startAt,
             'end_at' => $this->endAt,
-        ]);
+        ]));
     }
 }

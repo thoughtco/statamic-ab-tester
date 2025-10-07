@@ -21,7 +21,9 @@ abstract class Experiment implements Arrayable, ExperimentContract
 
     protected $endAt;
 
-    protected $handle;
+    protected $goals = [];
+
+    protected $id;
 
     protected $results = [];
 
@@ -31,9 +33,13 @@ abstract class Experiment implements Arrayable, ExperimentContract
 
     protected $type;
 
-    protected $variants = [];
-
     protected $withEvents = true;
+
+    public function __construct()
+    {
+        $this->data = collect();
+        $this->supplements = collect();
+    }
 
     public function endAt($endAt = null)
     {
@@ -51,9 +57,18 @@ abstract class Experiment implements Arrayable, ExperimentContract
             ->args(func_get_args());
     }
 
-    public function handle($handle = null)
+    public function goals($goals = null)
     {
-        return $this->fluentlyGetOrSet('handle')->args(func_get_args());
+        return $this->fluentlyGetOrSet('goals')
+            ->getter(function ($goals) {
+                return collect($goals ?? []);
+            })
+            ->args(func_get_args());
+    }
+
+    public function id($id = null)
+    {
+        return $this->fluentlyGetOrSet('id')->args(func_get_args());
     }
 
     public function results($results = null)
@@ -97,15 +112,6 @@ abstract class Experiment implements Arrayable, ExperimentContract
     public function type($type = null)
     {
         return $this->fluentlyGetOrSet('type')->args(func_get_args());
-    }
-
-    public function variants($variants = null)
-    {
-        return $this->fluentlyGetOrSet('variants')
-            ->getter(function ($variants) {
-                return collect($variants ?? []);
-            })
-            ->args(func_get_args());
     }
 
     public function recordHit($variant)

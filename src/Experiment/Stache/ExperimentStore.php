@@ -39,7 +39,8 @@ class ExperimentStore extends BasicStore
             ->variants($data['variants'] ?? [])
             ->results($data['results'] ?? [])
             ->startAt($data['start_at'] ?? null)
-            ->endAt($data['end_at'] ?? null);
+            ->endAt($data['end_at'] ?? null)
+            ->data($data['data'] ?? []);
     }
 
     public function getItemKey($item)
