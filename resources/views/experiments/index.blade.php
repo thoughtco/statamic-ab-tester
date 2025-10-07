@@ -4,7 +4,7 @@
 @section('content')
   @unless($experiments->isEmpty())
 
-    <ui-header title="{{ __('A/B Experiments') }}" />
+    <ui-header title="{{ __('A/B Experiments') }}" icon="labs-idea-experimental-flask" />
 
     <ui-listing
         url="{{ cp_route('ab.experiments.json') }}"

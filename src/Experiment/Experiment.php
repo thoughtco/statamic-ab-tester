@@ -249,11 +249,14 @@ abstract class Experiment implements Arrayable, ExperimentContract
 
     public function toArray()
     {
-        return [
-            'id' => $this->id,
-            'title' => $this->title,
-            'type' => $this->type,
+        return array_merge($this->data->all(), [
+            'id' => $this->id(),
+            'title' => $this->title(),
+            'type' => $this->type(),
+            'goals' => $this->goals,
             'results' => $this->results,
-        ];
+            'start_at' => $this->startAt,
+            'end_at' => $this->endAt,
+        ]);
     }
 }

@@ -6,6 +6,7 @@ use Statamic\Data\DataCollection;
 use Statamic\Facades\Blueprint;
 use Thoughtco\StatamicABTester\Contracts\Experiment as ExperimentContract;
 use Thoughtco\StatamicABTester\Contracts\ExperimentRepository as RepositoryContract;
+use Thoughtco\StatamicABTester\Facades\Goal;
 
 abstract class ExperimentRepository implements RepositoryContract
 {
@@ -40,49 +41,28 @@ abstract class ExperimentRepository implements RepositoryContract
                 'type' => 'select',
                 'validate' => 'required',
                 'options' => [
-                    'entry' => 'Entry',
-                    'manual' => 'Manual',
+                    ['value' => 'Entry', 'key' => 'entry'],
                 ],
                 'max_items' => 1,
+                'default' => 'entry',
             ],
-            'variants' => [
-                'type' => 'grid',
-                'mode' => 'stacked',
-                'fields' => [
-                    [
-                        'handle' => 'label',
-                        'field' => [
-                            'label' => __('Label'),
-                            'type' => 'text',
-                            'validate' => 'required',
-                        ],
-                    ],
-                    [
-                        'handle' => 'entry',
-                        'field' => [
-                            'label' => __('Entry'),
-                            'type' => 'entries',
-                            'mode' => 'default',
-                            'max_items' => 1,
-                            'if' => [
-                                'root.type' => 'equals entry',
-                            ],
-                        ],
-                    ],
-                ],
-                'validate' => 'array',
+            'goals' => [
+                'type' => 'select',
+                'validate' => 'required',
+                'options' => Goal::all()->map(fn ($goal) => ['value' => $goal->title(), 'key' => $goal->id()])->all(),
+                'multiple' => true,
             ],
             'start_at' => [
                 'type' => 'date',
                 'label' => __('Start at'),
                 'time_enabled' => true,
-                'validate' => 'required',
+                'validate' => 'nullable,date_format:Y-m-d H:i:s',
             ],
             'end_at' => [
                 'type' => 'date',
                 'label' => __('End at'),
                 'time_enabled' => true,
-                'validate' => 'required',
+                'validate' => 'nullable,date_format:Y-m-d H:i:s',
             ],
         ]);
     }

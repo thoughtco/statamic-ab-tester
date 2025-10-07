@@ -37,7 +37,8 @@ class ServiceProvider extends AddonServiceProvider
         ], 'config');
 
         $this->createAddonNavigation()
-            ->createAddonStacheRepository()
+            ->createAddonExperimentRepository()
+            ->createAddonGoalRepository()
             ->createAddonPermissions();
     }
 
@@ -58,11 +59,20 @@ class ServiceProvider extends AddonServiceProvider
         return $this;
     }
 
-    private function createAddonStacheRepository()
+    private function createAddonExperimentRepository()
     {
         Stache::registerStore((new Experiment\Stache\ExperimentStore)->directory(config('statamic-ab-tester.experiments_path')));
 
         Statamic::repository(Contracts\ExperimentRepository::class, Experiment\Stache\ExperimentRepository::class);
+
+        return $this;
+    }
+
+    private function createAddonGoalRepository()
+    {
+        Stache::registerStore((new Goal\Stache\GoalStore)->directory(config('statamic-ab-tester.goals_path')));
+
+        Statamic::repository(Contracts\GoalRepository::class, Goal\Stache\GoalRepository::class);
 
         return $this;
     }

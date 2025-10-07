@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Thoughtco\StatamicABTester\Http\Controllers\ExperimentResultsController;
 use Thoughtco\StatamicABTester\Http\Controllers\ExperimentsController;
+use Thoughtco\StatamicABTester\Http\Controllers\GoalsController;
 
 Route::name('ab.experiments.')->prefix('ab/experiments')->group(function () {
     Route::get('', [ExperimentsController::class, 'index'])->name('index');
@@ -19,5 +20,10 @@ Route::name('ab.experiments.')->prefix('ab/experiments')->group(function () {
 });
 
 Route::name('ab.goals.')->prefix('ab/goals')->group(function () {
-    Route::get('', [ExperimentsController::class, 'index'])->name('index');
+    Route::get('', [GoalsController::class, 'index'])->name('index');
+    Route::get('/json', [GoalsController::class, 'json'])->name('json');
+    Route::get('/actions', [GoalsController::class, 'json'])->name('actions');
+    Route::get('/create', [GoalsController::class, 'create'])->name('create');
+    Route::post('/', [GoalsController::class, 'store'])->name('store');
+
 });

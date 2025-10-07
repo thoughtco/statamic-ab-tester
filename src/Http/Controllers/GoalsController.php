@@ -9,15 +9,16 @@ use Statamic\CP\Columns;
 use Statamic\Http\Controllers\CP\CpController;
 use Statamic\Query\Scopes\Filters\Concerns\QueriesFilters;
 use Thoughtco\StatamicABTester\Facades\Experiment;
+use Thoughtco\StatamicABTester\Facades\Goal;
 use Thoughtco\StatamicABTester\Http\Resources\ExperimentsResource;
 
-class ExperimentsController extends CpController
+class GoalsController extends CpController
 {
     use QueriesFilters;
 
     public function index()
     {
-        return view('ab::experiments.index', [
+        return view('ab::goals.index', [
             'experiments' => Experiment::all()->map(function ($experiment) {
                 return $experiment->toArray() + [
                     'url' => cp_route('ab.experiments.show', $experiment->id()),
@@ -27,9 +28,9 @@ class ExperimentsController extends CpController
             }),
             'columns' => (new Columns([
                 Column::make('title')->label(__('Title')),
-                Column::make('id')->label(__('ID')),
+                Column::make('handle')->label(__('Handle')),
             ]))
-                ->setPreferred('ab.experiments.columns')
+                ->setPreferred('ab.goals.columns')
                 ->rejectUnlisted()
                 ->values(),
         ]);
@@ -37,7 +38,7 @@ class ExperimentsController extends CpController
 
     public function json(Request $request)
     {
-        $query = Experiment::query();
+        $query = Goal::query();
 
         if ($searchQuery = $request->search ?? false) {
             $query->where('title', 'like', '%'.$searchQuery.'%');
@@ -48,12 +49,25 @@ class ExperimentsController extends CpController
         $results = $query->paginate($request->input('perPage', config('statamic.cp.pagination_size')));
 
         return (new ExperimentsResource($results))
-            ->setColumnPreferenceKey('ab.experiments.columns')
+            ->setColumnPreferenceKey('ab.goals.columns')
             ->additional([
                 'meta' => [
                     'activeFilterBadges' => $activeFilterBadges,
                 ],
             ]);
+    }
+
+    public function create()
+    {
+        $blueprint = Goal::blueprint();
+
+        $fields = $blueprint->fields()->preProcess();
+
+        return view('ab::goals.create', [
+            'blueprint' => $blueprint->toPublishArray(),
+            'values' => $fields->values(),
+            'meta' => $fields->meta(),
+        ]);
     }
 
     public function show($experiment)
@@ -115,7 +129,7 @@ class ExperimentsController extends CpController
 
         $fields = $blueprint->fields()->addValues($experiment->toArray())->preProcess();
 
-        return view('ab::experiments.edit', [
+        return view('ab::goals.edit', [
             'experiment' => $experiment,
             'blueprint' => $blueprint->toPublishArray(),
             'values' => $fields->values(),

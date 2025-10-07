@@ -5,13 +5,13 @@ namespace Thoughtco\StatamicABTester\Events;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Queue\SerializesModels;
 use Statamic\Events\Event;
-use Thoughtco\StatamicABTester\Contracts\Experiment;
+use Thoughtco\StatamicABTester\Contracts\Goal;
 
-class ExperimentSaving extends Event
+class GoalCreating extends Event
 {
     use InteractsWithSockets, SerializesModels;
 
-    public function __construct(public Experiment $experiment) {}
+    public function __construct(public Goal $goal) {}
 
     /**
      * Dispatch the event with the given arguments, and halt on first non-null listener response.

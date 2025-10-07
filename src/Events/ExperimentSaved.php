@@ -6,6 +6,7 @@ use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Queue\SerializesModels;
 use Statamic\Contracts\Git\ProvidesCommitMessage;
 use Statamic\Events\Event;
+use Thoughtco\StatamicABTester\Contracts\Experiment;
 
 class ExperimentSaved extends Event implements ProvidesCommitMessage
 {
@@ -13,10 +14,7 @@ class ExperimentSaved extends Event implements ProvidesCommitMessage
 
     public $experiment;
 
-    public function __construct($experiment)
-    {
-        $this->experiment = $experiment;
-    }
+    public function __construct(public Experiment $experiment) {}
 
     public function commitMessage()
     {

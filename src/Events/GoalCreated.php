@@ -6,16 +6,16 @@ use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Queue\SerializesModels;
 use Statamic\Contracts\Git\ProvidesCommitMessage;
 use Statamic\Events\Event;
-use Thoughtco\StatamicABTester\Contracts\Experiment;
+use Thoughtco\StatamicABTester\Contracts\Goal;
 
-class ExperimentDeleted extends Event implements ProvidesCommitMessage
+class GoalCreated extends Event implements ProvidesCommitMessage
 {
     use InteractsWithSockets, SerializesModels;
 
-    public function __construct(public Experiment $experiment) {}
+    public function __construct(public Goal $goal) {}
 
     public function commitMessage()
     {
-        return __('Experiment deleted', [], config('statamic.git.locale'));
+        return __('Goal created', [], config('statamic.git.locale'));
     }
 }
