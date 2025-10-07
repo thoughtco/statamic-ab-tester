@@ -22,9 +22,10 @@ class GoalResource extends JsonResource
         $goal = $this->resource;
 
         return [
+            'id' => $goal->id(),
             'handle' => $goal->handle(),
             'title' => $goal->title(),
-            'edit_url' => cp_route('ab.goals.edit', $goal->handle()),
+            'edit_url' => cp_route('ab.goals.edit', $goal->id()),
             'editable' => User::current()->can('edit a/b goals'),
             'viewable' => User::current()->can('view a/b goals'),
             'actions' => Action::for($goal, []),

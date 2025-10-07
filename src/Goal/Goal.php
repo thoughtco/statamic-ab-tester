@@ -17,6 +17,8 @@ abstract class Goal implements Arrayable, GoalContract
 
     protected $handle;
 
+    protected $id;
+
     protected $title;
 
     protected $withEvents = true;
@@ -30,6 +32,11 @@ abstract class Goal implements Arrayable, GoalContract
     public function handle($handle = null)
     {
         return $this->fluentlyGetOrSet('handle')->args(func_get_args());
+    }
+
+    public function id($id = null)
+    {
+        return $this->fluentlyGetOrSet('id')->args(func_get_args());
     }
 
     public function title($title = null)

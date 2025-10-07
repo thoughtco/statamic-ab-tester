@@ -18,8 +18,8 @@ class GoalRepository extends BaseRepository
 
     public function save($entry)
     {
-        if (! $entry->handle()) {
-            throw new \Exception('`handle` is required');
+        if (! $entry->id()) {
+            $entry->id(Stache::generateId());
         }
 
         $this->store->save($entry);

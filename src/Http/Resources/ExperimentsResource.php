@@ -38,7 +38,8 @@ class ExperimentsResource extends ResourceCollection
 
         $columns->put('title', $column);
 
-        $column = Column::make('ID')
+        $column = Column::make('id')
+            ->label('ID')
             ->listable(true)
             ->visible(false)
             ->defaultVisibility(false)

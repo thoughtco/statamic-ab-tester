@@ -8,8 +8,8 @@
 
     <ui-listing
         url="{{ cp_route('ab.experiments.json') }}"
-        :columns="{{ $columns }}"
         action-url="{{ cp_route('ab.experiments.actions') }}"
+        preferences-prefix="ab.experiments"
     >
         <template #cell-title="{ row }">
             <a class="title-index-field" :href="row.edit_url" @click.stop>

@@ -22,7 +22,7 @@ class Goal extends BaseGoal
     {
         return vsprintf('%s/%s.%s', [
             rtrim(Stache::store('goals')->directory(), '/'),
-            $this->handle(),
+            $this->id(),
             $this->fileExtension(),
         ]);
     }
@@ -30,6 +30,8 @@ class Goal extends BaseGoal
     public function fileData()
     {
         return Arr::removeNullValues(array_merge($this->data->all(), [
+            'id' => $this->id(),
+            'handle' => $this->handle(),
             'title' => $this->title(),
         ]));
     }

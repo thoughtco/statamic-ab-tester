@@ -29,19 +29,20 @@ class GoalStore extends BasicStore
     public function makeItemFromFile($path, $contents)
     {
         $relative = Str::after($path, $this->directory);
-        $handle = Str::before($relative, '.yaml');
+        $id = Str::before($relative, '.yaml');
 
         $data = YAML::file($path)->parse($contents);
 
         return Facades\Goal::make()
-            ->handle($handle)
+            ->id($id)
+            ->handle($data['handle'] ?? '')
             ->title($data['title'] ?? '')
             ->data(Arr::except($data, ['title']));
     }
 
     public function getItemKey($item)
     {
-        return $item->handle();
+        return $item->id();
     }
 
     public function filter($file)

@@ -38,7 +38,7 @@ class GoalsResource extends ResourceCollection
 
         $columns->put('title', $column);
 
-        $column = Column::make('Handle')
+        $column = Column::make('handle')
             ->listable(true)
             ->visible(true)
             ->defaultVisibility(true)
@@ -46,6 +46,16 @@ class GoalsResource extends ResourceCollection
             ->sortable(true);
 
         $columns->put('handle', $column);
+
+        $column = Column::make('id')
+            ->label('ID')
+            ->listable(true)
+            ->visible(false)
+            ->defaultVisibility(false)
+            ->defaultOrder(3)
+            ->sortable(true);
+
+        $columns->put('id', $column);
 
         if ($key = $this->columnPreferenceKey) {
             $columns->setPreferred($key);

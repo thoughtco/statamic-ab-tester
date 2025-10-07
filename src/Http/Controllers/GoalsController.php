@@ -8,7 +8,6 @@ use Statamic\CP\Column;
 use Statamic\CP\Columns;
 use Statamic\Http\Controllers\CP\CpController;
 use Statamic\Query\Scopes\Filters\Concerns\QueriesFilters;
-use Thoughtco\StatamicABTester\Facades\Experiment;
 use Thoughtco\StatamicABTester\Facades\Goal;
 use Thoughtco\StatamicABTester\Http\Resources\GoalsResource;
 
@@ -22,6 +21,7 @@ class GoalsController extends CpController
             'columns' => (new Columns([
                 Column::make('title')->label(__('Title')),
                 Column::make('handle')->label(__('Handle')),
+                Column::make('id')->label(__('ID')),
             ]))
                 ->setPreferred('ab.goals.columns')
                 ->rejectUnlisted()
@@ -67,16 +67,10 @@ class GoalsController extends CpController
         ]);
     }
 
-    public function show($experiment)
+    public function show($goal)
     {
-        return view('ab::experiments.show', [
-            'experiment' => Experiment::find($experiment),
-            'columns' => [
-                Column::make('label')->label(__('Variant')),
-                Column::make('hits')->label(__('Hits')),
-                Column::make('successful')->label(__('Successful')),
-                Column::make('failed')->label(__('Failed')),
-            ],
+        return view('ab::goals.show', [
+            'goal' => Goal::find($goal),
         ]);
     }
 
@@ -109,7 +103,7 @@ class GoalsController extends CpController
 
     public function edit($goal)
     {
-        abort_unless($goal = Experiment::find($goal), 404);
+        abort_unless($goal = Goal::find($goal), 404);
 
         $blueprint = Goal::blueprint();
 

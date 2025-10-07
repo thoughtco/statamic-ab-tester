@@ -12,8 +12,6 @@ class ExperimentSaved extends Event implements ProvidesCommitMessage
 {
     use InteractsWithSockets, SerializesModels;
 
-    public $experiment;
-
     public function __construct(public Experiment $experiment) {}
 
     public function commitMessage()
