@@ -51,8 +51,6 @@ const valueErrors = computed(() => {
         }
     });
 
-    console.log('value errors', fieldErrs);
-
     return fieldErrs;
 });
 
@@ -75,8 +73,8 @@ if (context) {
 
 }
 
-watch(props.errors, () => {
-    console.log('prop errors', props.errors);
+watch(props, () => {
+    errors.value = props.errors ?? {};
 })
 
 </script>

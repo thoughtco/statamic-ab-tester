@@ -24,8 +24,6 @@
            }
        });
 
-        console.log('field errors', fieldErrs);
-
        return fieldErrs;
     });
 
@@ -41,25 +39,21 @@
 
         try {
             response = await axios.post(action.abTester.route, data);
+
+            if (response.data?.redirect) {
+                location.href = response.data.redirect;
+
+                return;
+            }
+
+            Statamic.$toast.success('Experiment created successfully.');
         } catch (error) {
             errors.value = error.response.data?.errors ?? {};
 
             Statamic.$toast.error('Error creating experiment.');
 
-            //experimentRef.setErrors(fieldErrors)
-
             return;
-        }
-
-        response = await response.json();
-
-        if (response.redirect) {
-            location.href = response.redirect;
-
-            return;
-        }
-
-        Statamic.$toast.success('Experiment created successfully.');
+        };
     };
 
     const hasExperimentFields = computed(() => {

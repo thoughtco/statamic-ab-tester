@@ -88,19 +88,16 @@ class ExperimentsController extends CpController
             throw ValidationException::withMessages(collect($e->errors())->mapWithKeys(fn ($errors, $key) => ['experiment_fields.values.'.$key => $errors])->all());
         }
 
-        $values = $fields->process()->values();
-
         $experiment = tap(
             Experiment::make()
-                ->title($values->get('title'))
-                ->goals($values->get('goals'))
+                ->title($request->input('title'))
+                ->goals($request->input('goals'))
                 ->type('entry') // for now we only have one experiment type, but that will change
                 ->data([
-                    'entry_id' => $values->get('entry_id'),
-                    'fields' => $values->get('fields'),
-                    'values' => $values->get('values'),
+                    'entry_id' => $request->input('entry_id'),
+                    'experiment_fields' => $request->input('experiment_fields'),
                 ])
-                ->published($values->get('published', false))
+                ->published($request->input('published', true))
         )
             ->save();
 
@@ -137,7 +134,8 @@ class ExperimentsController extends CpController
 
         $fields->validate();
 
-        $fields = Data::find($request->input('entry_id'))->blueprint()->fields()
+        $fields = Data::find($experiment->get('entry_id'))
+            ->blueprint()->fields()
             ->only($request->input('experiment_fields.fields', []))
             ->addValues($request->input('experiment_fields.values', []));
 
@@ -147,17 +145,14 @@ class ExperimentsController extends CpController
             throw ValidationException::withMessages(collect($e->errors())->mapWithKeys(fn ($errors, $key) => ['experiment_fields.values.'.$key => $errors])->all());
         }
 
-        $values = $fields->process()->values();
-
-        $experiment->title($values->get('title'))
-            ->goals($values->get('goals'))
-            ->type($values->get('type'))
+        $experiment->title($request->input('title'))
+            ->goals($request->input('goals'))
+            ->type($request->input('type'))
             ->type('entry') // for now we only have one experiment type, but that will change
-            ->data([
-                'entry_id' => $values->get('entry_id'),
-                'experiment_fields' => $values->get('experiment_fields'),
+            ->merge([
+                'experiment_fields' => $request->input('experiment_fields'),
             ])
-            ->published($values->get('published', false))
+            ->published($request->input('published', false))
             ->save();
 
         $this->success(__('Experiment Saved'));
