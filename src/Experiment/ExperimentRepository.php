@@ -32,46 +32,55 @@ abstract class ExperimentRepository implements RepositoryContract
 
     public function blueprint()
     {
-        return Blueprint::makeFromFields([
-            'title' => [
-                'type' => 'text',
-                'validate' => 'required',
-            ],
-            'type' => [
-                'type' => 'select',
-                'validate' => 'required',
-                'options' => [
-                    ['value' => 'Entry', 'key' => 'entry'],
+        return Blueprint::makeFromTabs([
+            'main' => [
+                'display' => 'Main',
+                'fields' => [
+                    'title' => [
+                        'type' => 'text',
+                        'validate' => 'required',
+                    ],
+                    'type' => [
+                        'type' => 'select',
+                        'validate' => 'required',
+                        'options' => [
+                            ['value' => 'Entry', 'key' => 'entry'],
+                        ],
+                        'max_items' => 1,
+                        'default' => 'entry',
+                    ],
+                    'experiment_fields' => [
+                        'type' => 'experiment_fields',
+                        'hide_display' => true,
+                    ],
+                    'goals' => [
+                        'type' => 'select',
+                        'validate' => 'required',
+                        'options' => Goal::all()->map(fn ($goal) => ['value' => $goal->title(), 'key' => $goal->handle()])->all(),
+                        'multiple' => true,
+                    ],
                 ],
-                'max_items' => 1,
-                'default' => 'entry',
             ],
-            'experiment_fields' => [
-                'type' => 'experiment_fields',
-                'hide_display' => true,
-            ],
-            'goals' => [
-                'type' => 'select',
-                'validate' => 'required',
-                'options' => Goal::all()->map(fn ($goal) => ['value' => $goal->title(), 'key' => $goal->handle()])->all(),
-                'multiple' => true,
-            ],
-            'start_at' => [
-                'type' => 'date',
-                'label' => __('Start at'),
-                'time_enabled' => true,
-                'validate' => 'nullable,date_format:Y-m-d H:i:s',
-            ],
-            'end_at' => [
-                'type' => 'date',
-                'label' => __('End at'),
-                'time_enabled' => true,
-                'validate' => 'nullable,date_format:Y-m-d H:i:s',
-            ],
-            'published' => [
-                'type' => 'toggle',
-                'label' => __('Published'),
-                'default' => true,
+            'sidebar' => [
+                'fields' => [
+                    'start_at' => [
+                        'type' => 'date',
+                        'label' => __('Start at'),
+                        'time_enabled' => true,
+                        'validate' => 'nullable,date_format:Y-m-d H:i:s',
+                    ],
+                    'end_at' => [
+                        'type' => 'date',
+                        'label' => __('End at'),
+                        'time_enabled' => true,
+                        'validate' => 'nullable,date_format:Y-m-d H:i:s',
+                    ],
+                    'published' => [
+                        'type' => 'toggle',
+                        'label' => __('Published'),
+                        'default' => true,
+                    ],
+                ],
             ],
         ]);
     }
