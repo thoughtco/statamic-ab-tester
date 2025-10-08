@@ -85,7 +85,7 @@ abstract class GoalRepository implements RepositoryContract
         $experimentsWithThisGoal = Experiment::whereJsonContains('goals', $goal->id())
             ->where('published', true)
             ->where(fn ($query) => $query->whereNull('start_at')->orWhere('start_at', '<=', now()))
-            ->where(fn ($query) => $query->whereNull('end_at')->orWhere('end_at', '<=', now()))
+            ->where(fn ($query) => $query->whereNull('end_at')->orWhere('end_at', '>=', now()))
             ->get();
 
         if ($experimentsWithThisGoal->isEmpty()) {

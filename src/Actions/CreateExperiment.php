@@ -64,7 +64,7 @@ class CreateExperiment extends Action
             ->where('entry_id', $item->id())
             ->where('published', true)
             ->where(fn ($query) => $query->whereNull('start_at')->orWhere('start_at', '<=', now()))
-            ->where(fn ($query) => $query->whereNull('end_at')->orWhere('end_at', '<=', now()))
+            ->where(fn ($query) => $query->whereNull('end_at')->orWhere('end_at', '>=', now()))
             ->first();
 
         return [
