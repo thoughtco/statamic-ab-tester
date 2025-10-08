@@ -14,9 +14,15 @@ Now you want to trigger that handle in your code - to do that simply call:
 
 If your goal is completed on a page, you may just want to use the antlers tag:
 
-`{{ ab:goal:complete handle="your-handle" }}`
+`{{ ab:goal:completed handle="your-handle" }}`
 
 Alongside the handle, we also log the time the goal was completed, the user's IP, and their ID if they are logged in.
+
+You can also (optionally) record failures, if your test requires it:
+
+`\Thoughtco\StatamicABTester\Facades\Goal::failed('your-handle')'`
+
+`{{ ab:goal:failed handle="your-handle" }}`
 
 
 ### Create an experiment

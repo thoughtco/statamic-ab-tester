@@ -5,8 +5,6 @@ namespace Thoughtco\StatamicABTester\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
-use Statamic\CP\Column;
-use Statamic\CP\Columns;
 use Statamic\Facades\Data;
 use Statamic\Http\Controllers\CP\CpController;
 use Statamic\Query\Scopes\Filters\Concerns\QueriesFilters;
@@ -116,7 +114,7 @@ class ExperimentsController extends CpController
             'values' => $fields->values(),
             'meta' => $fields->meta(),
             'routes' => [
-                'submit' => cp_route('ab.experiments.update', $experiment->id())
+                'submit' => cp_route('ab.experiments.update', $experiment->id()),
             ],
         ]);
     }
