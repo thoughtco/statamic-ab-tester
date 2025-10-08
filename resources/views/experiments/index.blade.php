@@ -13,6 +13,7 @@
     >
         <template #cell-title="{ row }">
             <a class="title-index-field" :href="row.edit_url" @click.stop>
+                <ui-status-indicator :status="row.published" />
                 <span v-text="row.title" />
             </a>
         </template>

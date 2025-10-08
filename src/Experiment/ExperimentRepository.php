@@ -64,6 +64,11 @@ abstract class ExperimentRepository implements RepositoryContract
                 'time_enabled' => true,
                 'validate' => 'nullable,date_format:Y-m-d H:i:s',
             ],
+            'published' => [
+                'type' => 'toggle',
+                'label' => __('Published'),
+                'default' => true,
+            ],
         ]);
     }
 }

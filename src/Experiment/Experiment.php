@@ -5,6 +5,7 @@ namespace Thoughtco\StatamicABTester\Experiment;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Carbon;
 use Statamic\Data\ContainsData;
+use Statamic\Data\Publishable;
 use Statamic\Facades\File;
 use Statamic\Facades\YAML;
 use Statamic\Support\Arr;
@@ -15,7 +16,7 @@ use Thoughtco\StatamicABTester\Facades\Experiment as ExperimentFacade;
 
 abstract class Experiment implements Arrayable, ExperimentContract
 {
-    use ContainsData, FluentlyGetsAndSets;
+    use ContainsData, FluentlyGetsAndSets, Publishable;
 
     protected $afterSaveCallbacks = [];
 
@@ -257,6 +258,7 @@ abstract class Experiment implements Arrayable, ExperimentContract
             'results' => $this->results,
             'start_at' => $this->startAt,
             'end_at' => $this->endAt,
+            'published' => $this->published,
         ]);
     }
 }

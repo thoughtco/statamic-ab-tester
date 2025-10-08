@@ -48,6 +48,26 @@ class ExperimentsResource extends ResourceCollection
 
         $columns->put('id', $column);
 
+        $column = Column::make('start_at')
+            ->label('Starts')
+            ->listable(true)
+            ->visible(true)
+            ->defaultVisibility(true)
+            ->defaultOrder(3)
+            ->sortable(true);
+
+        $columns->put('start_at', $column);
+
+        $column = Column::make('end_at')
+            ->label('Ends')
+            ->listable(true)
+            ->visible(true)
+            ->defaultVisibility(true)
+            ->defaultOrder(4)
+            ->sortable(true);
+
+        $columns->put('end_at', $column);
+
         if ($key = $this->columnPreferenceKey) {
             $columns->setPreferred($key);
         }

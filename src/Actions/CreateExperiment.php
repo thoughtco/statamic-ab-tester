@@ -5,6 +5,7 @@ namespace Thoughtco\StatamicABTester\Actions;
 use Statamic\Actions\Action;
 use Statamic\Contracts\Entries\Entry;
 use Statamic\Statamic;
+use Thoughtco\StatamicABTester\Facades\Experiment;
 use Thoughtco\StatamicABTester\Facades\Goal;
 use Thoughtco\StatamicCacheTracker\Facades\Tracker;
 
@@ -59,12 +60,19 @@ class CreateExperiment extends Action
         $item = $this->items->first();
         $blueprint = $item->blueprint();
 
+        $existsQuery = Experiment::query()
+            ->where('entry_id', $item->id())
+            ->where('published', true)
+            ->where(fn ($query) => $query->whereNull('start_at')->orWhere('start_at', '<=', now()))
+            ->where(fn ($query) => $query->whereNull('end_at')->orWhere('end_at', '<=', now()))
+            ->first();
+
         return [
             ...parent::toArray(),
             'meta' => $blueprint->fields()->meta(),
             'ab_tester' => [
                 'entry_id' => $item->id(),
-                'exists' => false, // Statamic::cpRoute('ab.experiments.index'),
+                'exists' => $existsQuery ? Statamic::cpRoute('ab.experiments.show', ['experiment' => $existsQuery->id()]) : false,
                 'fields' => $blueprint->fields()->toPublishArray(),
                 'goals' => Goal::all()->map(fn ($goal) => ['label' => $goal->title(), 'value' => $goal->handle()])->all(),
                 'route' => Statamic::cpRoute('ab.experiments.store'),

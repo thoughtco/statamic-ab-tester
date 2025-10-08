@@ -37,6 +37,7 @@ class Experiment extends BaseExperiment
             'results' => $this->results,
             'start_at' => $this->startAt,
             'end_at' => $this->endAt,
+            'published' => $this->published,
         ]));
     }
 }

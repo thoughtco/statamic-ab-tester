@@ -75,6 +75,7 @@ class ExperimentsController extends CpController
             'fields' => ['required', 'array'],
             'goals' => ['required', 'array'],
             'values' => ['required', 'array'],
+            'published' => ['nullable', 'boolean'],
         ]);
 
         $fields = Experiment::blueprint()->fields()->only($request->input('fields', []))->addValues($request->input('values', []));
@@ -97,6 +98,7 @@ class ExperimentsController extends CpController
                     'fields' => $values->get('fields'),
                     'values' => $values->get('values'),
                 ])
+                ->published($values->get('published', false))
         )
             ->save();
 
@@ -134,6 +136,13 @@ class ExperimentsController extends CpController
         $experiment->title($values->get('title'))
             ->goals($values->get('goals'))
             ->type($values->get('type'))
+            ->type('entry') // for now we only have one experiment type, but that will change
+            ->data([
+                'entry_id' => $values->get('entry_id'),
+                'fields' => $values->get('fields'),
+                'values' => $values->get('values'),
+            ])
+            ->published($values->get('published', false))
             ->save();
 
         $this->success(__('Experiment Saved'));
