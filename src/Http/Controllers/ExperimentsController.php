@@ -78,8 +78,6 @@ class ExperimentsController extends CpController
             'published' => ['nullable', 'boolean'],
         ]);
 
-        dd($request->all());
-
         $fields = Data::find($request->input('entry_id'))->blueprint()->fields()
             ->only($request->input('experiment_fields.fields', []))
             ->addValues($request->input('experiment_fields.values', []));
@@ -87,7 +85,7 @@ class ExperimentsController extends CpController
         try {
             $fields->validate();
         } catch (ValidationException $e) {
-            throw ValidationException::withMessages(collect($e->errors())->mapWithKeys(fn ($errors, $key) => ['experiment_fields.'.$key => $errors])->all());
+            throw ValidationException::withMessages(collect($e->errors())->mapWithKeys(fn ($errors, $key) => ['experiment_fields.values.'.$key => $errors])->all());
         }
 
         $values = $fields->process()->values();
@@ -131,9 +129,23 @@ class ExperimentsController extends CpController
     {
         abort_unless($experiment = Experiment::find($experiment), 404);
 
+        $request = $request->merge([
+            'entry_id' => $experiment->get('entry_id'),
+        ]);
+
         $fields = Experiment::blueprint()->fields()->setParent($experiment)->addValues($request->all());
 
         $fields->validate();
+
+        $fields = Data::find($request->input('entry_id'))->blueprint()->fields()
+            ->only($request->input('experiment_fields.fields', []))
+            ->addValues($request->input('experiment_fields.values', []));
+
+        try {
+            $fields->validate();
+        } catch (ValidationException $e) {
+            throw ValidationException::withMessages(collect($e->errors())->mapWithKeys(fn ($errors, $key) => ['experiment_fields.values.'.$key => $errors])->all());
+        }
 
         $values = $fields->process()->values();
 

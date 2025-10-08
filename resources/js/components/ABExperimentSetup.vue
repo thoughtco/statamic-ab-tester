@@ -1,6 +1,6 @@
 <script setup>
     import axios from 'axios';
-    import { computed, ref } from 'vue';
+    import {computed, useTemplateRef, ref, watch} from 'vue';
     import ExperimentFields from '../fieldtypes/ExperimentFields.vue';
 
     const props = defineProps({
@@ -8,6 +8,8 @@
     });
 
     const action = props.action;
+
+    const experimentRef = useTemplateRef('experiment-field');
 
     const experimentFields = ref({ fields: [], values: {}});
     const errors = ref({});
@@ -17,10 +19,12 @@
     const fieldErrors = computed(() => {
        let fieldErrs = {};
         Object.keys(errors.value).forEach(field => {
-           if (field.indexOf('values.') === 0) {
-               fieldErrs[field.replace('values.', '')] = errors.value[field];
+           if (field.indexOf('experiment_fields.') === 0) {
+               fieldErrs[field.replace('experiment_fields.', '')] = errors.value[field];
            }
        });
+
+        console.log('field errors', fieldErrs);
 
        return fieldErrs;
     });
@@ -33,12 +37,16 @@
             title: title.value,
         };
 
+        let response;
+
         try {
-            let response = await axios.post(action.abTester.route, data);
+            response = await axios.post(action.abTester.route, data);
         } catch (error) {
             errors.value = error.response.data?.errors ?? {};
 
             Statamic.$toast.error('Error creating experiment.');
+
+            //experimentRef.setErrors(fieldErrors)
 
             return;
         }
@@ -76,7 +84,8 @@
             <ExperimentFields
                 :errors="fieldErrors"
                 :meta="{ abTester: action.abTester }"
-                @update:value="experimentFields.value = $event; console.log($event, experimentFields.value);"
+                @update:value="experimentFields = $event;"
+                ref="experiment-field"
             ></ExperimentFields>
 
             <ui-field class="mt-4" v-if="hasExperimentFields" :error="errors.goals ?? ''">

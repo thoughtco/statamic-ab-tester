@@ -9,6 +9,8 @@ class ExperimentFields extends Fieldtype
 {
     protected $component = 'ab_tester_experiment_fields';
 
+    protected $selectable = false;
+
     public function preload()
     {
         $data = parent::preload() ?? [];
