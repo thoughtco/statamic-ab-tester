@@ -6,6 +6,40 @@
 
 ## Usage
 
+### Create a goal
+One installed the first step is to create a goal through the UI. Name it whatever you want (for example "Mailing List Signup" or "Add to Basket") and give it a unique handle. 
+
+Now you want to trigger that handle in your code - to do that simply call:
+`\Thoughtco\StatamicABTester\Facades\Goal::completed('your-handle')'`
+
+If your goal is completed on a page, you may just want to use the antlers tag:
+
+`{{ ab:goal:complete handle="your-handle" }}`
+
+Alongside the handle, we also log the time the goal was completed, the user's IP, and their ID if they are logged in.
+
+
+### Create an experiment
+Next you need to make an experiment, which varies something on your site. To do this use the "Create A/B Experiment" action available on an entry.
+
+This will open a window allowing you to choose what field(s) you want to vary and define their alternate values. 
+
+Finally, ensure you associate them with the goal you created in the first step.
+
+
+### Outputting experiments
+This add-on will automate the display of the variants, knowing when the item is augmented and switching it as appropriate. 
+
+If you are using full static caching, this won't work as Statamic is never booted, and you will need to use {{ nocache }} alongside the tags this addon provides to run your experiments.
+
+
+
+~~~
+
+TBD if anything below still applies...
+
+
+
 ### Experiment types
 There are two types of experiments you can run: 
 
@@ -89,3 +123,4 @@ Mark an experiment as being a failure:
 Get the results of an experiment:
 `$experiment->results();`
 
+~~~
