@@ -4,7 +4,7 @@
     "description": "",
     "license": "MIT",
     "require": {
-        "statamic/cms": "v6.0.0-alpha.10",
+        "statamic/cms": "v6.0.0-alpha.11",
         "laravel/pint": "^1.25"
     },
     "require-dev": {

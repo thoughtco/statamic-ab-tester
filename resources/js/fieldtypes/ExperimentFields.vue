@@ -80,7 +80,7 @@ watch(props, () => {
 </script>
 
 <template>
-    <ui-field class="mt-4" :error="errors.fields ?? ''">
+    <ui-field :error="errors.fields ?? ''">
         <ui-label>Select field(s):</ui-label>
 
         <ui-combobox

@@ -8,9 +8,7 @@
     });
 
     const action = props.action;
-
-    const experimentRef = useTemplateRef('experiment-field');
-
+    
     const experimentFields = ref({ fields: [], values: {}});
     const errors = ref({});
     const selectedGoals = ref([]);
