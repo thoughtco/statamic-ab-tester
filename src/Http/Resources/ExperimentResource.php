@@ -24,8 +24,8 @@ class ExperimentResource extends JsonResource
         return [
             'id' => $experiment->id(),
             'title' => $experiment->title(),
-            'start_at' => $experiment->startAt() ?? __('∞'),
-            'end_at' => $experiment->endAt() ?? __('∞'),
+            'start_at' => $experiment->startAt() ?? __('-'),
+            'end_at' => $experiment->endAt() ?? __('-'),
             'published' => $experiment->published() ? 'published' : 'draft',
             'show_url' => cp_route('ab.experiments.show', $experiment->id()),
             'edit_url' => cp_route('ab.experiments.edit', $experiment->id()),

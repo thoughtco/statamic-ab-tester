@@ -69,14 +69,14 @@ class CreateExperiment extends Action
 
         return [
             ...parent::toArray(),
-            'meta' => $blueprint->fields()->meta(),
-            'ab_tester' => [
+            'abTester' => [
                 'entry_id' => $item->id(),
                 'exists' => $existsQuery ? Statamic::cpRoute('ab.experiments.show', ['experiment' => $existsQuery->id()]) : false,
                 'fields' => $blueprint->fields()->toPublishArray(),
                 'goals' => Goal::all()->map(fn ($goal) => ['label' => $goal->title(), 'value' => $goal->handle()])->all(),
+                'meta' => $blueprint->fields()->meta(),
                 'route' => Statamic::cpRoute('ab.experiments.store'),
-                'values' => $blueprint->fields()->values(),
+                'values' => $blueprint->fields()->addValues($item->toArray())->values(),
             ],
         ];
     }

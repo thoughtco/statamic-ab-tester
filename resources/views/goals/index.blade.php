@@ -13,7 +13,7 @@
         preferences-prefix="ab.goals"
     >
         <template #cell-title="{ row }">
-            <a class="title-index-field" :href="row.edit_url" @click.stop>
+            <a class="title-index-field" :href="row.show_url" @click.stop>
                 <span v-text="row.title" />
             </a>
         </template>

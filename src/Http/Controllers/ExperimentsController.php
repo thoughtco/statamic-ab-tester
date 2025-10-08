@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Statamic\CP\Column;
 use Statamic\CP\Columns;
+use Statamic\Facades\Data;
 use Statamic\Http\Controllers\CP\CpController;
 use Statamic\Query\Scopes\Filters\Concerns\QueriesFilters;
 use Thoughtco\StatamicABTester\Facades\Experiment;
@@ -72,18 +73,21 @@ class ExperimentsController extends CpController
         $request->validate([
             'entry_id' => ['required'],
             'title' => ['required'],
-            'fields' => ['required', 'array'],
+            'experiment_fields' => ['required', 'array'],
             'goals' => ['required', 'array'],
-            'values' => ['required', 'array'],
             'published' => ['nullable', 'boolean'],
         ]);
 
-        $fields = Experiment::blueprint()->fields()->only($request->input('fields', []))->addValues($request->input('values', []));
+        dd($request->all());
+
+        $fields = Data::find($request->input('entry_id'))->blueprint()->fields()
+            ->only($request->input('experiment_fields.fields', []))
+            ->addValues($request->input('experiment_fields.values', []));
 
         try {
             $fields->validate();
         } catch (ValidationException $e) {
-            throw ValidationException::withMessages(collect($e->errors())->mapWithKeys(fn ($errors, $key) => ['values.'.$key => $errors])->all());
+            throw ValidationException::withMessages(collect($e->errors())->mapWithKeys(fn ($errors, $key) => ['experiment_fields.'.$key => $errors])->all());
         }
 
         $values = $fields->process()->values();
@@ -113,7 +117,7 @@ class ExperimentsController extends CpController
 
         $blueprint = Experiment::blueprint();
 
-        $fields = $blueprint->fields()->addValues($experiment->toArray())->preProcess();
+        $fields = $blueprint->fields()->setParent($experiment)->addValues($experiment->toArray())->preProcess();
 
         return view('ab::experiments.edit', [
             'experiment' => $experiment,
@@ -127,7 +131,7 @@ class ExperimentsController extends CpController
     {
         abort_unless($experiment = Experiment::find($experiment), 404);
 
-        $fields = Experiment::blueprint()->fields()->addValues($request->all());
+        $fields = Experiment::blueprint()->fields()->setParent($experiment)->addValues($request->all());
 
         $fields->validate();
 
@@ -139,8 +143,7 @@ class ExperimentsController extends CpController
             ->type('entry') // for now we only have one experiment type, but that will change
             ->data([
                 'entry_id' => $values->get('entry_id'),
-                'fields' => $values->get('fields'),
-                'values' => $values->get('values'),
+                'experiment_fields' => $values->get('experiment_fields'),
             ])
             ->published($values->get('published', false))
             ->save();

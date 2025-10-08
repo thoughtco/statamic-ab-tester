@@ -1,12 +1,7 @@
 <script setup>
     import axios from 'axios';
     import { computed, ref } from 'vue';
-
-    import {
-        PublishContainer,
-        PublishFieldsProvider as FieldsProvider,
-        PublishFields,
-    } from '@statamic/cms/ui';
+    import ExperimentFields from '../fieldtypes/ExperimentFields.vue';
 
     const props = defineProps({
         action: { type: Object, required: true },
@@ -14,13 +9,10 @@
 
     const action = props.action;
 
-    const fieldset = ref({ tabs: [{ fields: props.action.fields }] });
-
+    const experimentFields = ref({ fields: [], values: {}});
     const errors = ref({});
-    const selectedFields = ref([]);
     const selectedGoals = ref([]);
     const title = ref('');
-    const values = ref(props.action.ab_tester.values);
 
     const fieldErrors = computed(() => {
        let fieldErrs = {};
@@ -33,33 +25,16 @@
        return fieldErrs;
     });
 
-    const selectableFields = computed(() => {
-        return action.ab_tester.fields
-            .map(field => {
-                return {
-                    label: field.display,
-                    value: field.handle
-                };
-            });
-    });
-
     const createExperiment = async () => {
-
-        let sendValues = {};
-        for (let field of selectedFields.value) {
-            sendValues[field] = values.value[field];
-        }
-
-        const data = {
-            entry_id: action.ab_tester.entry_id,
-            fields: selectedFields.value,
+        let data = {
+            entry_id: action.abTester.entry_id,
+            experiment_fields: experimentFields.value,
             goals: selectedGoals.value,
             title: title.value,
-            values: sendValues,
         };
 
         try {
-            let response = await axios.post(action.ab_tester.route, data);
+            let response = await axios.post(action.abTester.route, data);
         } catch (error) {
             errors.value = error.response.data?.errors ?? {};
 
@@ -77,53 +52,39 @@
         }
 
         Statamic.$toast.success('Experiment created successfully.');
-    }
+    };
+
+    const hasExperimentFields = computed(() => {
+        return experimentFields.value.fields.length > 0;
+    });
+
+    const hasGoals = computed(() => {
+        return selectedGoals.value.length > 0;
+    });
 </script>
 
 <template>
     <div class="mt-4">
 
-        <template v-if="action.ab_tester.exists">
-            <ui-description>An A/B experiment on this item already exists and is not yet complete. <a :href="action.ab_tester.exists">You can view it here</a>.</ui-description>
+        <template v-if="action.abTester.exists">
+            <ui-description>An A/B experiment on this item already exists and is not yet complete. <a :href="action.abTester.exists">You can view it here</a>.</ui-description>
         </template>
 
         <template v-else>
             <ui-description>To setup your A/B Experiment, select the fields you want to vary and enter the alternative values:</ui-description>
 
-            <ui-field class="mt-4" :error="errors.fields ?? ''">
-                <ui-label>Select field(s):</ui-label>
+            <ExperimentFields
+                :errors="fieldErrors"
+                :meta="{ abTester: action.abTester }"
+                @update:value="experimentFields.value = $event; console.log($event, experimentFields.value);"
+            ></ExperimentFields>
 
-                <ui-combobox
-                    label="Select a field"
-                    :options="selectableFields"
-                    class="w-full"
-                    v-model="selectedFields"
-                    :clearable="true"
-                    :multiple="true"
-                    :closeOnSelect="true"
-                />
-            </ui-field>
-
-            <ui-card-panel class="mt-8" v-if="selectedFields.length" heading="Alternative values">
-                <PublishContainer
-                    name="ab-tester-action"
-                    :blueprint="fieldset"
-                    v-model="values"
-                    :meta="action.meta"
-                    :errors="fieldErrors"
-                >
-                    <FieldsProvider :fields="action.ab_tester.fields.filter(field => selectedFields.includes(field.handle))">
-                        <PublishFields />
-                    </FieldsProvider>
-                </PublishContainer>
-            </ui-card-panel>
-
-            <ui-field class="mt-4" v-if="selectedFields.length" :error="errors.goals ?? ''">
+            <ui-field class="mt-4" v-if="hasExperimentFields" :error="errors.goals ?? ''">
                 <ui-label>Select goal(s):</ui-label>
 
                 <ui-combobox
                     label="Select a goal"
-                    :options="action.ab_tester.goals"
+                    :options="action.abTester.goals"
                     class="w-full"
                     v-model="selectedGoals"
                     :clearable="true"
@@ -132,18 +93,19 @@
                 />
             </ui-field>
 
-            <ui-field class="mt-8" :error="errors.title ?? ''" v-if="selectedFields.length && selectedGoals.length">
+            <ui-field class="mt-8" :error="errors.title ?? ''" v-if="hasExperimentFields && hasGoals">
                 <ui-label>Now, give your experiment a name:</ui-label>
 
                 <ui-input
                     label="Name your experiment"
                     class="w-full"
                     v-model="title"
-
                 />
             </ui-field>
 
-            <ui-button text="Setup Experiment" variant="primary" v-if="selectedFields.length && selectedGoals.length && title" class="mt-4 mb-8" @click="createExperiment" />
+            <div class="flex w-full justify-center mt-4">
+                <ui-button text="Setup Experiment" variant="primary" v-if="hasExperimentFields && hasGoals && title" class="mt-4 mb-8" @click="createExperiment" />
+            </div>
 
         </template>
     </div>
