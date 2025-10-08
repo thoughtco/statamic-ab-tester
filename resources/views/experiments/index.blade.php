@@ -17,7 +17,8 @@
             </a>
         </template>
         <template #prepended-row-actions="{ row }">
-            <p>Yo</p>
+            <ui-dropdown-item :text="__('View')" :href="row.show_url" icon="eye" />
+            <ui-dropdown-item :text="__('Edit')" :href="row.edit_url" icon="edit" />
         </template>
     </ui-listing>
 

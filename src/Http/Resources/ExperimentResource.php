@@ -24,6 +24,7 @@ class ExperimentResource extends JsonResource
         return [
             'id' => $experiment->id(),
             'title' => $experiment->title(),
+            'show_url' => cp_route('ab.experiments.show', $experiment->id()),
             'edit_url' => cp_route('ab.experiments.edit', $experiment->id()),
             'editable' => User::current()->can('edit a/b experiments'),
             'viewable' => User::current()->can('view a/b experiments'),

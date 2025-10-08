@@ -83,6 +83,10 @@ class ServiceProvider extends AddonServiceProvider
             Permission::register('create a/b experiments')
                 ->label(__('Create Experiments'))
                 ->description(__('Enable the action on item views to create experiments.'));
+
+            Permission::register('create a/b goals')
+                ->label(__('Create Goals'))
+                ->description(__('Enable the action on item views to create experiments.'));
         });
 
         return $this;
