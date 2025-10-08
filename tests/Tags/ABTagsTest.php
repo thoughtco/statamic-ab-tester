@@ -4,6 +4,7 @@ uses(\Thoughtco\StatamicABTester\Tests\TestCase::class);
 
 use Statamic\Facades;
 use Thoughtco\StatamicABTester\Experiment\Stache\Experiment;
+use Thoughtco\StatamicABTester\Facades\Goal;
 
 it('returns a variant', function () {
     (new Experiment)
@@ -114,4 +115,16 @@ it('works when start date is in the future', function () {
     $content = (string) Facades\Antlers::parse('{{ ab experiment="test" }}{{ variant:id }}{{ /ab }}');
 
     $this->assertSame($content, 'one');
+});
+
+it('completes a goal', function () {
+    Goal::expects('completed')->with('test');
+
+    Facades\Antlers::parse('{{ ab:goal:completed handle="test" }}');
+});
+
+it('fails a goal', function () {
+    Goal::expects('failed')->with('test');
+
+    Facades\Antlers::parse('{{ ab:goal:failed handle="test" }}');
 });
