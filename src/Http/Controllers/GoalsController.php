@@ -4,6 +4,7 @@ namespace Thoughtco\StatamicABTester\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
+use Inertia\Inertia;
 use Statamic\CP\Column;
 use Statamic\CP\Columns;
 use Statamic\Http\Controllers\CP\CpController;
@@ -17,15 +18,12 @@ class GoalsController extends CpController
 
     public function index()
     {
-        return view('ab::goals.index', [
-            'columns' => (new Columns([
-                Column::make('title')->label(__('Title')),
-                Column::make('handle')->label(__('Handle')),
-                Column::make('id')->label(__('ID')),
-            ]))
-                ->setPreferred('ab.goals.columns')
-                ->rejectUnlisted()
-                ->values(),
+        return Inertia::render('AB/Goals/Index', [
+            'routes' => [
+                'actions' => cp_route('ab.goals.actions'),
+                'create' => cp_route('ab.goals.create'),
+                'json' => cp_route('ab.goals.json'),
+            ],
         ]);
     }
 
@@ -60,17 +58,23 @@ class GoalsController extends CpController
 
         $fields = $blueprint->fields()->preProcess();
 
-        return view('ab::goals.create', [
+        return Inertia::render('AB/Goals/Create', [
             'blueprint' => $blueprint->toPublishArray(),
             'values' => $fields->values(),
             'meta' => $fields->meta(),
+            'routes' => [
+                'store' => cp_route('ab.goals.store'),
+            ],
         ]);
     }
 
     public function show($goal)
     {
-        return view('ab::goals.show', [
+        return Inertia::render('AB/Goals/Show', [
             'goal' => Goal::find($goal),
+            'routes' => [
+                'edit' => cp_route('ab.goals.edit', $goal),
+            ],
         ]);
     }
 
@@ -109,11 +113,14 @@ class GoalsController extends CpController
 
         $fields = $blueprint->fields()->addValues($goal->toArray())->preProcess();
 
-        return view('ab::goals.edit', [
+        return Inertia::render('AB/Goals/Edit', [
             'goal' => $goal,
             'blueprint' => $blueprint->toPublishArray(),
             'values' => $fields->values(),
             'meta' => $fields->meta(),
+            'routes' => [
+                'submit' => cp_route('ab.goals.update', $goal->id()),
+            ],
         ]);
     }
 

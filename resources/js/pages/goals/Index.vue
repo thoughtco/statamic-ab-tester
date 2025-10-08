@@ -1,15 +1,18 @@
-@extends('statamic::layout')
-@section('title', Statamic::crumb(__('A/B'), __('Experiments')))
+<script setup>
+defineProps({
+    routes: { type: Object, required: true },
+});
+</script>
 
-@section('content')
+<template>
 
-    <ui-header title="{{ __('Goals') }}" icon="favorite-trophy">
-        <ui-button variant="primary" text="{{ __('Create') }}" href="{{ cp_route('ab.goals.create') }}" />
+    <ui-header :title="__('Goals')" icon="favorite-trophy">
+        <ui-button variant="primary" text="{{ __('Create') }}" :href="routes.create" />
     </ui-header>
 
     <ui-listing
-        url="{{ cp_route('ab.goals.json') }}"
-        action-url="{{ cp_route('ab.goals.actions') }}"
+        :url="routes.json"
+        :action-url="routes.actions"
         preferences-prefix="ab.goals"
     >
         <template #cell-title="{ row }">
@@ -23,4 +26,4 @@
         </template>
     </ui-listing>
 
-@stop
+</template>

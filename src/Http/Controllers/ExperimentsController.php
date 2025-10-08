@@ -4,6 +4,7 @@ namespace Thoughtco\StatamicABTester\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
+use Inertia\Inertia;
 use Statamic\CP\Column;
 use Statamic\CP\Columns;
 use Statamic\Facades\Data;
@@ -18,15 +19,13 @@ class ExperimentsController extends CpController
 
     public function index()
     {
-        return view('ab::experiments.index', [
+        return Inertia::render('AB/Experiments/Index', [
             'experimentsIsEmpty' => Experiment::query()->count() <= 0,
-            'columns' => (new Columns([
-                Column::make('title')->label(__('Title')),
-                Column::make('id')->label(__('ID')),
-            ]))
-                ->setPreferred('ab.experiments.columns')
-                ->rejectUnlisted()
-                ->values(),
+            'routes' => [
+                'actions' => cp_route('ab.experiments.actions'),
+                'create' => cp_route('ab.goals.create'),
+                'json' => cp_route('ab.experiments.json'),
+            ],
         ]);
     }
 
@@ -57,13 +56,10 @@ class ExperimentsController extends CpController
 
     public function show($experiment)
     {
-        return view('ab::experiments.show', [
+        return Inertia::render('AB/Experiments/Show', [
             'experiment' => Experiment::find($experiment),
-            'columns' => [
-                Column::make('label')->label(__('Variant')),
-                Column::make('hits')->label(__('Hits')),
-                Column::make('successful')->label(__('Successful')),
-                Column::make('failed')->label(__('Failed')),
+            'routes' => [
+                'edit' => cp_route('ab.experiments.edit', $experiment),
             ],
         ]);
     }
@@ -114,11 +110,14 @@ class ExperimentsController extends CpController
 
         $fields = $blueprint->fields()->setParent($experiment)->addValues($experiment->toArray())->preProcess();
 
-        return view('ab::experiments.edit', [
+        return Inertia::render('AB/Experiments/Edit', [
             'experiment' => $experiment,
             'blueprint' => $blueprint->toPublishArray(),
             'values' => $fields->values(),
             'meta' => $fields->meta(),
+            'routes' => [
+                'submit' => cp_route('ab.experiments.update', $experiment->id())
+            ],
         ]);
     }
 

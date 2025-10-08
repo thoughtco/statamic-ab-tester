@@ -48,6 +48,7 @@ abstract class ExperimentRepository implements RepositoryContract
             ],
             'experiment_fields' => [
                 'type' => 'experiment_fields',
+                'hide_display' => true,
             ],
             'goals' => [
                 'type' => 'select',
