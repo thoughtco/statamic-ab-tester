@@ -3,9 +3,11 @@
 namespace Thoughtco\StatamicABTester\Tags;
 
 use Statamic\Facades;
+use Statamic\Support\Str;
 use Statamic\Tags\Tags;
 use Thoughtco\StatamicABTester\Experiment\Stache\Experiment as ExperimentModel;
 use Thoughtco\StatamicABTester\Facades\Experiment;
+use Thoughtco\StatamicABTester\Facades\Goal;
 
 class ABTags extends Tags
 {
@@ -137,5 +139,26 @@ class ABTags extends Tags
     private function variantFromHandle(ExperimentModel $experiment, string $variantHandle): ?array
     {
         return $experiment->variants()->firstWhere('id', $variantHandle);
+    }
+
+    public function wildcard($tag)
+    {
+        if (! Str::contains($tag, ':')) {
+            return;
+        }
+
+        if (Str::before($tag, ':') == 'goal') {
+            if (! $handle = $this->params->pull('handle')) {
+                return;
+            }
+
+            match (Str::after($tag, ':')) {
+                'completed' => Goal::completed($handle),
+                'failed' => Goal::failed($handle),
+                default => false
+            };
+
+            return;
+        }
     }
 }
