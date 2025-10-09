@@ -66,6 +66,30 @@ class ABTags extends Tags
         ]));
     }
 
+    public function js()
+    {
+        return "
+        <script>
+        const abTester = {
+            hit: (experiment, data) => abTester.run('hit', experiment, data),
+            success: (goal, data) => abTester.run('success', goal, data),
+            failure: (goal, data) => abTester.run('failure', goal, data),
+
+            run: (type, source, data) => {
+                fetch('".route('statamic.ab-tester.front-end-js')."', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        type: type,
+                        source: source,
+                        data: data,
+                    })
+                });
+            }
+        }
+        </script>
+        ";
+    }
+
     public function failure()
     {
         if (! $experimentHandle = $this->params->pull('experiment')) {

@@ -33,6 +33,16 @@ You can also (optionally) record failures, if your test requires it:
 
 `{{ ab:goal:failed handle="your-handle" }}`
 
+#### Javacript helper
+
+If you need to trigger goals from Javascript, include the `{{ ab:js }}` in your layout, then call:
+
+`abTester.hit('experiment-id', { custom: 'data' })` to register a hit on an experiment
+
+`abTester.success('goal-id', { custom: 'data' })` to register a goal success
+
+`abTester.failure('goal-id', { custom: 'data' })` to register a goal failure
+
 
 ### Create an experiment
 Next you need to make an experiment, which varies something on your site. To do this use the "Create A/B Experiment" action available on an entry.

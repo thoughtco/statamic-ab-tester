@@ -111,9 +111,9 @@ abstract class Experiment implements Arrayable, ExperimentContract
         ]);
     }
 
-    public function recordHit($goalId = null, $data = [])
+    public function recordHit($data = [])
     {
-        $this->createResultModel('hit', $goalId, $data);
+        $this->createResultModel('hit', null, $data);
 
         return $this;
     }
