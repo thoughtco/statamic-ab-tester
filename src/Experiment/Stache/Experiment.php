@@ -34,7 +34,6 @@ class Experiment extends BaseExperiment
             'title' => $this->title(),
             'type' => $this->type(),
             'goals' => $this->goals,
-            'results' => $this->results,
             'start_at' => $this->startAt,
             'end_at' => $this->endAt,
             'published' => $this->published,

@@ -19,11 +19,11 @@ class ExperimentFields extends Fieldtype
             return $data;
         }
 
-        if ($parent->type() != 'entry') {
+        if ($parent->type() != 'item') {
             return $data;
         }
 
-        if (! $item = Data::find($parent->get('item_id', 'home'))) { // @TODO: remove 'home' fallback
+        if (! $item = Data::find($parent->get('item_id'))) {
             return $data;
         }
 

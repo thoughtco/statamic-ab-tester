@@ -71,7 +71,7 @@
         </template>
 
         <template v-else>
-            <ui-description>To setup your A/B Experiment, select the fields you want to vary and enter the alternative values:</ui-description>
+            <ui-description class="mb-4">To setup your A/B Experiment, select the fields you want to vary and enter the alternative values:</ui-description>
 
             <ExperimentFields
                 :errors="fieldErrors"
