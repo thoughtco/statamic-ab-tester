@@ -4,6 +4,15 @@
 
 `composer require thoughtco/statamic-ab-tester`
 
+then run 
+
+`php artisan migrate`
+
+## Custom database connection
+This addon uses your default database to store results, in a new table it creates called `ab_test_results`. If you want to specify a custom connection, use add the connection name to your .env:
+
+`AB_TESTER_RESULTS_CONNECTION=your-connection`
+
 ## Usage
 
 ### Create a goal

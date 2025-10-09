@@ -8,7 +8,7 @@
     });
 
     const action = props.action;
-    
+
     const experimentFields = ref({ fields: [], values: {}});
     const errors = ref({});
     const selectedGoals = ref([]);
@@ -27,7 +27,7 @@
 
     const createExperiment = async () => {
         let data = {
-            entry_id: action.abTester.entry_id,
+            item_id: action.abTester.item_id,
             experiment_fields: experimentFields.value,
             goals: selectedGoals.value,
             title: title.value,

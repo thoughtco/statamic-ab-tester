@@ -44,7 +44,7 @@ abstract class ExperimentRepository implements RepositoryContract
                         'type' => 'select',
                         'validate' => 'required',
                         'options' => [
-                            ['value' => 'Entry', 'key' => 'entry'],
+                            ['value' => 'Item', 'key' => 'item'],
                         ],
                         'max_items' => 1,
                         'default' => 'entry',

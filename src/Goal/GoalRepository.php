@@ -44,7 +44,7 @@ abstract class GoalRepository implements RepositoryContract
         ]);
     }
 
-    public function completed($handle)
+    public function completed($handle, $data = [])
     {
         if (! $experimentsWithThisGoal = $this->getExperimentsForGoal($handle)) {
             return false;
@@ -55,12 +55,12 @@ abstract class GoalRepository implements RepositoryContract
                 return;
             }
 
-            $experiment->recordSuccess($this->dataToRecord());
+            $experiment->recordSuccess($this->id(), $data);
         });
 
     }
 
-    public function failed($handle)
+    public function failed($handle, $data = [])
     {
         if (! $experimentsWithThisGoal = $this->getExperimentsForGoal($handle)) {
             return false;
@@ -71,7 +71,7 @@ abstract class GoalRepository implements RepositoryContract
                 return;
             }
 
-            $experiment->recordFailure($this->dataToRecord());
+            $experiment->recordFailure($this->id(), $data);
         });
 
     }
@@ -93,14 +93,5 @@ abstract class GoalRepository implements RepositoryContract
         }
 
         return $experimentsWithThisGoal;
-    }
-
-    private function dataToRecord(): array
-    {
-        return [
-            'ip' => request()->ip(),
-            'when' => now(),
-            'user_id' => auth()->user()?->id(),
-        ];
     }
 }

@@ -8,6 +8,7 @@ use Statamic\Support\Traits\FluentlyGetsAndSets;
 use Thoughtco\StatamicABTester\Contracts\Goal as GoalContract;
 use Thoughtco\StatamicABTester\Events;
 use Thoughtco\StatamicABTester\Facades\Goal as GoalFacade;
+use Thoughtco\StatamicABTester\Models\AbTestResult;
 
 abstract class Goal implements Arrayable, GoalContract
 {
@@ -37,6 +38,11 @@ abstract class Goal implements Arrayable, GoalContract
     public function id($id = null)
     {
         return $this->fluentlyGetOrSet('id')->args(func_get_args());
+    }
+
+    public function resultsQuery()
+    {
+        return AbTestResult::query()->where('goal_id', $this->id());
     }
 
     public function title($title = null)

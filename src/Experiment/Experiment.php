@@ -6,13 +6,11 @@ use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Carbon;
 use Statamic\Data\ContainsData;
 use Statamic\Data\Publishable;
-use Statamic\Facades\File;
-use Statamic\Facades\YAML;
-use Statamic\Support\Arr;
 use Statamic\Support\Traits\FluentlyGetsAndSets;
 use Thoughtco\StatamicABTester\Contracts\Experiment as ExperimentContract;
 use Thoughtco\StatamicABTester\Events;
 use Thoughtco\StatamicABTester\Facades\Experiment as ExperimentFacade;
+use Thoughtco\StatamicABTester\Models\AbTestResult;
 
 abstract class Experiment implements Arrayable, ExperimentContract
 {
@@ -25,8 +23,6 @@ abstract class Experiment implements Arrayable, ExperimentContract
     protected $goals = [];
 
     protected $id;
-
-    protected $results = [];
 
     protected $startAt;
 
@@ -72,21 +68,9 @@ abstract class Experiment implements Arrayable, ExperimentContract
         return $this->fluentlyGetOrSet('id')->args(func_get_args());
     }
 
-    public function results($results = null)
+    public function resultsQuery()
     {
-        if ($results === null) {
-            return collect($this->results)->map(function ($result, $variantId) {
-                $result['label'] = Arr::get($this->variants()->firstWhere('id', $variantId), 'label') ?: $variantId;
-
-                return $result;
-            });
-        }
-
-        //        $this->results = collect($this->variants())->mapWithKeys(function ($variant) use ($results) {
-        //            return [$variant['id'] => Arr::get($results, $variant['id'], ['hits' => 0, 'successful' => 0, 'failed' => 0])];
-        //        })->toArray();
-
-        return $this;
+        return AbTestResult::query()->where('experiment_id', $this->id());
     }
 
     public function startAt($startAt = null)
@@ -115,53 +99,35 @@ abstract class Experiment implements Arrayable, ExperimentContract
         return $this->fluentlyGetOrSet('type')->args(func_get_args());
     }
 
-    public function recordHit($variant)
+    private function createResultModel($type, $goalId, $data)
     {
-        if (! $this->results) {
-            $this->results([]);
-        }
+        AbTestResult::create([
+            'data' => $data,
+            'experiment_id' => $this->id(),
+            'goal_id' => $goalId,
+            'ip_address' => request()->ip(),
+            'type' => $type,
+            'user_id' => auth()->user()?->id(),
+        ]);
+    }
 
-        if (! Arr::has($this->results, $variant)) {
-            return $this;
-        }
-
-        $this->results[$variant]['hits']++;
-
-        $this->save();
+    public function recordHit($goalId = null, $data = [])
+    {
+        $this->createResultModel('hit', $goalId, $data);
 
         return $this;
     }
 
-    public function recordFailure($variant)
+    public function recordFailure($goalId, $data = [])
     {
-        if (! $this->results) {
-            $this->results([]);
-        }
-
-        if (! Arr::has($this->results, $variant)) {
-            return $this;
-        }
-
-        $this->results[$variant]['failed']++;
-
-        $this->save();
+        $this->createResultModel('failure', $goalId, $data);
 
         return $this;
     }
 
-    public function recordSuccess($variant)
+    public function recordSuccess($goalId, $data = [])
     {
-        if (! $this->results) {
-            $this->results([]);
-        }
-
-        if (! Arr::has($this->results, $variant)) {
-            return $this;
-        }
-
-        $this->results[$variant]['successful']++;
-
-        $this->save();
+        $this->createResultModel('success', $goalId, $data);
 
         return $this;
     }
@@ -230,24 +196,6 @@ abstract class Experiment implements Arrayable, ExperimentContract
         return true;
     }
 
-    public function saveResults()
-    {
-        File::put($this->resultsPath(), YAML::dump($this->results));
-
-        return $this;
-    }
-
-    protected function getResultsFor($variantId)
-    {
-        if (! $variant = $this->variants()->firstWhere('id', $variantId)) {
-            throw new \Exception(__('Variant not found on this experiment'));
-        }
-
-        return array_merge([
-            'label' => Arr::get($variant, 'label', $variantId),
-        ], Arr::get($this->results, $variantId, ['hits' => 0, 'successful' => 0, 'failed' => 0]));
-    }
-
     public function toArray()
     {
         return array_merge($this->data->all(), [
@@ -255,7 +203,6 @@ abstract class Experiment implements Arrayable, ExperimentContract
             'title' => $this->title(),
             'type' => $this->type(),
             'goals' => $this->goals,
-            'results' => $this->results,
             'start_at' => $this->startAt,
             'end_at' => $this->endAt,
             'published' => $this->published,

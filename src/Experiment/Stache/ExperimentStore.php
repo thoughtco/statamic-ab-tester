@@ -38,11 +38,10 @@ class ExperimentStore extends BasicStore
             ->title($data['title'] ?? '')
             ->type($data['type'] ?? '')
             ->goals($data['goals'] ?? [])
-            ->results($data['results'] ?? [])
             ->startAt($data['start_at'] ?? null)
             ->endAt($data['end_at'] ?? null)
             ->published($data['published'] ?? false)
-            ->data(Arr::except($data, ['title', 'type', 'goals', 'results', 'start_at', 'end_at', 'published']));
+            ->data(Arr::except($data, ['title', 'type', 'goals', 'start_at', 'end_at', 'published']));
     }
 
     public function getItemKey($item)

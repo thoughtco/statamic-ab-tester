@@ -23,7 +23,7 @@ class ExperimentFields extends Fieldtype
             return $data;
         }
 
-        if (! $item = Data::find($parent->get('entry_id', 'home'))) { // @TODO: remove 'home' fallback
+        if (! $item = Data::find($parent->get('item_id', 'home'))) { // @TODO: remove 'home' fallback
             return $data;
         }
 

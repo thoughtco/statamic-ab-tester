@@ -61,7 +61,8 @@ class CreateExperiment extends Action
         $blueprint = $item->blueprint();
 
         $existsQuery = Experiment::query()
-            ->where('entry_id', $item->id())
+            ->where('type', 'item')
+            ->where('item_id', $item->id())
             ->where('published', true)
             ->where(fn ($query) => $query->whereNull('start_at')->orWhere('start_at', '<=', now()))
             ->where(fn ($query) => $query->whereNull('end_at')->orWhere('end_at', '>=', now()))
@@ -70,7 +71,7 @@ class CreateExperiment extends Action
         return [
             ...parent::toArray(),
             'abTester' => [
-                'entry_id' => $item->id(),
+                'item_id' => $item->id(),
                 'exists' => $existsQuery ? Statamic::cpRoute('ab.experiments.show', ['experiment' => $existsQuery->id()]) : false,
                 'fields' => $blueprint->fields()->toPublishArray(),
                 'goals' => Goal::all()->map(fn ($goal) => ['label' => $goal->title(), 'value' => $goal->handle()])->all(),

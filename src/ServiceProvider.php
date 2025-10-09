@@ -36,6 +36,8 @@ class ServiceProvider extends AddonServiceProvider
             __DIR__.'/../config/statamic-ab-tester.php' => config_path('statamic-ab-tester.php'),
         ], 'config');
 
+        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+
         $this->createAddonNavigation()
             ->createAddonExperimentRepository()
             ->createAddonGoalRepository()
@@ -61,7 +63,7 @@ class ServiceProvider extends AddonServiceProvider
 
     private function createAddonExperimentRepository()
     {
-        Stache::registerStore((new Experiment\Stache\ExperimentStore)->directory(config('statamic-ab-tester.experiments_path')));
+        Stache::registerStore((new Experiment\Stache\ExperimentStore)->directory(config('statamic-ab-tester.experiments.path')));
 
         Statamic::repository(Contracts\ExperimentRepository::class, Experiment\Stache\ExperimentRepository::class);
 
@@ -70,7 +72,7 @@ class ServiceProvider extends AddonServiceProvider
 
     private function createAddonGoalRepository()
     {
-        Stache::registerStore((new Goal\Stache\GoalStore)->directory(config('statamic-ab-tester.goals_path')));
+        Stache::registerStore((new Goal\Stache\GoalStore)->directory(config('statamic-ab-tester.goals.path')));
 
         Statamic::repository(Contracts\GoalRepository::class, Goal\Stache\GoalRepository::class);
 

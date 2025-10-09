@@ -65,14 +65,14 @@ class ExperimentsController extends CpController
     public function store(Request $request)
     {
         $request->validate([
-            'entry_id' => ['required'],
+            'item_id' => ['required'],
             'title' => ['required'],
             'experiment_fields' => ['required', 'array'],
             'goals' => ['required', 'array'],
             'published' => ['nullable', 'boolean'],
         ]);
 
-        $fields = Data::find($request->input('entry_id'))->blueprint()->fields()
+        $fields = Data::find($request->input('item_id'))->blueprint()->fields()
             ->only($request->input('experiment_fields.fields', []))
             ->addValues($request->input('experiment_fields.values', []));
 
@@ -86,9 +86,9 @@ class ExperimentsController extends CpController
             Experiment::make()
                 ->title($request->input('title'))
                 ->goals($request->input('goals'))
-                ->type('entry') // for now we only have one experiment type, but that will change
+                ->type('item') // for now we only have one experiment type, but that will change
                 ->data([
-                    'entry_id' => $request->input('entry_id'),
+                    'item_id' => $request->input('item_id'),
                     'experiment_fields' => $request->input('experiment_fields'),
                 ])
                 ->published($request->input('published', true))
@@ -124,14 +124,14 @@ class ExperimentsController extends CpController
         abort_unless($experiment = Experiment::find($experiment), 404);
 
         $request = $request->merge([
-            'entry_id' => $experiment->get('entry_id'),
+            'item_id' => $experiment->get('item_id'),
         ]);
 
         $fields = Experiment::blueprint()->fields()->setParent($experiment)->addValues($request->all());
 
         $fields->validate();
 
-        $fields = Data::find($experiment->get('entry_id'))
+        $fields = Data::find($experiment->get('item_id'))
             ->blueprint()->fields()
             ->only($request->input('experiment_fields.fields', []))
             ->addValues($request->input('experiment_fields.values', []));
@@ -145,7 +145,7 @@ class ExperimentsController extends CpController
         $experiment->title($request->input('title'))
             ->goals($request->input('goals'))
             ->type($request->input('type'))
-            ->type('entry') // for now we only have one experiment type, but that will change
+            ->type('item') // for now we only have one experiment type, but that will change
             ->merge([
                 'experiment_fields' => $request->input('experiment_fields'),
             ])
