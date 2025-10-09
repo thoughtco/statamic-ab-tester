@@ -7,7 +7,7 @@ defineProps({
 <template>
 
     <ui-header :title="__('Goals')" icon="favorite-trophy">
-        <ui-button variant="primary" text="{{ __('Create') }}" :href="routes.create" />
+        <ui-button variant="primary" :text="__('Create')" :href="routes.create" />
     </ui-header>
 
     <ui-listing

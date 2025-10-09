@@ -17,6 +17,9 @@ defineProps({
 
     <template v-else>
         <ui-card>
+            <header>
+                <ui-heading size="lg">Experiments using this goal</ui-heading>
+            </header>
             <ui-table>
                 <ui-table-columns>
                     <ui-table-column>{{ __('Experiment') }}</ui-table-column>
