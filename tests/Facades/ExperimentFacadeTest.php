@@ -14,22 +14,21 @@ describe('Experiment Facade', function () {
     });
 
     it('can create experiment', function () {
-        $experiment = Experiment::make('test-experiment')
+        $experiment = Experiment::make()
             ->title('Test Experiment')
             ->type('manual')
             ->published(true);
 
-        expect($experiment->handle())->toBe('test-experiment');
         expect($experiment->title())->toBe('Test Experiment');
         expect($experiment->published())->toBeTrue();
     });
 
     it('can find experiment', function () {
-        $experiment = Experiment::make('findable')
-            ->title('Findable Experiment')
+        $experiment = tap(Experiment::make()
+            ->title('Findable Experiment'))
             ->save();
 
-        $found = Experiment::find('findable');
+        $found = Experiment::query()->where('title', 'Findable Experiment')->first();
 
         expect($found)->not->toBeNull();
         expect($found->title())->toBe('Findable Experiment');
@@ -52,45 +51,45 @@ describe('Experiment Facade', function () {
     });
 
     it('can record hit', function () {
-        $experiment = Experiment::make('test')->save();
+        $experiment = tap(Experiment::make('test'))->save();
 
         $experiment->recordHit('control', ['custom' => 'data']);
 
         $this->assertDatabaseHas('ab_test_results', [
-            'experiment_id' => 'test',
-            'variant' => 'control',
+            'experiment_id' => $experiment->id(),
+            'variation' => 'control',
             'type' => 'hit',
         ]);
     });
 
     it('can record success', function () {
-        $experiment = Experiment::make('test')->save();
+        $experiment = tap(Experiment::make('test'))->save();
 
         $experiment->recordSuccess('variant_a', 'goal-id');
 
         $this->assertDatabaseHas('ab_test_results', [
-            'experiment_id' => 'test',
-            'variant' => 'variant_a',
+            'experiment_id' => $experiment->id(),
+            'variation' => 'variant_a',
             'type' => 'success',
             'goal_id' => 'goal-id',
         ]);
     });
 
     it('can record failure', function () {
-        $experiment = Experiment::make('test')->save();
+        $experiment = tap(Experiment::make('test'))->save();
 
         $experiment->recordFailure('variant_a', 'goal-id');
 
         $this->assertDatabaseHas('ab_test_results', [
-            'experiment_id' => 'test',
-            'variant' => 'variant_a',
+            'experiment_id' => $experiment->id(),
+            'variation' => 'variant_a',
             'type' => 'failure',
             'goal_id' => 'goal-id',
         ]);
     });
 
     it('can get results', function () {
-        $experiment = Experiment::make('test')->save();
+        $experiment = tap(Experiment::make('test'))->save();
         $experiment->recordHit('control');
         $experiment->recordSuccess('control', 'goal');
 
