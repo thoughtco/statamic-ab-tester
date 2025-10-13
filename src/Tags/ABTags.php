@@ -13,6 +13,8 @@ class ABTags extends Tags
 {
     protected static $handle = 'ab';
 
+    public static $jsHasBeenRendered = false;
+
     public function index()
     {
         if (! $handle = $this->params->pull('experiment')) {
@@ -68,16 +70,26 @@ class ABTags extends Tags
 
     public function js()
     {
+        if (static::$jsHasBeenRendered) {
+            return;
+        }
+
+        static::$jsHasBeenRendered = true;
+
         return "
         <script>
         const abTester = {
             hit: (experiment, data) => abTester.run('hit', experiment, data),
-            success: (goal, data) => abTester.run('success', goal, data),
+            completed: (goal, data) => abTester.run('success', goal, data),
             failure: (goal, data) => abTester.run('failure', goal, data),
 
             run: (type, source, data) => {
                 fetch('".route('statamic.ab-tester.front-end-js')."', {
                     method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '".csrf_token()."',
+                        'Content-Type': 'application/json',
+                    },
                     body: JSON.stringify({
                         type: type,
                         source: source,
@@ -125,7 +137,7 @@ class ABTags extends Tags
         ]);
     }
 
-    public function success()
+    public function completed()
     {
         if (! $experimentHandle = $this->params->pull('experiment')) {
             return $this->parse();
@@ -176,13 +188,19 @@ class ABTags extends Tags
                 return;
             }
 
+            if (! static::$jsHasBeenRendered) {
+                $html = $this->js();
+            }
+
+            $params = $this->params->all();
+
             match (Str::after($tag, ':')) {
-                'completed' => Goal::completed($handle),
-                'failed' => Goal::failed($handle),
+                'completed' => $html .= '<script>abTester.completed("'.$handle.'", '.json_encode($params).');</script>',
+                'failed' => $html .= '<script>abTester.failed("'.$handle.'", '.json_encode($params).');</script>',
                 default => false
             };
 
-            return;
+            return $html;
         }
     }
 }

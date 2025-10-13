@@ -46,32 +46,40 @@ abstract class GoalRepository implements RepositoryContract
 
     public function completed($handle, $data = [])
     {
+        if (! $goal = $this->query()->where('handle', $handle)->first()) {
+            return false;
+        }
+
         if (! $experimentsWithThisGoal = $this->getExperimentsForGoal($handle)) {
             return false;
         }
 
-        $experimentsWithThisGoal->each(function ($experiment) {
+        $experimentsWithThisGoal->each(function ($experiment) use ($data, $goal) {
             if (! $variantId = session()->has('statamic.ab.'.$experiment->id())) {
                 return;
             }
 
-            $experiment->recordSuccess($variantId, $this->id(), $data);
+            $experiment->recordSuccess($variantId, $goal->id(), $data);
         });
 
     }
 
     public function failed($handle, $data = [])
     {
+        if (! $goal = $this->query()->where('handle', $handle)->first()) {
+            return false;
+        }
+
         if (! $experimentsWithThisGoal = $this->getExperimentsForGoal($handle)) {
             return false;
         }
 
-        $experimentsWithThisGoal->each(function ($experiment) {
+        $experimentsWithThisGoal->each(function ($experiment) use ($data, $goal) {
             if (! $variantId = session()->has('statamic.ab.'.$experiment->id())) {
                 return;
             }
 
-            $experiment->recordFailure($variantId, $this->id(), $data);
+            $experiment->recordFailure($variantId, $goal->id(), $data);
         });
 
     }
@@ -82,11 +90,12 @@ abstract class GoalRepository implements RepositoryContract
             return false;
         }
 
-        $experimentsWithThisGoal = Experiment::whereJsonContains('goals', $goal->id())
+        $experimentsWithThisGoal = Experiment::query()
             ->where('published', true)
             ->where(fn ($query) => $query->whereNull('start_at')->orWhere('start_at', '<=', now()))
             ->where(fn ($query) => $query->whereNull('end_at')->orWhere('end_at', '>=', now()))
-            ->get();
+            ->get()
+            ->filter(fn ($experiment) => in_array($goal->id(), $experiment->goals()->all()));
 
         if ($experimentsWithThisGoal->isEmpty()) {
             return false;

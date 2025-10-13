@@ -34,7 +34,7 @@ defineProps({
                         <ui-table-cell class="font-semibold text-black dark:text-white">{{ result.hits }}</ui-table-cell>
                         <ui-table-cell class="font-semibold text-black dark:text-white">{{ result.failed }}</ui-table-cell>
                         <ui-table-cell class="font-semibold text-black dark:text-white">{{ result.success }}</ui-table-cell>
-                        <ui-table-cell class="font-semibold text-black dark:text-white">{{ result.rate }}%</ui-table-cell>
+                        <ui-table-cell class="font-semibold text-black dark:text-white">{{ result.rate.toFixed(2) }}%</ui-table-cell>
                     </ui-table-row>
 
                     <ui-table-row class="opacity-50">
@@ -42,7 +42,7 @@ defineProps({
                         <ui-table-cell class="font-semibold">{{ results.experimentsTotal.hits }}</ui-table-cell>
                         <ui-table-cell class="font-semibold">{{ results.experimentsTotal.failed }}</ui-table-cell>
                         <ui-table-cell class="font-semibold text-secondary">{{ results.experimentsTotal.success }}</ui-table-cell>
-                        <ui-table-cell class="font-semibold text-secondary">{{ results.experimentsTotal.rate }}%</ui-table-cell>
+                        <ui-table-cell class="font-semibold text-secondary">{{ results.experimentsTotal.rate.toFixed(2) }}%</ui-table-cell>
                     </ui-table-row>
                 </ui-table-rows>
             </ui-table>

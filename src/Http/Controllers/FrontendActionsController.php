@@ -27,7 +27,7 @@ class FrontendActionsController extends Controller
         }
 
         if ($type == 'success') {
-            Goal::success($source, $data);
+            Goal::completed($source, $data);
 
             return [];
         }

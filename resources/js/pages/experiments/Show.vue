@@ -43,7 +43,7 @@ const applyVariant = (variant) => {
                         <ui-table-cell class="font-semibold text-black">{{ result.hits }}</ui-table-cell>
                         <ui-table-cell class="font-semibold text-black">{{ result.failed }}</ui-table-cell>
                         <ui-table-cell class="font-semibold text-black">{{ result.success }}</ui-table-cell>
-                        <ui-table-cell class="font-semibold text-black">{{ result.rate }}%</ui-table-cell>
+                        <ui-table-cell class="font-semibold text-black">{{ result.rate.toFixed(2) }}%</ui-table-cell>
                     </ui-table-row>
                 </ui-table-rows>
             </ui-table>
@@ -64,7 +64,7 @@ const applyVariant = (variant) => {
                         <ui-table-row v-for="result in results.user">
                             <ui-table-cell>{{ result.label }}</ui-table-cell>
                             <ui-table-cell class="font-semibold text-black dark:text-white">{{ result.hits }}</ui-table-cell>
-                            <ui-table-cell class="font-semibold text-black dark:text-white">{{ result.rate }}%</ui-table-cell>
+                            <ui-table-cell class="font-semibold text-black dark:text-white">{{ result.rate.toFixed(2) }}%</ui-table-cell>
                         </ui-table-row>
                     </ui-table-rows>
                 </ui-table>
@@ -84,7 +84,7 @@ const applyVariant = (variant) => {
                         <ui-table-row v-for="result in results.ip">
                             <ui-table-cell>{{ result.label }}</ui-table-cell>
                             <ui-table-cell class="font-semibold text-black dark:text-white">{{ result.hits }}</ui-table-cell>
-                            <ui-table-cell class="font-semibold text-black dark:text-white">{{ result.rate }}%</ui-table-cell>
+                            <ui-table-cell class="font-semibold text-black dark:text-white">{{ result.rate.toFixed(2) }}%</ui-table-cell>
                         </ui-table-row>
                     </ui-table-rows>
                 </ui-table>

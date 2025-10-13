@@ -39,9 +39,9 @@ If you need to trigger goals from Javascript, include the `{{ ab:js }}` in your 
 
 `abTester.hit('experiment-id', { custom: 'data' })` to register a hit on an experiment
 
-`abTester.success('goal-id', { custom: 'data' })` to register a goal success
+`abTester.completed('goal-id', { custom: 'data' })` to register a goal success
 
-`abTester.failure('goal-id', { custom: 'data' })` to register a goal failure
+`abTester.failed('goal-id', { custom: 'data' })` to register a goal failure
 
 
 ### Create an experiment
@@ -55,7 +55,7 @@ Finally, ensure you associate them with the goal you created in the first step.
 ### Outputting experiments
 This add-on will automate the display of the variants, knowing when the item is augmented and switching it as appropriate. 
 
-If you are using full static caching, this won't work as Statamic is never booted, and you will need to use {{ nocache }} alongside the tags this addon provides to run your experiments.
+If you are using full static caching, Statamic is never booted, so you will need to use `{{ nocache }}` alongside the tags this addon provides to run your experiments.
 
 
 ### Static caching
