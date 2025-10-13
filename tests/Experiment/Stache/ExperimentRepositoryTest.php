@@ -13,9 +13,8 @@ it('can make an experiment', function () {
 
 it('can save an experiment', function () {
     $experiment = tap(ExperimentApi::make()
-        ->handle('test')
-        ->title('Test')
-        ->variants([]))
+        ->id('test')
+        ->title('Test'))
         ->save();
 
     $this->assertTrue(File::exists($experiment->path()));
@@ -23,9 +22,8 @@ it('can save an experiment', function () {
 
 it('can delete an experiment', function () {
     $experiment = tap(ExperimentApi::make()
-        ->handle('test')
-        ->title('Test')
-        ->variants([]))
+        ->id('test')
+        ->title('Test'))
         ->save();
 
     $this->assertTrue(File::exists($experiment->path()));
@@ -41,9 +39,8 @@ it('gets a query builder', function () {
 
 it('find an experiment', function () {
     $experiment = tap(ExperimentApi::make()
-        ->handle('test')
-        ->title('Test')
-        ->variants([]))
+        ->id('test')
+        ->title('Test'))
         ->save();
 
     $this->assertNotNull(ExperimentApi::find('test'));
