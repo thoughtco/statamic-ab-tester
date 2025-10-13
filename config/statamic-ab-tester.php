@@ -16,6 +16,12 @@ return [
     ],
 
     /*
+     * Do you want fields to be available to test by default (opt-out) or by
+     * selection only (opt-in)
+     */
+    'blueprint_fields_approach' => 'opt-out',
+
+    /*
     * Config related to goals
     */
     'goals' => [

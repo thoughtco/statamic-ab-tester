@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Route;
 use Statamic\Facades\CP\Nav;
 use Statamic\Facades\Permission;
 use Statamic\Facades\Stache;
+use Statamic\Fields\Fieldtype;
 use Statamic\Providers\AddonServiceProvider;
 use Statamic\Statamic;
 use Statamic\StaticCaching\StaticCacheManager;
@@ -48,7 +49,8 @@ class ServiceProvider extends AddonServiceProvider
             ->createAddonGoalRepository()
             ->createAddonPermissions()
             ->createAddonCacheStrategy()
-            ->pushAddonMiddleware();
+            ->pushAddonMiddleware()
+            ->extendFieldConfigs();
     }
 
     public function register()
@@ -122,6 +124,17 @@ class ServiceProvider extends AddonServiceProvider
     private function pushAddonMiddleware()
     {
         Route::prependMiddlewareToGroup('web', Http\Middleware\ABTesterMiddleware::class);
+
+        return $this;
+    }
+
+    private function extendFieldConfigs()
+    {
+        Fieldtype::appendConfigField('ab_tester_enable', [
+            'type' => 'toggle',
+            'display' => __('Allow this field to be A/B tested'),
+            'default' => config('statamic-ab-tester.blueprint_fields_approach') == 'opt-out',
+        ]);
 
         return $this;
     }

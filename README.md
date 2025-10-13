@@ -63,6 +63,12 @@ If you are using the `half` caching strategy, switch to using the provided `ab` 
 
 If you are using `full` static caching, you will need to wrap any experiments in `{{ nocache }}` tags and ensure you are using the tags to record hits, successes and failures.
 
+
+### Field selection
+By default all fields will be selectable to apply an A/B Test but you can control this using the `Allow this field to be A/B tested` config field that this add-on sets on each fieldtype.
+
+If it makes sense for you to to default to fields not being included, you can set the `statamic-ab-tester.blueblueprint_fields_approach` to be 'opt-out'. 
+
 ~~~
 
 TBD if anything below still applies...
