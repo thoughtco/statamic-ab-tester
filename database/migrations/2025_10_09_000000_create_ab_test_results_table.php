@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('variation')->nullable()->index();
             $table->string('user_id')->nullable()->index();
             $table->ipAddress('ip_address')->nullable();
-            $table->jsonb('data');
+            $table->jsonb('data')->nullable();
             $table->timestamps();
         });
     }

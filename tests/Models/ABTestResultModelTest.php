@@ -8,7 +8,7 @@ describe('AB Test Result Model', function () {
     it('can create hit result', function () {
         $result = ABTestResult::create([
             'experiment_id' => 'test-experiment',
-            'variant' => 'control',
+            'variation' => 'control',
             'type' => 'hit',
             'ip_address' => '127.0.0.1',
             'user_id' => null,
@@ -17,12 +17,12 @@ describe('AB Test Result Model', function () {
 
         expect($result)->toBeInstanceOf(ABTestResult::class);
         expect($result->experiment_id)->toBe('test-experiment');
-        expect($result->variant)->toBe('control');
+        expect($result->variation)->toBe('control');
         expect($result->type)->toBe('hit');
 
         $this->assertDatabaseHas('ab_test_results', [
             'experiment_id' => 'test-experiment',
-            'variant' => 'control',
+            'variation' => 'control',
             'type' => 'hit',
         ]);
     });
@@ -30,7 +30,7 @@ describe('AB Test Result Model', function () {
     it('can create success result', function () {
         $result = ABTestResult::create([
             'experiment_id' => 'test-experiment',
-            'variant' => 'variant_a',
+            'variation' => 'variant_a',
             'type' => 'success',
             'goal_id' => 'signup',
             'ip_address' => '127.0.0.1',
@@ -43,7 +43,7 @@ describe('AB Test Result Model', function () {
     it('can create failure result', function () {
         $result = ABTestResult::create([
             'experiment_id' => 'test-experiment',
-            'variant' => 'variant_a',
+            'variation' => 'variant_a',
             'type' => 'failure',
             'goal_id' => 'signup',
             'ip_address' => '127.0.0.1',
@@ -56,17 +56,17 @@ describe('AB Test Result Model', function () {
     it('scopes by experiment', function () {
         ABTestResult::create([
             'experiment_id' => 'exp-1',
-            'variant' => 'control',
+            'variation' => 'control',
             'type' => 'hit',
         ]);
 
         ABTestResult::create([
             'experiment_id' => 'exp-2',
-            'variant' => 'control',
+            'variation' => 'control',
             'type' => 'hit',
         ]);
 
-        $results = ABTestResult::forExperiment('exp-1')->get();
+        $results = ABTestResult::where('experiment_id', 'exp-1')->get();
 
         expect($results)->toHaveCount(1);
         expect($results->first()->experiment_id)->toBe('exp-1');
@@ -75,37 +75,37 @@ describe('AB Test Result Model', function () {
     it('scopes by variant', function () {
         ABTestResult::create([
             'experiment_id' => 'test',
-            'variant' => 'control',
+            'variation' => 'control',
             'type' => 'hit',
         ]);
 
         ABTestResult::create([
             'experiment_id' => 'test',
-            'variant' => 'variant_a',
+            'variation' => 'variant_a',
             'type' => 'hit',
         ]);
 
-        $results = ABTestResult::forVariant('control')->get();
+        $results = ABTestResult::where('variation', 'control')->get();
 
         expect($results)->toHaveCount(1);
-        expect($results->first()->variant)->toBe('control');
+        expect($results->first()->variation)->toBe('control');
     });
 
     it('scopes by type', function () {
         ABTestResult::create([
             'experiment_id' => 'test',
-            'variant' => 'control',
+            'variation' => 'control',
             'type' => 'hit',
         ]);
 
         ABTestResult::create([
             'experiment_id' => 'test',
-            'variant' => 'control',
+            'variation' => 'control',
             'type' => 'success',
         ]);
 
-        $hits = ABTestResult::ofType('hit')->get();
-        $successes = ABTestResult::ofType('success')->get();
+        $hits = ABTestResult::where('type', 'hit')->get();
+        $successes = ABTestResult::where('type', 'success')->get();
 
         expect($hits)->toHaveCount(1);
         expect($successes)->toHaveCount(1);
