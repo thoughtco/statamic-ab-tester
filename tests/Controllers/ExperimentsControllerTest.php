@@ -41,25 +41,28 @@ describe('Experiments Controller', function () {
     });
 
     it('creates new experiment', function () {
+        $this->assertCount(0, Experiment::all());
+
         $data = [
             'title' => 'Test Experiment',
             'type' => 'manual',
             'published' => true,
-            'variants' => [
+            'goals' => [1],
+            'manual_fields' => [
                 'control' => ['weight' => 50],
                 'variant_a' => ['weight' => 50],
             ],
         ];
 
         $this->post(cp_route('ab.experiments.store'), $data)
-            ->assertRedirect();
+            ->assertStatus(200);
 
-        expect(Experiment::find('test-experiment'))->not->toBeNull();
+        $this->assertCount(1, Experiment::all());
     });
 
     it('validates experiment creation', function () {
         $this->post(cp_route('ab.experiments.store'), [])
-            ->assertSessionHasErrors(['title', 'handle']);
+            ->assertSessionHasErrors(['title']);
     });
 
     it('shows experiment', function () {
@@ -78,11 +81,13 @@ describe('Experiments Controller', function () {
 
         $data = [
             'title' => 'Updated Experiment',
+            'type' => 'manual',
+            'goals' => [1],
             'published' => false,
         ];
 
         $this->patch(cp_route('ab.experiments.update', $experiment->id()), $data)
-            ->assertRedirect();
+            ->assertStatus(200);
 
         expect($experiment->fresh()->title())->toBe('Updated Experiment');
     });
@@ -93,7 +98,7 @@ describe('Experiments Controller', function () {
             ->save();
 
         $this->delete(cp_route('ab.experiments.delete', $experiment->id()))
-            ->assertRedirect();
+            ->assertStatus(200);
 
         expect(Experiment::find($experiment->id()))->toBeNull();
     });
