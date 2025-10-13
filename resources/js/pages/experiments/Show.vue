@@ -12,7 +12,7 @@ defineProps({
 const showCompleteModal = ref(false);
 const showConfetti = ref(false);
 
-watch(showCompleteModal, (value) => {
+watch(showConfetti, (value) => {
     if (value) {
         setTimeout(() => {
             showConfetti.value = false;
@@ -21,9 +21,9 @@ watch(showCompleteModal, (value) => {
 })
 
 const applyVariant = (variant) => {
-    alert('apply me');
-
     showConfetti.value = true;
+
+    alert('apply me');
 }
 
 </script>
@@ -113,7 +113,7 @@ const applyVariant = (variant) => {
             :open="showCompleteModal"
             @update:open="showCompleteModal = $event"
         >
-            <div v-confetti v-if="showConfetti" stageHeight="window.innerHeight" stageWidth="window.innerWidth" />
+            <div v-confetti v-if="showConfetti" />
 
             <ui-table>
                 <ui-table-columns>
