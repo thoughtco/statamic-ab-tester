@@ -11,8 +11,9 @@ return new class extends Migration
         Schema::create('ab_test_results', function (Blueprint $table) {
             $table->id();
             $table->string('type')->index();
-            $table->string('goal_id')->index();
+            $table->string('goal_id')->nullable()->index();
             $table->string('experiment_id')->index();
+            $table->string('variation')->nullable()->index();
             $table->string('user_id')->nullable()->index();
             $table->ipAddress('ip_address')->nullable();
             $table->jsonb('data');

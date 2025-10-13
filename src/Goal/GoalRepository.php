@@ -51,11 +51,11 @@ abstract class GoalRepository implements RepositoryContract
         }
 
         $experimentsWithThisGoal->each(function ($experiment) {
-            if (! session()->has('statamic.ab.'.$experiment->id())) {
+            if (! $variantId = session()->has('statamic.ab.'.$experiment->id())) {
                 return;
             }
 
-            $experiment->recordSuccess($this->id(), $data);
+            $experiment->recordSuccess($variantId, $this->id(), $data);
         });
 
     }
@@ -67,11 +67,11 @@ abstract class GoalRepository implements RepositoryContract
         }
 
         $experimentsWithThisGoal->each(function ($experiment) {
-            if (! session()->has('statamic.ab.'.$experiment->id())) {
+            if (! $variantId = session()->has('statamic.ab.'.$experiment->id())) {
                 return;
             }
 
-            $experiment->recordFailure($this->id(), $data);
+            $experiment->recordFailure($variantId, $this->id(), $data);
         });
 
     }

@@ -99,11 +99,12 @@ abstract class Experiment implements Arrayable, ExperimentContract
         return $this->fluentlyGetOrSet('type')->args(func_get_args());
     }
 
-    private function createResultModel($type, $goalId, $data)
+    private function createResultModel($type, $variantId, $goalId, $data)
     {
         AbTestResult::create([
             'data' => $data,
             'experiment_id' => $this->id(),
+            'variation' => $variantId,
             'goal_id' => $goalId,
             'ip_address' => request()->ip(),
             'type' => $type,
@@ -111,23 +112,23 @@ abstract class Experiment implements Arrayable, ExperimentContract
         ]);
     }
 
-    public function recordHit($data = [])
+    public function recordHit($variantId, $data = [])
     {
-        $this->createResultModel('hit', null, $data);
+        $this->createResultModel('hit', $variantId, null, $data);
 
         return $this;
     }
 
-    public function recordFailure($goalId, $data = [])
+    public function recordFailure($variantId, $goalId, $data = [])
     {
-        $this->createResultModel('failure', $goalId, $data);
+        $this->createResultModel('failure', $variantId, $goalId, $data);
 
         return $this;
     }
 
-    public function recordSuccess($goalId, $data = [])
+    public function recordSuccess($variantId, $goalId, $data = [])
     {
-        $this->createResultModel('success', $goalId, $data);
+        $this->createResultModel('success', $variantId, $goalId, $data);
 
         return $this;
     }
@@ -207,5 +208,18 @@ abstract class Experiment implements Arrayable, ExperimentContract
             'end_at' => $this->endAt,
             'published' => $this->published,
         ]);
+    }
+
+    public function chooseVariation()
+    {
+        if ($this->type() == 'item') {
+            if (! $variant = session()->get('statamic.ab.'.$this->id())) {
+                $variant = rand(1, 2);
+            }
+
+            return $variant;
+        }
+
+        return null;
     }
 }

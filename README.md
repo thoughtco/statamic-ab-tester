@@ -58,6 +58,10 @@ This add-on will automate the display of the variants, knowing when the item is 
 If you are using full static caching, this won't work as Statamic is never booted, and you will need to use {{ nocache }} alongside the tags this addon provides to run your experiments.
 
 
+### Static caching
+If you are using the `half` caching strategy, switch to using the provided `ab` driver - this extends half caching but allows ab experiments to continue working.
+
+If you are using `full` static caching, you will need to wrap any experiments in `{{ nocache }}` tags and ensure you are using the tags to record hits, successes and failures.
 
 ~~~
 

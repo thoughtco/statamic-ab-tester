@@ -2,11 +2,15 @@
 
 namespace Thoughtco\StatamicABTester;
 
+use Illuminate\Cache\Repository;
+use Illuminate\Support\Facades\Route;
 use Statamic\Facades\CP\Nav;
 use Statamic\Facades\Permission;
 use Statamic\Facades\Stache;
 use Statamic\Providers\AddonServiceProvider;
 use Statamic\Statamic;
+use Statamic\StaticCaching\StaticCacheManager;
+use Thoughtco\StatamicABTester\StaticCaching\ABCacher;
 
 class ServiceProvider extends AddonServiceProvider
 {
@@ -42,7 +46,14 @@ class ServiceProvider extends AddonServiceProvider
         $this->createAddonNavigation()
             ->createAddonExperimentRepository()
             ->createAddonGoalRepository()
-            ->createAddonPermissions();
+            ->createAddonPermissions()
+            ->createAddonCacheStrategy()
+            ->pushAddonMiddleware();
+    }
+
+    public function register()
+    {
+        $this->createAddonCacheStrategy();
     }
 
     private function createAddonNavigation()
@@ -91,6 +102,26 @@ class ServiceProvider extends AddonServiceProvider
                 ->label(__('Create Goals'))
                 ->description(__('Enable the action on item views to create experiments.'));
         });
+
+        return $this;
+    }
+
+    private function createAddonCacheStrategy()
+    {
+        config()->set('statamic.static_caching.strategies.ab', [
+            'driver' => 'ab',
+        ]);
+
+        app(StaticCacheManager::class)->extend('ab', function ($app, $config) {
+            return new ABCacher($app[Repository::class], $config);
+        });
+
+        return $this;
+    }
+
+    private function pushAddonMiddleware()
+    {
+        Route::prependMiddlewareToGroup('web', Http\Middleware\ABTesterMiddleware::class);
 
         return $this;
     }
