@@ -1,5 +1,6 @@
 <script setup>
-import { ref } from "vue";
+import {ref, watch} from "vue";
+import { vConfetti } from '@neoconfetti/vue';
 
 defineProps({
     experiment: { type: Object, required: true },
@@ -9,10 +10,22 @@ defineProps({
 });
 
 const showCompleteModal = ref(false);
+const showConfetti = ref(false);
+
+watch(showCompleteModal, (value) => {
+    if (value) {
+        setTimeout(() => {
+            showConfetti.value = false;
+        }, 4000);
+    }
+})
 
 const applyVariant = (variant) => {
     alert('apply me');
+
+    showConfetti.value = true;
 }
+
 </script>
 
 <template>
@@ -100,6 +113,8 @@ const applyVariant = (variant) => {
             :open="showCompleteModal"
             @update:open="showCompleteModal = $event"
         >
+            <div v-confetti v-if="showConfetti" stageHeight="window.innerHeight" stageWidth="window.innerWidth" />
+
             <ui-table>
                 <ui-table-columns>
                     <ui-table-column>{{ __('Variant') }}</ui-table-column>
@@ -116,6 +131,7 @@ const applyVariant = (variant) => {
                     </ui-table-row>
                 </ui-table-rows>
             </ui-table>
+
             <template #footer>
                 <div class="flex items-center justify-end space-x-3 pt-3 pb-1">
                     <ui-modal-close>
