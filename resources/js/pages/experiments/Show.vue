@@ -4,6 +4,7 @@ import { ref } from "vue";
 defineProps({
     experiment: { type: Object, required: true },
     hasResults: { type: Boolean, required: true, default: true },
+    results: { type: Array, required: true, default: [] },
     routes: { type: Object, required: true },
 });
 
@@ -37,12 +38,12 @@ const applyVariant = (variant) => {
                     <ui-table-column>{{ __('Success rate') }}</ui-table-column>
                 </ui-table-columns>
                 <ui-table-rows>
-                    <ui-table-row>
-                        <ui-table-cell>Mechanical Keyboard</ui-table-cell>
-                        <ui-table-cell class="font-semibold text-black">11</ui-table-cell>
-                        <ui-table-cell class="font-semibold text-black">1</ui-table-cell>
-                        <ui-table-cell class="font-semibold text-black">10</ui-table-cell>
-                        <ui-table-cell class="font-semibold text-black">90%</ui-table-cell>
+                    <ui-table-row v-for="result in results.variant">
+                        <ui-table-cell>{{ result.label }}</ui-table-cell>
+                        <ui-table-cell class="font-semibold text-black">{{ result.hits }}</ui-table-cell>
+                        <ui-table-cell class="font-semibold text-black">{{ result.failed }}</ui-table-cell>
+                        <ui-table-cell class="font-semibold text-black">{{ result.success }}</ui-table-cell>
+                        <ui-table-cell class="font-semibold text-black">{{ result.rate }}%</ui-table-cell>
                     </ui-table-row>
                 </ui-table-rows>
             </ui-table>
@@ -60,10 +61,10 @@ const applyVariant = (variant) => {
                         <ui-table-column>{{ __('Success rate') }}</ui-table-column>
                     </ui-table-columns>
                     <ui-table-rows>
-                        <ui-table-row>
-                            <ui-table-cell>Mechanical Keyboard</ui-table-cell>
-                            <ui-table-cell class="font-semibold text-black">11</ui-table-cell>
-                            <ui-table-cell class="font-semibold text-black">90%</ui-table-cell>
+                        <ui-table-row v-for="result in results.user">
+                            <ui-table-cell>{{ result.label }}</ui-table-cell>
+                            <ui-table-cell class="font-semibold text-black dark:text-white">{{ result.hits }}</ui-table-cell>
+                            <ui-table-cell class="font-semibold text-black dark:text-white">{{ result.rate }}%</ui-table-cell>
                         </ui-table-row>
                     </ui-table-rows>
                 </ui-table>
@@ -80,10 +81,10 @@ const applyVariant = (variant) => {
                         <ui-table-column>{{ __('Success rate') }}</ui-table-column>
                     </ui-table-columns>
                     <ui-table-rows>
-                        <ui-table-row>
-                            <ui-table-cell>Mechanical Keyboard</ui-table-cell>
-                            <ui-table-cell class="font-semibold text-black">11</ui-table-cell>
-                            <ui-table-cell class="font-semibold text-black">90%</ui-table-cell>
+                        <ui-table-row v-for="result in results.ip">
+                            <ui-table-cell>{{ result.label }}</ui-table-cell>
+                            <ui-table-cell class="font-semibold text-black dark:text-white">{{ result.hits }}</ui-table-cell>
+                            <ui-table-cell class="font-semibold text-black dark:text-white">{{ result.rate }}%</ui-table-cell>
                         </ui-table-row>
                     </ui-table-rows>
                 </ui-table>

@@ -16,7 +16,7 @@ defineProps({
         :blueprint="blueprint"
         :initial-values="values"
         :initial-meta="meta"
-        submit-url="routes.submit"
+        :submit-url="routes.submit"
     >
     </ui-publish-form>
 </template>

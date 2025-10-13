@@ -3,10 +3,12 @@
 namespace Thoughtco\StatamicABTester\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Statamic\Http\Controllers\CP\CpController;
 use Statamic\Query\Scopes\Filters\Concerns\QueriesFilters;
+use Thoughtco\StatamicABTester\Facades\Experiment;
 use Thoughtco\StatamicABTester\Facades\Goal;
 use Thoughtco\StatamicABTester\Http\Resources\GoalsResource;
 
@@ -68,10 +70,43 @@ class GoalsController extends CpController
 
     public function show($goal)
     {
+        abort_unless($goal = Goal::find($goal), 404);
+
+        $experimentResults = $goal->resultsQuery()
+            ->select('experiment_id', DB::raw('count(*) as hits'))
+            ->distinct()
+            ->get()
+            ->map(function ($row) use ($goal) {
+                if (! $experiment = Experiment::find($row['experiment_id'])) {
+                    return null;
+                }
+
+                $success = $goal->resultsQuery()->where('experiment_id', $row['experiment_id'])->where('type', 'success')->count() ?? 0;
+
+                return [
+                    'label' => $experiment->title(),
+                    'hits' => $row['hits'],
+                    'success' => $success,
+                    'failed' => $experiment->resultsQuery()->where('variation', $row['variation'])->where('type', 'failures')->count() ?? 0,
+                    'rate' => 100 * round($success / ($row['hits'] ?? 1), 4),
+                ];
+            })
+            ->filter();
+
         return Inertia::render('AB/Goals/Show', [
-            'goal' => Goal::find($goal),
+            'goal' => $goal,
+            'hasResults' => $experimentResults->isNotEmpty(),
+            'results' => [
+                'experiments' => $experimentResults->all(),
+                'experimentsTotal' => [
+                    'hits' => $experimentResults->sum('hits'),
+                    'success' => $experimentResults->sum('success'),
+                    'failed' => $experimentResults->sum('failed'),
+                    'rate' => 100 * round($experimentResults->sum('success') / $experimentResults->sum('hits'), 4),
+                ],
+            ],
             'routes' => [
-                'edit' => cp_route('ab.goals.edit', $goal),
+                'edit' => cp_route('ab.goals.edit', $goal->id()),
             ],
         ]);
     }

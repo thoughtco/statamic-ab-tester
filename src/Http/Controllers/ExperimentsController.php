@@ -3,9 +3,11 @@
 namespace Thoughtco\StatamicABTester\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Statamic\Facades\Data;
+use Statamic\Facades\User;
 use Statamic\Http\Controllers\CP\CpController;
 use Statamic\Query\Scopes\Filters\Concerns\QueriesFilters;
 use Thoughtco\StatamicABTester\Facades\Experiment;
@@ -54,10 +56,75 @@ class ExperimentsController extends CpController
 
     public function show($experiment)
     {
+        abort_unless($experiment = Experiment::find($experiment), 404);
+
+        $variantResults = $experiment->resultsQuery()
+            ->select('variation', DB::raw('count(*) as hits'))
+            ->distinct()
+            ->get()
+            ->map(function ($row) use ($experiment) {
+                $success = $experiment->resultsQuery()->where('variation', $row['variation'])->where('type', 'success')->count() ?? 0;
+
+                return [
+                    'label' => $row['variation'],
+                    'hits' => $row['hits'],
+                    'success' => $success,
+                    'failed' => $experiment->resultsQuery()->where('variation', $row['variation'])->where('type', 'failures')->count() ?? 0,
+                    'rate' => 100 * round($success / ($row['hits'] ?? 1), 4),
+                ];
+            })
+            ->all();
+
+        $userResults = $experiment->resultsQuery()
+            ->select('user_id', DB::raw('count(*) as hits'))
+            ->distinct()
+            ->orderBy('hits')
+            ->limit(25)
+            ->get()
+            ->map(function ($row) use ($experiment) {
+                if (! $user = User::find($row['user_id'])) {
+                    return null;
+                }
+
+                $success = $experiment->resultsQuery()->where('user_id', $row['user_id'])->where('type', 'success')->count() ?? 0;
+
+                return [
+                    'label' => $user->name(),
+                    'hits' => $row['hits'],
+                    'success' => $success,
+                    'rate' => 100 * round($success / ($row['hits'] ?? 1), 4),
+                ];
+            })
+            ->filter();
+
+        $ipResults = $experiment->resultsQuery()
+            ->select('ip_address', DB::raw('count(*) as hits'))
+            ->distinct()
+            ->orderBy('hits')
+            ->limit(25)
+            ->get()
+            ->map(function ($row) use ($experiment) {
+                $success = $experiment->resultsQuery()->where('ip_address', $row['ip_address'])->where('type', 'success')->count() ?? 0;
+
+                return [
+                    'label' => $row['ip_address'],
+                    'hits' => $row['hits'],
+                    'success' => $success,
+                    'rate' => 100 * round($success / ($row['hits'] ?? 1), 4),
+                ];
+            })
+            ->filter();
+
         return Inertia::render('AB/Experiments/Show', [
-            'experiment' => Experiment::find($experiment),
+            'experiment' => $experiment,
+            'hasResults' => count($variantResults) > 0,
+            'results' => [
+                'ip' => $ipResults,
+                'user' => $userResults,
+                'variant' => $variantResults,
+            ],
             'routes' => [
-                'edit' => cp_route('ab.experiments.edit', $experiment),
+                'edit' => cp_route('ab.experiments.edit', $experiment->id()),
             ],
         ]);
     }
@@ -160,10 +227,5 @@ class ExperimentsController extends CpController
         abort_unless($experiment = Experiment::find($experiment), 404);
 
         $experiment->delete();
-    }
-
-    public function results($experiment)
-    {
-        return response(['results' => Experiment::find($experiment)->results()]);
     }
 }
