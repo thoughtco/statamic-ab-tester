@@ -74,7 +74,7 @@ class GoalsController extends CpController
 
         $experimentResults = $goal->resultsQuery()
             ->select('experiment_id', DB::raw('count(*) as hits'))
-            ->distinct()
+            ->groupBy('experiment_id')
             ->get()
             ->map(function ($row) use ($goal) {
                 if (! $experiment = Experiment::find($row['experiment_id'])) {

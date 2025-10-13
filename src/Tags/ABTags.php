@@ -7,7 +7,6 @@ use Statamic\Support\Str;
 use Statamic\Tags\Tags;
 use Thoughtco\StatamicABTester\Experiment\Stache\Experiment as ExperimentModel;
 use Thoughtco\StatamicABTester\Facades\Experiment;
-use Thoughtco\StatamicABTester\Facades\Goal;
 
 class ABTags extends Tags
 {

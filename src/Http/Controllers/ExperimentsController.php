@@ -60,7 +60,7 @@ class ExperimentsController extends CpController
 
         $variantResults = $experiment->resultsQuery()
             ->select('variation', DB::raw('count(*) as hits'))
-            ->distinct()
+            ->groupBy('variation')
             ->get()
             ->map(function ($row) use ($experiment) {
                 $success = $experiment->resultsQuery()->where('variation', $row['variation'])->where('type', 'success')->count() ?? 0;
@@ -77,7 +77,7 @@ class ExperimentsController extends CpController
 
         $userResults = $experiment->resultsQuery()
             ->select('user_id', DB::raw('count(*) as hits'))
-            ->distinct()
+            ->groupBy('user_id')
             ->orderBy('hits')
             ->limit(25)
             ->get()
@@ -99,7 +99,7 @@ class ExperimentsController extends CpController
 
         $ipResults = $experiment->resultsQuery()
             ->select('ip_address', DB::raw('count(*) as hits'))
-            ->distinct()
+            ->groupBy('ip_address')
             ->orderBy('hits')
             ->limit(25)
             ->get()
