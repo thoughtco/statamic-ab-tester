@@ -48,7 +48,6 @@ class ServiceProvider extends AddonServiceProvider
             ->createAddonExperimentRepository()
             ->createAddonGoalRepository()
             ->createAddonPermissions()
-            ->createAddonCacheStrategy()
             ->pushAddonMiddleware()
             ->extendFieldConfigs();
     }

@@ -2,10 +2,8 @@
 
 namespace Thoughtco\StatamicABTester\Tags;
 
-use Statamic\Facades;
 use Statamic\Support\Str;
 use Statamic\Tags\Tags;
-use Thoughtco\StatamicABTester\Experiment\Stache\Experiment as ExperimentModel;
 use Thoughtco\StatamicABTester\Facades\Experiment;
 
 class ABTags extends Tags
@@ -16,55 +14,34 @@ class ABTags extends Tags
 
     public function index()
     {
-        if (! $handle = $this->params->pull('experiment')) {
+        if (! $experimentId = $this->params->pull('experiment')) {
             return $this->parse();
         }
 
-        if (! $experiment = Experiment::find($handle)) {
+        if (! $experiment = Experiment::query()
+            ->where('id', $experimentId)
+            ->where('published', true)
+            ->where(fn ($query) => $query->whereNull('start_at')->orWhere('start_at', '<=', now()))
+            ->where(fn ($query) => $query->whereNull('end_at')->orWhere('end_at', '>=', now()))
+            ->first()) {
             return $this->parse();
         }
 
-        if ($experiment->startAt() && now()->isBefore($experiment->startAt())) {
+        $useSession = $this->params->pull('from_session', false);
+        if (! $variant = $experiment->chooseVariation(fromSession: $useSession)) {
             return $this->parse();
         }
 
-        if ($experiment->endAt() && now()->isAfter($experiment->endAt())) {
-            return $this->parse();
-        }
-
-        $variants = $experiment->variants();
-
-        $useSession = $this->params->bool('session');
-
-        $variant = false;
-        if ($useSession && ($variantHandle = session()->get('statamic.ab.'.$handle))) {
-            $variant = $this->variantFromHandle($experiment, $variantHandle);
-        }
-
-        if (! $variant) {
-            if (! $variant = $variants->random()) {
-                return $this->parse();
-            }
-        }
-
-        $variantHandle = $variant['id'];
-
-        $experiment->recordHit($variantHandle);
+        $experiment->recordHit($variant, $this->params->all());
 
         if ($useSession) {
-            session()->put('statamic.ab.'.$handle, $variantHandle);
+            session()->put('statamic.ab.'.$experimentId, $variant);
         }
 
-        $mergeData = match ($experiment->type()) {
-            'global' => ['no idea' => 'yet'],
-            'entry' => ['entry' => Facades\Entry::find($variant['entry'])],
-            default => [],
-        };
-
-        return $this->parse(array_merge($mergeData, [
-            'experiment' => $handle,
-            'variant' => $this->variantFromHandle($experiment, $variantHandle),
-        ]));
+        return $this->parse([
+            'experiment' => $experiment,
+            'variant' => $variant,
+        ]);
     }
 
     public function js()
@@ -103,13 +80,13 @@ class ABTags extends Tags
 
     public function failure()
     {
-        if (! $experimentHandle = $this->params->pull('experiment')) {
+        if (! $experimentId = $this->params->pull('experiment')) {
             return $this->parse();
         }
 
         $variantHandle = false;
         if ($this->params->bool('from_session')) {
-            if (! $variantHandle = session()->get('statamic.ab.'.$experimentHandle)) {
+            if (! $variantHandle = session()->get('statamic.ab.'.$experimentId)) {
                 return $this->parse();
             }
         }
@@ -120,31 +97,30 @@ class ABTags extends Tags
             }
         }
 
-        if (! $experiment = Experiment::find($experimentHandle)) {
+        if (! $experiment = Experiment::find($experimentId)) {
             return $this->parse();
         }
 
-        $experiment->recordFailure($variantHandle);
+        $experiment->recordFailure($variantHandle, $params->pull('goal'), $params->all());
 
         if (! $this->isPair) {
             return;
         }
 
         return $this->parse([
-            'experiment' => $handle,
-            'variant' => $this->variantFromHandle($experiment, $variantHandle),
+            'error' => false,
         ]);
     }
 
     public function completed()
     {
-        if (! $experimentHandle = $this->params->pull('experiment')) {
+        if (! $experimentId = $this->params->pull('experiment')) {
             return $this->parse();
         }
 
         $variantHandle = false;
         if ($this->params->bool('from_session')) {
-            if (! $variantHandle = session()->get('statamic.ab.'.$experimentHandle)) {
+            if (! $variantHandle = session()->get('statamic.ab.'.$experimentId)) {
                 return $this->parse();
             }
         }
@@ -155,25 +131,19 @@ class ABTags extends Tags
             }
         }
 
-        if (! $experiment = Experiment::find($experimentHandle)) {
+        if (! $experiment = Experiment::find($experimentId)) {
             return $this->parse();
         }
 
-        $experiment->recordSuccess($variantHandle);
+        $experiment->recordSuccess($variantHandle, $params->pull('goal'), $params->all());
 
         if (! $this->isPair) {
             return;
         }
 
         return $this->parse([
-            'experiment' => $handle,
-            'variant' => $this->variantFromHandle($experiment, $variantHandle),
+            'error' => false,
         ]);
-    }
-
-    private function variantFromHandle(ExperimentModel $experiment, string $variantHandle): ?array
-    {
-        return $experiment->variants()->firstWhere('id', $variantHandle);
     }
 
     public function wildcard($tag)
@@ -187,6 +157,7 @@ class ABTags extends Tags
                 return;
             }
 
+            $html = '';
             if (! static::$jsHasBeenRendered) {
                 $html = $this->js();
             }

@@ -4,6 +4,7 @@ namespace Thoughtco\StatamicABTester\Experiment;
 
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Statamic\Data\ContainsData;
 use Statamic\Data\Publishable;
 use Statamic\Support\Traits\FluentlyGetsAndSets;
@@ -214,16 +215,23 @@ abstract class Experiment implements Arrayable, ExperimentContract
         ]);
     }
 
-    public function chooseVariation()
+    public function chooseVariation($fromSession = true)
     {
-        if ($this->type() == 'item') {
-            if (! $variant = session()->get('statamic.ab.'.$this->id())) {
-                $variant = rand(1, 2);
+        if ($fromSession) {
+            if ($variant = session()->get('statamic.ab.'.$this->id())) {
+                return $variant;
             }
-
-            return $variant;
         }
 
-        return null;
+        return $this->variants()->keys()->random();
+    }
+
+    public function variants(): Collection
+    {
+        if ($this->type == 'item') {
+            return collect([1 => 'A', 2 => 'B']);
+        }
+
+        return collect($this->get('manual_fields') ?? [])->pluck('label', 'handle');
     }
 }

@@ -30,9 +30,9 @@ Route::name('ab.goals.')->prefix('ab/goals')->group(function () {
     Route::post('/actions/list', [GoalActionsController::class, 'bulkActions'])->name('actions.bulk');
 
     Route::get('/create', [GoalsController::class, 'create'])->name('create');
+    Route::post('/', [GoalsController::class, 'store'])->name('store');
 
     Route::get('/{goal}', [GoalsController::class, 'show'])->name('show');
-    Route::post('/', [GoalsController::class, 'store'])->name('store');
     Route::get('/{goal}/edit', [GoalsController::class, 'edit'])->name('edit');
     Route::delete('/{goal}/delete', [GoalsController::class, 'destroy'])->name('delete');
     Route::patch('/{goal}', [GoalsController::class, 'update'])->name('update');
