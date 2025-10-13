@@ -15,14 +15,14 @@ defineExpose(expose);
 
 const context = injectPublishContext();
 
-const fieldset = ref({ tabs: [{ fields: props.meta.abTester.fields }] });
+const fieldset = ref({ tabs: [{ fields: props.meta.abTester?.fields }] });
 
 const errors = ref(props.errors ?? {});
 const selectedFields = ref(props.value?.fields ?? []);
-const values = ref(props.value?.values ?? props.meta.abTester.values);
+const values = ref(props.value?.values ?? props.meta.abTester?.values);
 
 const selectableFields = computed(() => {
-    return props.meta.abTester.fields
+    return props.meta.abTester?.fields
         .map(field => {
             return {
                 label: field.display,

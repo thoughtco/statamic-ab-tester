@@ -30,7 +30,7 @@ abstract class ExperimentRepository implements RepositoryContract
         return [];
     }
 
-    public function blueprint()
+    public function blueprint($editing = false)
     {
         return Blueprint::makeFromTabs([
             'main' => [
@@ -43,15 +43,46 @@ abstract class ExperimentRepository implements RepositoryContract
                     'type' => [
                         'type' => 'select',
                         'validate' => 'required',
-                        'options' => [
-                            ['value' => 'Item', 'key' => 'item'],
-                        ],
+                        'options' => collect([
+                            ['value' => __('Item'), 'key' => 'item'],
+                            ['value' => __('Manual'), 'key' => 'manual'],
+                        ])->filter(fn ($option) => (! $editing) && ($option['key'] == 'item') ? false : true)->values()->all(),
                         'max_items' => 1,
-                        'default' => 'entry',
+                        'default' => 'manual',
+                        'visibility' => $editing ? 'read_only' : 'visible',
                     ],
                     'experiment_fields' => [
                         'type' => 'experiment_fields',
                         'hide_display' => true,
+                        'if' => [
+                            'type' => 'equals item',
+                        ],
+                    ],
+                    'manual_fields' => [
+                        'type' => 'grid',
+                        'mode' => 'stacked',
+                        'fields' => [
+                            [
+                                'handle' => 'label',
+                                'field' => [
+                                    'label' => __('Label'),
+                                    'type' => 'text',
+                                    'validate' => 'required',
+                                ],
+                            ],
+                            [
+                                'handle' => 'handle',
+                                'field' => [
+                                    'label' => __('Slug'),
+                                    'type' => 'slug',
+                                    'validate' => 'required',
+                                ],
+                            ],
+                        ],
+                        'validate' => 'array',
+                        'if' => [
+                            'type' => 'equals manual',
+                        ],
                     ],
                     'goals' => [
                         'type' => 'select',

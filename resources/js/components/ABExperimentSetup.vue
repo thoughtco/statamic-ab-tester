@@ -31,6 +31,7 @@
             experiment_fields: experimentFields.value,
             goals: selectedGoals.value,
             title: title.value,
+            type: 'item',
         };
 
         let response;

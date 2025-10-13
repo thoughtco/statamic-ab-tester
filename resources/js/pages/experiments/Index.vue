@@ -8,7 +8,9 @@ defineProps({
 <template>
     <template v-if="! experimentsIsEmpty">
 
-        <ui-header :title="__('A/B Experiments')" icon="labs-idea-experimental-flask" />
+        <ui-header :title="__('A/B Experiments')" icon="labs-idea-experimental-flask">
+            <ui-button variant="primary" :text="__('Create')" :href="routes.create" />
+        </ui-header>
 
         <ui-listing
             :url="routes.json"
@@ -38,7 +40,7 @@ defineProps({
 
         <ui-empty-state-menu :heading="__('Add your first experiment with these easy steps')">
             <ui-empty-state-item
-                :href="routes.create"
+                :href="routes.goal_create"
                 icon="favorite-trophy"
                 :heading="__('Add a goal')"
                 :description="__('statamic::messages.collection_next_steps_configure_description')"

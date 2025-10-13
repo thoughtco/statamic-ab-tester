@@ -13,8 +13,10 @@ Route::name('ab.experiments.')->prefix('ab/experiments')->group(function () {
     Route::post('/actions', [ExperimentActionsController::class, 'run'])->name('actions');
     Route::post('/actions/list', [ExperimentActionsController::class, 'bulkActions'])->name('actions.bulk');
 
-    Route::get('/{experiment}', [ExperimentsController::class, 'show'])->name('show');
+    Route::get('/create', [ExperimentsController::class, 'create'])->name('create');
     Route::post('/', [ExperimentsController::class, 'store'])->name('store');
+
+    Route::get('/{experiment}', [ExperimentsController::class, 'show'])->name('show');
     Route::get('/{experiment}/edit', [ExperimentsController::class, 'edit'])->name('edit');
     Route::delete('/{experiment}/delete', [ExperimentsController::class, 'destroy'])->name('delete');
     Route::patch('/{experiment}', [ExperimentsController::class, 'update'])->name('update');

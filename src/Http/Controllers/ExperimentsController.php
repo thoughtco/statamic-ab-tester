@@ -10,6 +10,7 @@ use Statamic\Facades\Data;
 use Statamic\Facades\User;
 use Statamic\Http\Controllers\CP\CpController;
 use Statamic\Query\Scopes\Filters\Concerns\QueriesFilters;
+use Statamic\Support\Arr;
 use Thoughtco\StatamicABTester\Facades\Experiment;
 use Thoughtco\StatamicABTester\Http\Resources\ExperimentsResource;
 
@@ -23,7 +24,8 @@ class ExperimentsController extends CpController
             'experimentsIsEmpty' => Experiment::query()->count() <= 0,
             'routes' => [
                 'actions' => cp_route('ab.experiments.actions'),
-                'create' => cp_route('ab.goals.create'),
+                'create' => cp_route('ab.experiments.create'),
+                'goal_create' => cp_route('ab.goals.create'),
                 'json' => cp_route('ab.experiments.json'),
             ],
         ]);
@@ -52,6 +54,22 @@ class ExperimentsController extends CpController
                     'activeFilterBadges' => $activeFilterBadges,
                 ],
             ]);
+    }
+
+    public function create()
+    {
+        $blueprint = Experiment::blueprint();
+
+        $fields = $blueprint->fields()->preProcess();
+
+        return Inertia::render('AB/Experiments/Create', [
+            'blueprint' => $blueprint->toPublishArray(),
+            'values' => $fields->values(),
+            'meta' => $fields->meta(),
+            'routes' => [
+                'store' => cp_route('ab.experiments.store'),
+            ],
+        ]);
     }
 
     public function show($experiment)
@@ -132,32 +150,37 @@ class ExperimentsController extends CpController
     public function store(Request $request)
     {
         $request->validate([
-            'item_id' => ['required'],
             'title' => ['required'],
-            'experiment_fields' => ['required', 'array'],
+            'item_id' => ['required_if:type,item'],
+            'experiment_fields' => ['required_if:type,item', 'array'],
+            'manual_fields' => ['required_if:type,manual', 'array'],
             'goals' => ['required', 'array'],
             'published' => ['nullable', 'boolean'],
+            'type' => ['required', 'in:item,manual'],
         ]);
 
-        $fields = Data::find($request->input('item_id'))->blueprint()->fields()
-            ->only($request->input('experiment_fields.fields', []))
-            ->addValues($request->input('experiment_fields.values', []));
+        if ($request->input('type') === 'item') {
+            $fields = Data::find($request->input('item_id'))->blueprint()->fields()
+                ->only($request->input('experiment_fields.fields', []))
+                ->addValues($request->input('experiment_fields.values', []));
 
-        try {
-            $fields->validate();
-        } catch (ValidationException $e) {
-            throw ValidationException::withMessages(collect($e->errors())->mapWithKeys(fn ($errors, $key) => ['experiment_fields.values.'.$key => $errors])->all());
+            try {
+                $fields->validate();
+            } catch (ValidationException $e) {
+                throw ValidationException::withMessages(collect($e->errors())->mapWithKeys(fn ($errors, $key) => ['experiment_fields.values.'.$key => $errors])->all());
+            }
         }
 
         $experiment = tap(
             Experiment::make()
                 ->title($request->input('title'))
                 ->goals($request->input('goals'))
-                ->type('item') // for now we only have one experiment type, but that will change
-                ->data([
+                ->type($request->input('type'))
+                ->data(Arr::removeNullValues([
                     'item_id' => $request->input('item_id'),
                     'experiment_fields' => $request->input('experiment_fields'),
-                ])
+                    'manual_fields' => $request->input('manual_fields'),
+                ]))
                 ->published($request->input('published', true))
         )
             ->save();
@@ -171,9 +194,11 @@ class ExperimentsController extends CpController
     {
         abort_unless($experiment = Experiment::find($experiment), 404);
 
-        $blueprint = Experiment::blueprint();
+        $blueprint = Experiment::blueprint(editing: true);
 
-        $fields = $blueprint->fields()->setParent($experiment)->addValues($experiment->toArray())->preProcess();
+        $fields = $blueprint->fields()->setParent($experiment);
+
+        $fields = $fields->addValues($experiment->toArray())->preProcess();
 
         return Inertia::render('AB/Experiments/Edit', [
             'experiment' => $experiment,
@@ -198,15 +223,17 @@ class ExperimentsController extends CpController
 
         $fields->validate();
 
-        $fields = Data::find($experiment->get('item_id'))
-            ->blueprint()->fields()
-            ->only($request->input('experiment_fields.fields', []))
-            ->addValues($request->input('experiment_fields.values', []));
+        if ($request->input('type') === 'item') {
+            $fields = Data::find($experiment->get('item_id'))
+                ->blueprint()->fields()
+                ->only($request->input('experiment_fields.fields', []))
+                ->addValues($request->input('experiment_fields.values', []));
 
-        try {
-            $fields->validate();
-        } catch (ValidationException $e) {
-            throw ValidationException::withMessages(collect($e->errors())->mapWithKeys(fn ($errors, $key) => ['experiment_fields.values.'.$key => $errors])->all());
+            try {
+                $fields->validate();
+            } catch (ValidationException $e) {
+                throw ValidationException::withMessages(collect($e->errors())->mapWithKeys(fn ($errors, $key) => ['experiment_fields.values.'.$key => $errors])->all());
+            }
         }
 
         $experiment->title($request->input('title'))
