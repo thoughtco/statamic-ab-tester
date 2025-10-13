@@ -46,9 +46,10 @@ describe('Goals Controller', function () {
         ];
 
         $this->post(cp_route('ab.goals.store'), $data)
-            ->assertRedirect();
+            ->assertStatus(200)
+            ->assertSimilarJson(['redirect' => url('/cp/ab/goals/test-goal')]);
 
-        expect(Goal::find('test-goal'))->not->toBeNull();
+        expect(Goal::query()->where('handle', 'test-goal')->first())->not->toBeNull();
     });
 
     it('validates goal creation', function () {
@@ -72,10 +73,11 @@ describe('Goals Controller', function () {
 
         $data = [
             'title' => 'Updated Goal',
+            'handle' => 'test-goal',
         ];
 
-        $this->patch(cp_route('ab.goals.update', $goal->id()), $data)
-            ->assertRedirect();
+        $response = $this->patch(cp_route('ab.goals.update', $goal->id()), $data)
+            ->assertStatus(200);
 
         expect($goal->fresh()->title())->toBe('Updated Goal');
     });
@@ -87,7 +89,7 @@ describe('Goals Controller', function () {
             ->save();
 
         $this->delete(cp_route('ab.goals.delete', $goal->id()))
-            ->assertRedirect();
+            ->assertStatus(200);
 
         expect(Goal::find($goal->id()))->toBeNull();
     });

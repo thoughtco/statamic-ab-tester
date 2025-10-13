@@ -88,7 +88,7 @@ class GoalsController extends CpController
                     'hits' => $row['hits'],
                     'success' => $success,
                     'failed' => $experiment->resultsQuery()->where('variation', $row['variation'])->where('type', 'failures')->count() ?? 0,
-                    'rate' => 100 * round($success / ($row['hits'] ?? 1), 4),
+                    'rate' => 100 * round($success / ($row['hits'] ?: 1), 4),
                 ];
             })
             ->filter();
@@ -102,7 +102,7 @@ class GoalsController extends CpController
                     'hits' => $experimentResults->sum('hits'),
                     'success' => $experimentResults->sum('success'),
                     'failed' => $experimentResults->sum('failed'),
-                    'rate' => 100 * round($experimentResults->sum('success') / $experimentResults->sum('hits'), 4),
+                    'rate' => 100 * round($experimentResults->sum('success') / ($experimentResults->sum('hits') ?: 1), 4),
                 ],
             ],
             'routes' => [
@@ -135,7 +135,7 @@ class GoalsController extends CpController
 
         session()->flash('success', __('Goal Created'));
 
-        return ['redirect' => cp_route('ab.goal.show', $goal->handle())];
+        return ['redirect' => cp_route('ab.goals.show', $goal->handle())];
     }
 
     public function edit($goal)

@@ -234,4 +234,9 @@ abstract class Experiment implements Arrayable, ExperimentContract
 
         return collect($this->get('manual_fields') ?? [])->pluck('label', 'handle');
     }
+
+    public function fresh()
+    {
+        return \Thoughtco\StatamicABTester\Facades\Experiment::find($this->id);
+    }
 }

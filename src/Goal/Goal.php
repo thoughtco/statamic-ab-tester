@@ -121,4 +121,9 @@ abstract class Goal implements Arrayable, GoalContract
             'title' => $this->title(),
         ]);
     }
+
+    public function fresh()
+    {
+        return \Thoughtco\StatamicABTester\Facades\Goal::find($this->id);
+    }
 }
