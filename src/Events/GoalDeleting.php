@@ -5,6 +5,7 @@ namespace Thoughtco\StatamicABTester\Events;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Queue\SerializesModels;
 use Statamic\Events\Event;
+use Thoughtco\StatamicABTester\Contracts\Goal;
 
 class GoalDeleting extends Event
 {
