@@ -41,6 +41,7 @@ class ExperimentStore extends BasicStore
             ->startAt($data['start_at'] ?? null)
             ->endAt($data['end_at'] ?? null)
             ->published($data['published'] ?? false)
+            ->completedAt($data['completed_at'] ?? null)
             ->data(Arr::except($data, ['title', 'type', 'goals', 'start_at', 'end_at', 'published']));
     }
 

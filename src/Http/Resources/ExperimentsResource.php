@@ -68,6 +68,17 @@ class ExperimentsResource extends ResourceCollection
 
         $columns->put('end_at', $column);
 
+        $column = Column::make('is_complete')
+            ->label('Complete')
+            ->fieldtype('toggle')
+            ->listable(true)
+            ->visible(true)
+            ->defaultVisibility(true)
+            ->defaultOrder(5)
+            ->sortable(true);
+
+        $columns->put('is_complete', $column);
+
         if ($key = $this->columnPreferenceKey) {
             $columns->setPreferred($key);
         }

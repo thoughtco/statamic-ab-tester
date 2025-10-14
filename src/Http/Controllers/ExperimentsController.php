@@ -84,6 +84,7 @@ class ExperimentsController extends CpController
                 $success = $experiment->resultsQuery()->where('variation', $row['variation'])->where('type', 'success')->count() ?? 0;
 
                 return [
+                    'id' => $row['variation'], // just in case we label them
                     'label' => $row['variation'],
                     'hits' => $row['hits'],
                     'success' => $success,
@@ -143,6 +144,7 @@ class ExperimentsController extends CpController
             ],
             'routes' => [
                 'edit' => cp_route('ab.experiments.edit', $experiment->id()),
+                'complete' => cp_route('ab.experiments.complete', $experiment->id()),
             ],
         ]);
     }
@@ -194,6 +196,8 @@ class ExperimentsController extends CpController
     {
         abort_unless($experiment = Experiment::find($experiment), 404);
 
+        abort_if($experiment->completedAt(), 403);
+
         $blueprint = Experiment::blueprint(editing: true);
 
         $fields = $blueprint->fields()->setParent($experiment);
@@ -214,6 +218,8 @@ class ExperimentsController extends CpController
     public function update(Request $request, $experiment)
     {
         abort_unless($experiment = Experiment::find($experiment), 404);
+
+        abort_if($experiment->completedAt(), 403);
 
         $request = $request->merge([
             'item_id' => $experiment->get('item_id'),
@@ -254,5 +260,36 @@ class ExperimentsController extends CpController
         abort_unless($experiment = Experiment::find($experiment), 404);
 
         $experiment->delete();
+    }
+
+    public function complete(Request $request, $experiment)
+    {
+        abort_unless($experiment = Experiment::find($experiment), 404);
+
+        abort_if($experiment->completedAt(), 403);
+
+        $request->validate([
+            'variant' => ['required'],
+        ]);
+
+        $variant = $request->input('variant');
+
+        $experiment->completedAt(now())
+            ->merge([
+                'winner' => $variant,
+            ])
+            ->save();
+
+        // if an item experiment, and the winner is the new field version
+        // we need to apply the values to the original item
+        if ($experiment->type() == 'item' && $variant == 2) {
+            if ($item = Data::find($experiment->get('item_id'))) {
+                $item->merge($experiment->get('experiment_fields.values', []))->save();
+            }
+        }
+
+        return [
+            'experiment' => $experiment->toArray(),
+        ];
     }
 }

@@ -3,6 +3,7 @@
         "@inertiajs/vue3": "^2.2.6",
         "@neoconfetti/vue": "^2.2.1",
         "@statamic/cms": "file:./vendor/statamic/cms/resources/dist-package",
+        "@vueuse/core": "^13.9.0",
         "axios": "^1.12.2"
     },
     "scripts": {

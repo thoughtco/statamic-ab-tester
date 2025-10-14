@@ -3,7 +3,6 @@
 namespace Thoughtco\StatamicABTester\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Statamic\Http\Controllers\CP\CpController;
@@ -72,25 +71,43 @@ class GoalsController extends CpController
     {
         abort_unless($goal = Goal::find($goal), 404);
 
-        $experimentResults = $goal->resultsQuery()
-            ->select('experiment_id', DB::raw('count(*) as hits'))
-            ->groupBy('experiment_id')
-            ->get()
-            ->map(function ($row) use ($goal) {
-                if (! $experiment = Experiment::find($row['experiment_id'])) {
-                    return null;
+        // @TODO: need to link to experiments in the results view
+        // and show which are complete
+
+        $experimentsWithThisGoal = Experiment::query()
+            ->whereJsonOverlaps('goals', [$goal->id()])
+            ->get();
+
+        $experimentResults = $experimentsWithThisGoal
+            ->map(function ($experiment) {
+                $success = $experiment->resultsQuery()->where('type', 'success')->count() ?? 0;
+                $hits = $experiment->resultsQuery()->where('type', 'hit')->count() ?? 0;
+
+                $status = 'draft';
+                if ($experiment->published()) {
+                    $status = $experiment->completedAt() ? 'completed' : 'active';
                 }
 
-                $success = $goal->resultsQuery()->where('experiment_id', $row['experiment_id'])->where('type', 'success')->count() ?? 0;
-
                 return [
+                    'id' => $experiment->id(),
                     'label' => $experiment->title(),
-                    'hits' => $row['hits'],
+                    'status' => [
+                        'label' => ucfirst($status),
+                        'color' => match ($status) {
+                            'completed' => 'yellow',
+                            'active' => 'green',
+                            default => null,
+                        },
+                    ],
+                    'hits' => $hits,
                     'success' => $success,
-                    'failed' => $experiment->resultsQuery()->where('variation', $row['variation'])->where('type', 'failures')->count() ?? 0,
-                    'rate' => 100 * round($success / ($row['hits'] ?: 1), 4),
+                    'failed' => $experiment->resultsQuery()->where('type', 'failures')->count() ?? 0,
+                    'rate' => 100 * round($success / ($hits ?: 1), 4),
+                    'show_url' => cp_route('ab.experiments.show', $experiment->id()),
                 ];
             })
+            ->sortBy('label')
+            ->values()
             ->filter();
 
         return Inertia::render('AB/Goals/Show', [

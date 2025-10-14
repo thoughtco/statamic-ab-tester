@@ -17,6 +17,8 @@ class ABTesterMiddleware
     public function handle($request, Closure $next)
     {
         $experiments = Experiment::query()
+            ->where('published', true)
+            ->whereNull('completed_at')
             ->where('type', 'item')
             ->where(fn ($query) => $query->whereNull('start_at')->orWhere('start_at', '<=', now()))
             ->where(fn ($query) => $query->whereNull('end_at')->orWhere('end_at', '>=', now()))

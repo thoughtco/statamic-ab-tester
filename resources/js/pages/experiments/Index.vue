@@ -25,7 +25,7 @@ defineProps({
             </template>
             <template #prepended-row-actions="{ row }">
                 <ui-dropdown-item :text="__('View')" :href="row.show_url" icon="eye" />
-                <ui-dropdown-item :text="__('Edit')" :href="row.edit_url" icon="edit" />
+                <ui-dropdown-item :text="__('Edit')" :href="row.edit_url" icon="edit" v-if="! row.completed_at" />
             </template>
         </ui-listing>
 

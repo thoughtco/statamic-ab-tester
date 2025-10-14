@@ -17,6 +17,7 @@ Route::name('ab.experiments.')->prefix('ab/experiments')->group(function () {
     Route::post('/', [ExperimentsController::class, 'store'])->name('store');
 
     Route::get('/{experiment}', [ExperimentsController::class, 'show'])->name('show');
+    Route::post('/{experiment}/complete', [ExperimentsController::class, 'complete'])->name('complete');
     Route::get('/{experiment}/edit', [ExperimentsController::class, 'edit'])->name('edit');
     Route::delete('/{experiment}/delete', [ExperimentsController::class, 'destroy'])->name('delete');
     Route::patch('/{experiment}', [ExperimentsController::class, 'update'])->name('update');

@@ -19,6 +19,8 @@ abstract class Experiment implements Arrayable, ExperimentContract
 
     protected $afterSaveCallbacks = [];
 
+    protected $completedAt;
+
     protected $endAt;
 
     protected $goals = [];
@@ -37,6 +39,22 @@ abstract class Experiment implements Arrayable, ExperimentContract
     {
         $this->data = collect();
         $this->supplements = collect();
+    }
+
+    public function completedAt($completedAt = null)
+    {
+        return $this->fluentlyGetOrSet('completedAt')
+            ->getter(function ($completedAt) {
+                if (! $completedAt) {
+                    return;
+                }
+
+                return $completedAt instanceof Carbon ? $completedAt : Carbon::createFromTimestamp($completedAt);
+            })
+            ->setter(function ($completedAt) {
+                return $completedAt instanceof Carbon ? $completedAt : ($completedAt ? Carbon::parse($completedAt) : null);
+            })
+            ->args(func_get_args());
     }
 
     public function endAt($endAt = null)
@@ -59,7 +77,7 @@ abstract class Experiment implements Arrayable, ExperimentContract
     {
         return $this->fluentlyGetOrSet('goals')
             ->getter(function ($goals) {
-                return collect($goals ?? []);
+                return $goals ?? [];
             })
             ->args(func_get_args());
     }
@@ -212,6 +230,7 @@ abstract class Experiment implements Arrayable, ExperimentContract
             'start_at' => $this->startAt,
             'end_at' => $this->endAt,
             'published' => $this->published,
+            'completed_at' => $this->completedAt,
         ]);
     }
 

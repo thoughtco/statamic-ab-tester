@@ -61,6 +61,7 @@ class CreateExperiment extends Action
         $blueprint = $item->blueprint();
 
         $existsQuery = Experiment::query()
+            ->whereNull('completed_at')
             ->where('type', 'item')
             ->where('item_id', $item->id())
             ->where('published', true)

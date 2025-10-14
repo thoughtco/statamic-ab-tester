@@ -27,6 +27,7 @@ class ExperimentResource extends JsonResource
             'start_at' => $experiment->startAt() ?? __('-'),
             'end_at' => $experiment->endAt() ?? __('-'),
             'published' => $experiment->published() ? 'published' : 'draft',
+            'is_complete' => $experiment->completedAt() ? true : false,
             'show_url' => cp_route('ab.experiments.show', $experiment->id()),
             'edit_url' => cp_route('ab.experiments.edit', $experiment->id()),
             'editable' => User::current()->can('edit a/b experiments'),
