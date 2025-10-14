@@ -11,7 +11,7 @@ return [
         * Experiments Driver
         * file or eloquent
         */
-        'driver' => 'eloquent',
+        'driver' => 'file',
 
         /*
         * Experiments Path
@@ -36,7 +36,7 @@ return [
         * Goals Driver
         * file or eloquent
         */
-        'driver' => 'eloquent',
+        'driver' => 'file',
 
         /*
         * Goals Path
