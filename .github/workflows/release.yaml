@@ -21,7 +21,7 @@ jobs:
         run: npm ci
 
       - name: Build release assets
-        run: vite build
+        run: npm run build
 
       - name: Create zip
         run: tar -czvf dist.tar.gz dist
