@@ -5,7 +5,8 @@
     "license": "MIT",
     "require": {
         "statamic/cms": "v6.0.0-alpha.11",
-        "laravel/pint": "^1.25"
+        "laravel/pint": "^1.25",
+        "pixelfear/composer-dist-plugin": "^0.1.6"
     },
     "require-dev": {
         "laravel/pint": "^1.17"
@@ -35,6 +36,12 @@
         }
     ],
     "extra": {
+        "download-dist": [
+            {
+                "url": "https://github.com/thoughtco/statamic-ab-tester/releases/download/{$version}/dist.tar.gz",
+                "path": "resources/dist"
+            }
+        ],
         "statamic": {
             "name": "A/B Tester",
             "description": "Run A/B Tests in your Statamic install",
