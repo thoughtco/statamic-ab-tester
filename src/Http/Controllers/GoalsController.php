@@ -71,11 +71,8 @@ class GoalsController extends CpController
     {
         abort_unless($goal = Goal::find($goal), 404);
 
-        // @TODO: need to link to experiments in the results view
-        // and show which are complete
-
         $experimentsWithThisGoal = Experiment::query()
-            ->whereJsonOverlaps('goals', [$goal->id()])
+            ->whereJsonContains('goals', $goal->id())
             ->get();
 
         $experimentResults = $experimentsWithThisGoal

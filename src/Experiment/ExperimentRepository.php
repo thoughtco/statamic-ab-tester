@@ -98,13 +98,11 @@ abstract class ExperimentRepository implements RepositoryContract
                         'type' => 'date',
                         'label' => __('Start at'),
                         'time_enabled' => true,
-                        'validate' => 'nullable,date_format:Y-m-d H:i:s',
                     ],
                     'end_at' => [
                         'type' => 'date',
                         'label' => __('End at'),
                         'time_enabled' => true,
-                        'validate' => 'nullable,date_format:Y-m-d H:i:s',
                     ],
                     'published' => [
                         'type' => 'toggle',

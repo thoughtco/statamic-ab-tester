@@ -42,7 +42,19 @@ class ServiceProvider extends AddonServiceProvider
             __DIR__.'/../config/statamic-ab-tester.php' => config_path('statamic-ab-tester.php'),
         ], 'config');
 
-        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+        $migrationPaths = [
+            __DIR__.'/../database/migrations/results',
+        ];
+
+        if (config('statamic-ab-tester.experiments.driver') == 'eloquent') {
+            $migrationPaths[] = __DIR__.'/../database/migrations/experiments';
+        }
+
+        if (config('statamic-ab-tester.goals.driver') == 'eloquent') {
+            $migrationPaths[] = __DIR__.'/../database/migrations/goals';
+        }
+
+        $this->loadMigrationsFrom($migrationPaths);
 
         $this->createAddonNavigation()
             ->createAddonExperimentRepository()
@@ -76,18 +88,24 @@ class ServiceProvider extends AddonServiceProvider
 
     private function createAddonExperimentRepository()
     {
-        Stache::registerStore((new Experiment\Stache\ExperimentStore)->directory(config('statamic-ab-tester.experiments.path')));
-
-        Statamic::repository(Contracts\ExperimentRepository::class, Experiment\Stache\ExperimentRepository::class);
+        if (config('statamic-ab-tester.experiments.driver') == 'file') {
+            Stache::registerStore((new Experiment\Stache\ExperimentStore)->directory(config('statamic-ab-tester.experiments.path')));
+            Statamic::repository(Contracts\ExperimentRepository::class, Experiment\Stache\ExperimentRepository::class);
+        } elseif (config('statamic-ab-tester.experiments.driver') == 'eloquent') {
+            Statamic::repository(Contracts\ExperimentRepository::class, Experiment\Eloquent\ExperimentRepository::class);
+        }
 
         return $this;
     }
 
     private function createAddonGoalRepository()
     {
-        Stache::registerStore((new Goal\Stache\GoalStore)->directory(config('statamic-ab-tester.goals.path')));
-
-        Statamic::repository(Contracts\GoalRepository::class, Goal\Stache\GoalRepository::class);
+        if (config('statamic-ab-tester.goals.driver') == 'file') {
+            Stache::registerStore((new Goal\Stache\GoalStore)->directory(config('statamic-ab-tester.goals.path')));
+            Statamic::repository(Contracts\GoalRepository::class, Goal\Stache\GoalRepository::class);
+        } elseif (config('statamic-ab-tester.goals.driver') == 'eloquent') {
+            Statamic::repository(Contracts\GoalRepository::class, Goal\Eloquent\GoalRepository::class);
+        }
 
         return $this;
     }

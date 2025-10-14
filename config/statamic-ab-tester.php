@@ -8,8 +8,14 @@ return [
     'experiments' => [
 
         /*
+        * Experiments Driver
+        * file or eloquent
+        */
+        'driver' => 'eloquent',
+
+        /*
         * Experiments Path
-        * Where your experiment YAML files are stored.
+        * Where your experiment YAML files are stored when driver: file
         */
         'path' => resource_path('ab-experiments/experiments'),
 
@@ -27,8 +33,14 @@ return [
     'goals' => [
 
         /*
+        * Goals Driver
+        * file or eloquent
+        */
+        'driver' => 'eloquent',
+
+        /*
         * Goals Path
-        * Where your goals YAML files are stored.
+        * Where your goals YAML files are stored when driver: file
         */
         'path' => resource_path('ab-experiments/goals'),
     ],

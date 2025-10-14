@@ -178,6 +178,8 @@ class ExperimentsController extends CpController
                 ->title($request->input('title'))
                 ->goals($request->input('goals'))
                 ->type($request->input('type'))
+                ->startAt($request->input('start_at'))
+                ->endAt($request->input('end_at'))
                 ->data(Arr::removeNullValues([
                     'item_id' => $request->input('item_id'),
                     'experiment_fields' => $request->input('experiment_fields'),
@@ -245,7 +247,8 @@ class ExperimentsController extends CpController
         $experiment->title($request->input('title'))
             ->goals($request->input('goals'))
             ->type($request->input('type'))
-            ->type('item') // for now we only have one experiment type, but that will change
+            ->startAt($request->input('start_at'))
+            ->endAt($request->input('end_at'))
             ->merge([
                 'experiment_fields' => $request->input('experiment_fields'),
             ])
