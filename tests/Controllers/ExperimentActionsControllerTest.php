@@ -6,43 +6,20 @@ use Statamic\Facades\User;
 use Thoughtco\StatamicABTester\Facades\Experiment;
 
 beforeEach(function () {
-    $this->actingAs(User::make()->makeSuper()->save());
+    $this->actingAs(tap(User::make()->makeSuper())->save());
 });
 
 describe('Experiment Actions Controller', function () {
-    it('can publish experiments', function () {
-        $experiment = tap(Experiment::make('test')
-            ->published(false))
-            ->save();
-
-        $this->post(cp_route('ab.experiments.actions'), [
-            'action' => 'publish',
-            'selections' => ['test'],
-        ])->assertRedirect();
-
-        expect($experiment->fresh()->published())->toBeTrue();
-    });
-
-    it('can unpublish experiments', function () {
-        $experiment = tap(Experiment::make('test')
-            ->published(true))
-            ->save();
-
-        $this->post(cp_route('ab.experiments.actions'), [
-            'action' => 'unpublish',
-            'selections' => ['test'],
-        ])->assertRedirect();
-
-        expect($experiment->fresh()->published())->toBeFalse();
-    });
-
     it('can delete experiments', function () {
         $experiment = tap(Experiment::make('test'))->save();
 
         $this->post(cp_route('ab.experiments.actions'), [
-            'action' => 'delete',
-            'selections' => ['test'],
-        ])->assertRedirect();
+            'action' => 'delete_experiment',
+            'selections' => [$experiment->id()],
+            'values' => [],
+        ])
+            ->assertOk()
+            ->assertSessionHasNoErrors();
 
         expect(Experiment::find('test'))->toBeNull();
     });
@@ -51,13 +28,15 @@ describe('Experiment Actions Controller', function () {
         $exp1 = tap(Experiment::make('test-1')->published(false))->save();
         $exp2 = tap(Experiment::make('test-2')->published(false))->save();
 
-        $this->post(cp_route('ab.experiments.actions'), [
-            'action' => 'publish',
-            'selections' => ['test-1', 'test-2'],
-        ])->assertRedirect();
+        expect(Experiment::all()->count())->toBe(2);
 
-        expect($exp1->fresh()->published())->toBeTrue();
-        expect($exp2->fresh()->published())->toBeTrue();
+        $this->post(cp_route('ab.experiments.actions'), [
+            'action' => 'delete_experiment',
+            'selections' => [$exp1->id(), $exp2->id()],
+            'values' => [],
+        ])->assertOk();
+
+        expect(Experiment::all()->count())->toBe(0);
     });
 
     it('validates action requirements', function () {

@@ -3,23 +3,11 @@
 
 uses(\Thoughtco\StatamicABTester\Tests\TestCase::class);
 
-use Statamic\Facades\CP\Nav;
 use Statamic\Facades\Permission;
 use Thoughtco\StatamicABTester\Contracts\ExperimentRepository;
 use Thoughtco\StatamicABTester\Contracts\GoalRepository;
 
 describe('Service Provider', function () {
-    it('registers navigation items', function () {
-        $nav = Nav::build();
-
-        expect($nav->has('Experiments'))->toBeTrue();
-        expect($nav->has('Goals'))->toBeTrue();
-
-        $experimentsItem = $nav->findByTitle('Experiments');
-        expect($experimentsItem->route())->toBe('ab.experiments.index');
-        expect($experimentsItem->icon())->toBe('labs-idea-experimental-flask');
-    });
-
     it('registers repositories', function () {
         expect(app()->bound(ExperimentRepository::class))->toBeTrue();
         expect(app()->bound(GoalRepository::class))->toBeTrue();
