@@ -1,5 +1,9 @@
 # A/B Tester
 
+## Commercial addon
+
+This addon is paid software. You may use it for free during development, but you must purchase a license from the Statamic Marketplace before deploying to production.
+
 ## Installation
 
 `composer require thoughtco/statamic-ab-tester`
