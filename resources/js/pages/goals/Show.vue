@@ -35,10 +35,10 @@ defineProps({
                     <ui-table-rows>
                         <ui-table-row v-for="result in results.experiments">
                             <ui-table-cell>{{ result.label }}</ui-table-cell>
-                            <ui-table-cell class="font-semibold text-black dark:text-white">{{ result.hits }}</ui-table-cell>
-                            <ui-table-cell class="font-semibold text-black dark:text-white">{{ result.failed }}</ui-table-cell>
-                            <ui-table-cell class="font-semibold text-black dark:text-white">{{ result.success }}</ui-table-cell>
-                            <ui-table-cell class="font-semibold text-black dark:text-white">{{ result.rate.toFixed(2) }}%</ui-table-cell>
+                            <ui-table-cell class="font-semibold">{{ result.hits }}</ui-table-cell>
+                            <ui-table-cell class="font-semibold">{{ result.failed }}</ui-table-cell>
+                            <ui-table-cell class="font-semibold">{{ result.success }}</ui-table-cell>
+                            <ui-table-cell class="font-semibold">{{ result.rate.toFixed(2) }}%</ui-table-cell>
                             <ui-table-cell class="w-16">
                                 <a :href="result.show_url" class="flex flex-row gap-1 items-center opacity-50">
                                     <ui-icon :text="__('View')" name="eye" />

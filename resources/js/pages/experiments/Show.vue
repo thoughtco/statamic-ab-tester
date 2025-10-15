@@ -84,10 +84,10 @@ const applyVariant = async (variant) => {
                     <ui-table-rows>
                         <ui-table-row v-for="result in results.variant">
                             <ui-table-cell class="flex flex-row"><ui-icon name="favorite-trophy" class="mr-2 w-4 h-4" v-if="experiment.completed_at && experiment.winner == result.id " />{{ result.label }}</ui-table-cell>
-                            <ui-table-cell class="font-semibold text-black">{{ result.hits }}</ui-table-cell>
-                            <ui-table-cell class="font-semibold text-black">{{ result.failed }}</ui-table-cell>
-                            <ui-table-cell class="font-semibold text-black">{{ result.success }}</ui-table-cell>
-                            <ui-table-cell class="font-semibold text-black">{{ result.rate.toFixed(2) }}%</ui-table-cell>
+                            <ui-table-cell class="font-semibold">{{ result.hits }}</ui-table-cell>
+                            <ui-table-cell class="font-semibold">{{ result.failed }}</ui-table-cell>
+                            <ui-table-cell class="font-semibold">{{ result.success }}</ui-table-cell>
+                            <ui-table-cell class="font-semibold">{{ result.rate.toFixed(2) }}%</ui-table-cell>
                         </ui-table-row>
                     </ui-table-rows>
                 </ui-table>
@@ -109,8 +109,8 @@ const applyVariant = async (variant) => {
                         <ui-table-rows>
                             <ui-table-row v-for="result in results.user">
                                 <ui-table-cell>{{ result.label }}</ui-table-cell>
-                                <ui-table-cell class="font-semibold text-black dark:text-white">{{ result.hits }}</ui-table-cell>
-                                <ui-table-cell class="font-semibold text-black dark:text-white">{{ result.rate.toFixed(2) }}%</ui-table-cell>
+                                <ui-table-cell class="font-semibold">{{ result.hits }}</ui-table-cell>
+                                <ui-table-cell class="font-semibold">{{ result.rate.toFixed(2) }}%</ui-table-cell>
                             </ui-table-row>
                         </ui-table-rows>
                     </ui-table>
@@ -131,8 +131,8 @@ const applyVariant = async (variant) => {
                         <ui-table-rows>
                             <ui-table-row v-for="result in results.ip">
                                 <ui-table-cell>{{ result.label }}</ui-table-cell>
-                                <ui-table-cell class="font-semibold text-black dark:text-white">{{ result.hits }}</ui-table-cell>
-                                <ui-table-cell class="font-semibold text-black dark:text-white">{{ result.rate.toFixed(2) }}%</ui-table-cell>
+                                <ui-table-cell class="font-semibold">{{ result.hits }}</ui-table-cell>
+                                <ui-table-cell class="font-semibold">{{ result.rate.toFixed(2) }}%</ui-table-cell>
                             </ui-table-row>
                         </ui-table-rows>
                     </ui-table>
