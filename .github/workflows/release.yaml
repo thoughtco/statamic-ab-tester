@@ -1,9 +1,11 @@
-name: Create Release
+name: Bundle Release Assets
 
 on:
-  push:
-    tags:
-      - 'v*'
+  workflow_dispatch:
+  release:
+    types:
+      - released
+      - prereleased
 
 jobs:
   build:
@@ -12,12 +14,21 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.4
+          tools: composer:v2
+
       - name: Use Node.js 23.3.0
         uses: actions/setup-node@v4
         with:
           node-version: 23.3.0
 
-      - name: Install dependencies
+      - name: Install composer dependencies
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Install node dependencies
         run: npm ci
 
       - name: Build release assets
@@ -26,29 +37,20 @@ jobs:
       - name: Create zip
         run: tar -czvf dist.tar.gz dist
 
-      - name: Get Changelog
-        id: changelog
-        uses: statamic/changelog-action@v1
-        with:
-          version: ${{ github.ref }}
-
-      - name: Create release
-        id: create_release
-        uses: actions/create-release@v1
+      - name: Get release
+        id: get_release
+        uses: cardinalby/git-get-release-action@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ steps.changelog.outputs.version }}
-          release_name: ${{ steps.changelog.outputs.version }}
-          body: ${{ steps.changelog.outputs.text }}
-          prerelease: ${{ contains(github.ref, '-alpha') || contains(github.ref, '-beta') }}
+          latest: true
 
       - name: Upload dist zip to release
         uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          upload_url: ${{ steps.get_release.outputs.upload_url }}
           asset_path: ./dist.tar.gz
           asset_name: dist.tar.gz
           asset_content_type: application/tar+gz
