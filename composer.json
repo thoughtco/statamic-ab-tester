@@ -39,7 +39,7 @@
         "download-dist": [
             {
                 "url": "https://github.com/thoughtco/statamic-ab-tester/releases/download/{$version}/dist.tar.gz",
-                "path": "resources/dist"
+                "path": "dist"
             }
         ],
         "statamic": {
