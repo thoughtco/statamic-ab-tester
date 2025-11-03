@@ -4,10 +4,14 @@
     "description": "",
     "license": "MIT",
     "require": {
-        "statamic/cms": "^5.0"
+        "statamic/cms": "^6.0",
+        "laravel/pint": "^1.25",
+        "pixelfear/composer-dist-plugin": "^0.1.6"
     },
     "require-dev": {
-        "laravel/pint": "^1.17"
+        "laravel/pint": "^1.17",
+        "orchestra/testbench": "^10.0",
+        "pestphp/pest": "^4.0"
     },
     "autoload": {
         "psr-4": {
@@ -34,10 +38,15 @@
         }
     ],
     "extra": {
+        "download-dist": [
+            {
+                "url": "https://github.com/thoughtco/statamic-ab-tester/releases/download/{$version}/dist.tar.gz",
+                "path": "dist"
+            }
+        ],
         "statamic": {
             "name": "A/B Tester",
-            "description": "Run A/B Tests in your Statamic install",
-            "version": "0.1"
+            "description": "Run A/B Tests in your Statamic install"
         },
         "laravel": {
             "providers": [
@@ -52,9 +61,5 @@
             "pixelfear/composer-dist-plugin": true,
             "pestphp/pest-plugin": true
         }
-    },
-    "require-dev": {
-        "orchestra/testbench": "^7.0 || ^8.0",
-        "pestphp/pest": "^2.35"
     }
 }

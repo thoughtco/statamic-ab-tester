@@ -6,6 +6,7 @@ use Statamic\Data\DataCollection;
 use Statamic\Facades\Blueprint;
 use Thoughtco\StatamicABTester\Contracts\Experiment as ExperimentContract;
 use Thoughtco\StatamicABTester\Contracts\ExperimentRepository as RepositoryContract;
+use Thoughtco\StatamicABTester\Facades\Goal;
 
 abstract class ExperimentRepository implements RepositoryContract
 {
@@ -16,7 +17,7 @@ abstract class ExperimentRepository implements RepositoryContract
 
     public function find($id): ?ExperimentContract
     {
-        return $this->query()->where('handle', $id)->first();
+        return $this->query()->where('id', $id)->first();
     }
 
     public function make(): ExperimentContract
@@ -29,65 +30,86 @@ abstract class ExperimentRepository implements RepositoryContract
         return [];
     }
 
-    public function blueprint()
+    public function blueprint($editing = false)
     {
-        return Blueprint::makeFromFields([
-            'title' => [
-                'type' => 'text',
-                'validate' => 'required',
-            ],
-            'handle' => [
-                'type' => 'slug',
-                'validate' => ['required', 'alpha_dash'],
-                'from' => 'title',
-            ],
-            'type' => [
-                'type' => 'select',
-                'validate' => 'required',
-                'options' => [
-                    'entry' => 'Entry',
-                    'manual' => 'Manual',
-                ],
-                'max_items' => 1,
-            ],
-            'variants' => [
-                'type' => 'grid',
-                'mode' => 'stacked',
+        return Blueprint::makeFromTabs([
+            'main' => [
+                'display' => 'Main',
                 'fields' => [
-                    [
-                        'handle' => 'label',
-                        'field' => [
-                            'label' => __('Label'),
-                            'type' => 'text',
-                            'validate' => 'required',
+                    'title' => [
+                        'type' => 'text',
+                        'validate' => 'required',
+                    ],
+                    'type' => [
+                        'type' => 'select',
+                        'validate' => 'required',
+                        'options' => collect([
+                            ['value' => __('Item'), 'key' => 'item'],
+                            ['value' => __('Manual'), 'key' => 'manual'],
+                        ])->filter(fn ($option) => (! $editing) && ($option['key'] == 'item') ? false : true)->values()->all(),
+                        'max_items' => 1,
+                        'default' => 'manual',
+                        'visibility' => $editing ? 'read_only' : 'visible',
+                    ],
+                    'experiment_fields' => [
+                        'type' => 'experiment_fields',
+                        'hide_display' => true,
+                        'if' => [
+                            'type' => 'equals item',
                         ],
                     ],
-                    [
-                        'handle' => 'entry',
-                        'field' => [
-                            'label' => __('Entry'),
-                            'type' => 'entries',
-                            'mode' => 'default',
-                            'max_items' => 1,
-                            'if' => [
-                                'root.type' => 'equals entry',
+                    'manual_fields' => [
+                        'type' => 'grid',
+                        'mode' => 'stacked',
+                        'fields' => [
+                            [
+                                'handle' => 'label',
+                                'field' => [
+                                    'label' => __('Label'),
+                                    'type' => 'text',
+                                    'validate' => 'required',
+                                ],
+                            ],
+                            [
+                                'handle' => 'handle',
+                                'field' => [
+                                    'label' => __('Slug'),
+                                    'type' => 'slug',
+                                    'validate' => 'required',
+                                ],
                             ],
                         ],
+                        'validate' => 'array',
+                        'if' => [
+                            'type' => 'equals manual',
+                        ],
+                    ],
+                    'goals' => [
+                        'type' => 'select',
+                        'validate' => 'required',
+                        'options' => Goal::all()->map(fn ($goal) => ['value' => $goal->title(), 'key' => $goal->id()])->all(),
+                        'multiple' => true,
                     ],
                 ],
-                'validate' => 'array',
             ],
-            'start_at' => [
-                'type' => 'date',
-                'label' => __('Start at'),
-                'time_enabled' => true,
-                'validate' => 'required',
-            ],
-            'end_at' => [
-                'type' => 'date',
-                'label' => __('End at'),
-                'time_enabled' => true,
-                'validate' => 'required',
+            'sidebar' => [
+                'fields' => [
+                    'start_at' => [
+                        'type' => 'date',
+                        'label' => __('Start at'),
+                        'time_enabled' => true,
+                    ],
+                    'end_at' => [
+                        'type' => 'date',
+                        'label' => __('End at'),
+                        'time_enabled' => true,
+                    ],
+                    'published' => [
+                        'type' => 'toggle',
+                        'label' => __('Published'),
+                        'default' => true,
+                    ],
+                ],
             ],
         ]);
     }

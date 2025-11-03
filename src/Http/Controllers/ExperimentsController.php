@@ -3,94 +3,217 @@
 namespace Thoughtco\StatamicABTester\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
-use Statamic\CP\Column;
+use Inertia\Inertia;
+use Statamic\Facades\Data;
+use Statamic\Facades\User;
 use Statamic\Http\Controllers\CP\CpController;
+use Statamic\Query\Scopes\Filters\Concerns\QueriesFilters;
+use Statamic\Support\Arr;
 use Thoughtco\StatamicABTester\Facades\Experiment;
+use Thoughtco\StatamicABTester\Http\Resources\ExperimentsResource;
 
 class ExperimentsController extends CpController
 {
+    use QueriesFilters;
+
     public function index()
     {
-        return view('ab::experiments.index', [
-            'experiments' => Experiment::all()->map(function ($experiment) {
-                return $experiment->toArray() + [
-                    'url' => cp_route('ab.experiments.show', $experiment->handle()),
-                    'edit_url' => cp_route('ab.experiments.edit', $experiment->handle()),
-                    'delete_url' => cp_route('ab.experiments.delete', $experiment->handle()),
-                ];
-            }),
-            'columns' => [
-                Column::make('title')->label(__('Title')),
-                Column::make('handle')->label(__('Handle')),
+        return Inertia::render('AB/Experiments/Index', [
+            'experimentsIsEmpty' => Experiment::query()->count() <= 0,
+            'routes' => [
+                'actions' => cp_route('ab.experiments.actions'),
+                'create' => cp_route('ab.experiments.create'),
+                'goal_create' => cp_route('ab.goals.create'),
+                'json' => cp_route('ab.experiments.json'),
+            ],
+        ]);
+    }
+
+    public function json(Request $request)
+    {
+        $query = Experiment::query();
+
+        if ($searchQuery = $request->search ?? false) {
+            $query->where('title', 'like', '%'.$searchQuery.'%');
+        }
+
+        if ($request->input('sort')) {
+            $query->reorder($request->input('sort'), $request->input('order'));
+        }
+
+        $activeFilterBadges = $this->queryFilters($query, $request->filters, []);
+
+        $results = $query->paginate($request->input('perPage', config('statamic.cp.pagination_size')));
+
+        return (new ExperimentsResource($results))
+            ->setColumnPreferenceKey('ab.experiments.columns')
+            ->additional([
+                'meta' => [
+                    'activeFilterBadges' => $activeFilterBadges,
+                ],
+            ]);
+    }
+
+    public function create()
+    {
+        $blueprint = Experiment::blueprint();
+
+        $fields = $blueprint->fields()->preProcess();
+
+        return Inertia::render('AB/Experiments/Create', [
+            'blueprint' => $blueprint->toPublishArray(),
+            'values' => $fields->values(),
+            'meta' => $fields->meta(),
+            'routes' => [
+                'store' => cp_route('ab.experiments.store'),
             ],
         ]);
     }
 
     public function show($experiment)
     {
-        return view('ab::experiments.show', [
-            'experiment' => Experiment::find($experiment),
-            'columns' => [
-                Column::make('label')->label(__('Variant')),
-                Column::make('hits')->label(__('Hits')),
-                Column::make('successful')->label(__('Successful')),
-                Column::make('failed')->label(__('Failed')),
+        abort_unless($experiment = Experiment::find($experiment), 404);
+
+        $variantResults = $experiment->resultsQuery()
+            ->select('variation', DB::raw('count(*) as hits'))
+            ->groupBy('variation')
+            ->get()
+            ->map(function ($row) use ($experiment) {
+                $success = $experiment->resultsQuery()->where('variation', $row['variation'])->where('type', 'success')->count() ?? 0;
+
+                return [
+                    'id' => $row['variation'], // just in case we label them
+                    'label' => $row['variation'],
+                    'hits' => $row['hits'],
+                    'success' => $success,
+                    'failed' => $experiment->resultsQuery()->where('variation', $row['variation'])->where('type', 'failures')->count() ?? 0,
+                    'rate' => 100 * round($success / ($row['hits'] ?? 1), 4),
+                ];
+            })
+            ->all();
+
+        $userResults = $experiment->resultsQuery()
+            ->select('user_id', DB::raw('count(*) as hits'))
+            ->groupBy('user_id')
+            ->orderBy('hits')
+            ->limit(25)
+            ->get()
+            ->map(function ($row) use ($experiment) {
+                if (! $user = User::find($row['user_id'])) {
+                    return null;
+                }
+
+                $success = $experiment->resultsQuery()->where('user_id', $row['user_id'])->where('type', 'success')->count() ?? 0;
+
+                return [
+                    'label' => $user->name(),
+                    'hits' => $row['hits'],
+                    'success' => $success,
+                    'rate' => 100 * round($success / ($row['hits'] ?? 1), 4),
+                ];
+            })
+            ->filter();
+
+        $ipResults = $experiment->resultsQuery()
+            ->select('ip_address', DB::raw('count(*) as hits'))
+            ->groupBy('ip_address')
+            ->orderBy('hits')
+            ->limit(25)
+            ->get()
+            ->map(function ($row) use ($experiment) {
+                $success = $experiment->resultsQuery()->where('ip_address', $row['ip_address'])->where('type', 'success')->count() ?? 0;
+
+                return [
+                    'label' => $row['ip_address'],
+                    'hits' => $row['hits'],
+                    'success' => $success,
+                    'rate' => 100 * round($success / ($row['hits'] ?? 1), 4),
+                ];
+            })
+            ->filter();
+
+        return Inertia::render('AB/Experiments/Show', [
+            'experiment' => $experiment,
+            'hasResults' => count($variantResults) > 0,
+            'results' => [
+                'ip' => $ipResults,
+                'user' => $userResults,
+                'variant' => $variantResults,
             ],
-        ]);
-    }
-
-    public function create()
-    {
-        $blueprint = Experiment::blueprint();
-        $fields = $blueprint->fields()->addValues([])->preProcess();
-
-        return view('ab::experiments.create', [
-            'blueprint' => $blueprint->toPublishArray(),
-            'values' => $fields->values(),
-            'meta' => $fields->meta(),
+            'routes' => [
+                'edit' => cp_route('ab.experiments.edit', $experiment->id()),
+                'complete' => cp_route('ab.experiments.complete', $experiment->id()),
+            ],
         ]);
     }
 
     public function store(Request $request)
     {
-        $fields = Experiment::blueprint()->fields()->addValues($request->all());
+        $request->validate([
+            'title' => ['required'],
+            'item_id' => ['required_if:type,item'],
+            'experiment_fields' => ['required_if:type,item', 'array'],
+            'manual_fields' => ['required_if:type,manual', 'array'],
+            'goals' => ['required', 'array'],
+            'published' => ['nullable', 'boolean'],
+            'type' => ['required', 'in:item,manual'],
+        ]);
 
-        $fields->validate();
+        if ($request->input('type') === 'item') {
+            $fields = Data::find($request->input('item_id'))->blueprint()->fields()
+                ->only($request->input('experiment_fields.fields', []))
+                ->addValues($request->input('experiment_fields.values', []));
 
-        $values = $fields->process()->values();
-
-        if (Experiment::find($values->get('handle'))) {
-            throw ValidationException::withMessages(['handle' => __('Experiment with this handle already exists.')]);
-
-            return;
+            try {
+                $fields->validate();
+            } catch (ValidationException $e) {
+                throw ValidationException::withMessages(collect($e->errors())->mapWithKeys(fn ($errors, $key) => ['experiment_fields.values.'.$key => $errors])->all());
+            }
         }
 
-        $experiment = tap(Experiment::make()
-            ->title($values->get('title'))
-            ->handle($values->get('handle'))
-            ->variants($values->get('variants'))
-            ->type($values->get('type')))
+        $experiment = tap(
+            Experiment::make()
+                ->title($request->input('title'))
+                ->goals($request->input('goals'))
+                ->type($request->input('type'))
+                ->startAt($request->input('start_at'))
+                ->endAt($request->input('end_at'))
+                ->data(Arr::removeNullValues([
+                    'item_id' => $request->input('item_id'),
+                    'experiment_fields' => $request->input('experiment_fields'),
+                    'manual_fields' => $request->input('manual_fields'),
+                ]))
+                ->published($request->input('published', true))
+        )
             ->save();
 
         session()->flash('success', __('Experiment Created'));
 
-        return ['redirect' => cp_route('ab.experiments.show', $experiment->handle())];
+        return ['redirect' => cp_route('ab.experiments.show', $experiment->id())];
     }
 
     public function edit($experiment)
     {
         abort_unless($experiment = Experiment::find($experiment), 404);
 
-        $blueprint = Experiment::blueprint();
+        abort_if($experiment->completedAt(), 403);
 
-        $fields = $blueprint->fields()->addValues($experiment->toArray())->preProcess();
+        $blueprint = Experiment::blueprint(editing: true);
 
-        return view('ab::experiments.edit', [
+        $fields = $blueprint->fields()->setParent($experiment);
+
+        $fields = $fields->addValues($experiment->toArray())->preProcess();
+
+        return Inertia::render('AB/Experiments/Edit', [
             'experiment' => $experiment,
             'blueprint' => $blueprint->toPublishArray(),
             'values' => $fields->values(),
             'meta' => $fields->meta(),
+            'routes' => [
+                'submit' => cp_route('ab.experiments.update', $experiment->id()),
+            ],
         ]);
     }
 
@@ -98,19 +221,41 @@ class ExperimentsController extends CpController
     {
         abort_unless($experiment = Experiment::find($experiment), 404);
 
-        $fields = Experiment::blueprint()->fields()->addValues($request->all());
+        abort_if($experiment->completedAt(), 403);
+
+        $request = $request->merge([
+            'item_id' => $experiment->get('item_id'),
+        ]);
+
+        $fields = Experiment::blueprint()->fields()->setParent($experiment)->addValues($request->all());
 
         $fields->validate();
 
-        $values = $fields->process()->values();
+        if ($request->input('type') === 'item') {
+            $fields = Data::find($experiment->get('item_id'))
+                ->blueprint()->fields()
+                ->only($request->input('experiment_fields.fields', []))
+                ->addValues($request->input('experiment_fields.values', []));
 
-        $experiment->title($values->get('title'))
-            ->handle($values->get('handle'))
-            ->variants($values->get('variants'))
-            ->type($values->get('type'))
+            try {
+                $fields->validate();
+            } catch (ValidationException $e) {
+                throw ValidationException::withMessages(collect($e->errors())->mapWithKeys(fn ($errors, $key) => ['experiment_fields.values.'.$key => $errors])->all());
+            }
+        }
+
+        $experiment->title($request->input('title'))
+            ->goals($request->input('goals'))
+            ->type($request->input('type'))
+            ->startAt($request->input('start_at'))
+            ->endAt($request->input('end_at'))
+            ->merge([
+                'experiment_fields' => $request->input('experiment_fields'),
+            ])
+            ->published($request->input('published', false))
             ->save();
 
-        $this->success(__('Saved'));
+        $this->success(__('Experiment Saved'));
     }
 
     public function destroy($experiment)
@@ -120,8 +265,34 @@ class ExperimentsController extends CpController
         $experiment->delete();
     }
 
-    public function results($experiment)
+    public function complete(Request $request, $experiment)
     {
-        return response(['results' => Experiment::find($experiment)->results()]);
+        abort_unless($experiment = Experiment::find($experiment), 404);
+
+        abort_if($experiment->completedAt(), 403);
+
+        $request->validate([
+            'variant' => ['required'],
+        ]);
+
+        $variant = $request->input('variant');
+
+        $experiment->completedAt(now())
+            ->merge([
+                'winner' => $variant,
+            ])
+            ->save();
+
+        // if an item experiment, and the winner is the new field version
+        // we need to apply the values to the original item
+        if ($experiment->type() == 'item' && $variant == 2) {
+            if ($item = Data::find($experiment->get('item_id'))) {
+                $item->merge($experiment->get('experiment_fields.values', []))->save();
+            }
+        }
+
+        return [
+            'experiment' => $experiment->toArray(),
+        ];
     }
 }

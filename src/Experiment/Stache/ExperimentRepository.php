@@ -9,23 +9,25 @@ use Thoughtco\StatamicABTester\Experiment\ExperimentRepository as BaseRepository
 
 class ExperimentRepository extends BaseRepository
 {
+    protected $store;
+
     public function __construct()
     {
         $this->store = Stache::store('experiments');
     }
 
-    public function save($post)
+    public function save($entry)
     {
-        if (! $post->handle()) {
-            throw new \Exception('`handle` is required');
+        if (! $entry->id()) {
+            $entry->id(Stache::generateId());
         }
 
-        $this->store->save($post);
+        $this->store->save($entry);
     }
 
-    public function delete($post)
+    public function delete($entry)
     {
-        $this->store->delete($post);
+        $this->store->delete($entry);
     }
 
     public function query()

@@ -22,20 +22,22 @@ class Experiment extends BaseExperiment
     {
         return vsprintf('%s/%s.%s', [
             rtrim(Stache::store('experiments')->directory(), '/'),
-            $this->handle(),
+            $this->id(),
             $this->fileExtension(),
         ]);
     }
 
     public function fileData()
     {
-        return Arr::removeNullValues([
-            'handle' => $this->handle(),
+        return Arr::removeNullValues(array_merge($this->data->all(), [
+            'id' => $this->id(),
             'title' => $this->title(),
-            'variants' => $this->variants,
-            'results' => $this->results,
+            'type' => $this->type(),
+            'goals' => $this->goals,
             'start_at' => $this->startAt,
             'end_at' => $this->endAt,
-        ]);
+            'completed_at' => $this->completedAt,
+            'published' => $this->published,
+        ]));
     }
 }

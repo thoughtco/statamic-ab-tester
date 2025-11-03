@@ -4,19 +4,14 @@ namespace Thoughtco\StatamicABTester\Events;
 
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Queue\SerializesModels;
-use Statamic\Contracts\Git\ProvidesCommitMessage;
 use Statamic\Events\Event;
+use Thoughtco\StatamicABTester\Contracts\Experiment;
 
-class ExperimentCreating extends Event implements ProvidesCommitMessage
+class ExperimentCreating extends Event
 {
     use InteractsWithSockets, SerializesModels;
 
-    public $experiment;
-
-    public function __construct($experiment)
-    {
-        $this->experiment = $experiment;
-    }
+    public function __construct(public Experiment $experiment) {}
 
     /**
      * Dispatch the event with the given arguments, and halt on first non-null listener response.

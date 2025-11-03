@@ -39,4 +39,11 @@ abstract class TestCase extends AddonTestCase
 
         $app['config']->set('statamic-ab-tester', require (__DIR__.'/../config/statamic-ab-tester.php'));
     }
+
+    protected function getPackageProviders($app)
+    {
+        return array_merge(parent::getPackageProviders($app), [
+            \Inertia\ServiceProvider::class,
+        ]);
+    }
 }

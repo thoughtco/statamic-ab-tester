@@ -4,26 +4,28 @@ namespace Thoughtco\StatamicABTester\Experiment;
 
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Statamic\Data\ContainsData;
-use Statamic\Facades\File;
-use Statamic\Facades\YAML;
-use Statamic\Support\Arr;
+use Statamic\Data\Publishable;
 use Statamic\Support\Traits\FluentlyGetsAndSets;
 use Thoughtco\StatamicABTester\Contracts\Experiment as ExperimentContract;
 use Thoughtco\StatamicABTester\Events;
 use Thoughtco\StatamicABTester\Facades\Experiment as ExperimentFacade;
+use Thoughtco\StatamicABTester\Models\AbTestResult;
 
 abstract class Experiment implements Arrayable, ExperimentContract
 {
-    use ContainsData, FluentlyGetsAndSets;
+    use ContainsData, FluentlyGetsAndSets, Publishable;
 
     protected $afterSaveCallbacks = [];
 
+    protected $completedAt;
+
     protected $endAt;
 
-    protected $handle;
+    protected $goals = [];
 
-    protected $results = [];
+    protected $id;
 
     protected $startAt;
 
@@ -31,9 +33,29 @@ abstract class Experiment implements Arrayable, ExperimentContract
 
     protected $type;
 
-    protected $variants = [];
-
     protected $withEvents = true;
+
+    public function __construct()
+    {
+        $this->data = collect();
+        $this->supplements = collect();
+    }
+
+    public function completedAt($completedAt = null)
+    {
+        return $this->fluentlyGetOrSet('completedAt')
+            ->getter(function ($completedAt) {
+                if (! $completedAt) {
+                    return;
+                }
+
+                return $completedAt instanceof Carbon ? $completedAt : Carbon::createFromTimestamp($completedAt);
+            })
+            ->setter(function ($completedAt) {
+                return $completedAt instanceof Carbon ? $completedAt : ($completedAt ? Carbon::parse($completedAt) : null);
+            })
+            ->args(func_get_args());
+    }
 
     public function endAt($endAt = null)
     {
@@ -51,26 +73,23 @@ abstract class Experiment implements Arrayable, ExperimentContract
             ->args(func_get_args());
     }
 
-    public function handle($handle = null)
+    public function goals($goals = null)
     {
-        return $this->fluentlyGetOrSet('handle')->args(func_get_args());
+        return $this->fluentlyGetOrSet('goals')
+            ->getter(function ($goals) {
+                return $goals ?? [];
+            })
+            ->args(func_get_args());
     }
 
-    public function results($results = null)
+    public function id($id = null)
     {
-        if ($results === null) {
-            return collect($this->results)->map(function ($result, $variantId) {
-                $result['label'] = Arr::get($this->variants()->firstWhere('id', $variantId), 'label') ?: $variantId;
+        return $this->fluentlyGetOrSet('id')->args(func_get_args());
+    }
 
-                return $result;
-            });
-        }
-
-        $this->results = collect($this->variants())->mapWithKeys(function ($variant) use ($results) {
-            return [$variant['id'] => Arr::get($results, $variant['id'], ['hits' => 0, 'successful' => 0, 'failed' => 0])];
-        })->toArray();
-
-        return $this;
+    public function resultsQuery()
+    {
+        return AbTestResult::query()->where('experiment_id', $this->id());
     }
 
     public function startAt($startAt = null)
@@ -99,62 +118,40 @@ abstract class Experiment implements Arrayable, ExperimentContract
         return $this->fluentlyGetOrSet('type')->args(func_get_args());
     }
 
-    public function variants($variants = null)
+    private function createResultModel($type, $variantId, $goalId, $data)
     {
-        return $this->fluentlyGetOrSet('variants')
-            ->getter(function ($variants) {
-                return collect($variants ?? []);
-            })
-            ->args(func_get_args());
+        AbTestResult::create([
+            'data' => $data,
+            'experiment_id' => $this->id(),
+            'variation' => $variantId,
+            'goal_id' => $goalId,
+            'ip_address' => request()->ip(),
+            'type' => $type,
+            'user_id' => auth()->user()?->id(),
+        ]);
     }
 
-    public function recordHit($variant)
+    public function recordHit($variantId, $data = [])
     {
-        if (! $this->results) {
-            $this->results([]);
-        }
-
-        if (! Arr::has($this->results, $variant)) {
-            return $this;
-        }
-
-        $this->results[$variant]['hits']++;
-
-        $this->save();
+        $this->createResultModel('hit', $variantId, null, $data);
 
         return $this;
     }
 
-    public function recordFailure($variant)
+    public function recordFailure($variantId, $goalId, $data = [])
     {
-        if (! $this->results) {
-            $this->results([]);
+        if (! $this->resultsQuery()->where('goal_id', $goalId)->where('variation', $variantId)->where('type', 'failure')->exists()) {
+            $this->createResultModel('failure', $variantId, $goalId, $data);
         }
-
-        if (! Arr::has($this->results, $variant)) {
-            return $this;
-        }
-
-        $this->results[$variant]['failed']++;
-
-        $this->save();
 
         return $this;
     }
 
-    public function recordSuccess($variant)
+    public function recordSuccess($variantId, $goalId, $data = [])
     {
-        if (! $this->results) {
-            $this->results([]);
+        if (! $this->resultsQuery()->where('goal_id', $goalId)->where('variation', $variantId)->where('type', 'success')->exists()) {
+            $this->createResultModel('success', $variantId, $goalId, $data);
         }
-
-        if (! Arr::has($this->results, $variant)) {
-            return $this;
-        }
-
-        $this->results[$variant]['successful']++;
-
-        $this->save();
 
         return $this;
     }
@@ -188,7 +185,7 @@ abstract class Experiment implements Arrayable, ExperimentContract
 
     public function save()
     {
-        $isNew = is_null(ExperimentFacade::find($this->handle()));
+        $isNew = is_null(ExperimentFacade::find($this->id()));
 
         $withEvents = $this->withEvents;
         $this->withEvents = true;
@@ -223,32 +220,42 @@ abstract class Experiment implements Arrayable, ExperimentContract
         return true;
     }
 
-    public function saveResults()
-    {
-        File::put($this->resultsPath(), YAML::dump($this->results));
-
-        return $this;
-    }
-
-    protected function getResultsFor($variantId)
-    {
-        if (! $variant = $this->variants()->firstWhere('id', $variantId)) {
-            throw new \Exception(__('Variant not found on this experiment'));
-        }
-
-        return array_merge([
-            'label' => Arr::get($variant, 'label', $variantId),
-        ], Arr::get($this->results, $variantId, ['hits' => 0, 'successful' => 0, 'failed' => 0]));
-    }
-
     public function toArray()
     {
-        return [
-            'handle' => $this->handle,
-            'title' => $this->title,
-            'variants' => $this->variants,
-            'type' => $this->type,
-            'results' => $this->results,
-        ];
+        return array_merge($this->data->all(), [
+            'id' => $this->id(),
+            'title' => $this->title(),
+            'type' => $this->type(),
+            'goals' => $this->goals,
+            'start_at' => $this->startAt,
+            'end_at' => $this->endAt,
+            'published' => $this->published,
+            'completed_at' => $this->completedAt,
+        ]);
+    }
+
+    public function chooseVariation($fromSession = true)
+    {
+        if ($fromSession) {
+            if ($variant = session()->get('statamic.ab.'.$this->id())) {
+                return $variant;
+            }
+        }
+
+        return $this->variants()->keys()->random();
+    }
+
+    public function variants(): Collection
+    {
+        if ($this->type == 'item') {
+            return collect([1 => 'A', 2 => 'B']);
+        }
+
+        return collect($this->get('manual_fields') ?? [])->pluck('label', 'handle');
+    }
+
+    public function fresh()
+    {
+        return \Thoughtco\StatamicABTester\Facades\Experiment::find($this->id);
     }
 }
