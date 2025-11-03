@@ -45,11 +45,13 @@ describe('Goals Controller', function () {
             'description' => 'A test goal',
         ];
 
-        $this->post(cp_route('ab.goals.store'), $data)
-            ->assertStatus(200)
-            ->assertSimilarJson(['redirect' => url('/cp/ab/goals/test-goal')]);
+        $response = $this->post(cp_route('ab.goals.store'), $data)
+            ->assertStatus(200);
 
-        expect(Goal::query()->where('handle', 'test-goal')->first())->not->toBeNull();
+        $goal = Goal::query()->where('handle', 'test-goal')->first();
+        expect($goal)->not->toBeNull();
+
+        $response->assertSimilarJson(['redirect' => url('/cp/ab/goals/'.$goal->id())]);
     });
 
     it('validates goal creation', function () {
