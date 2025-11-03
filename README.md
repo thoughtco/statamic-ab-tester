@@ -2,28 +2,66 @@
 
 A Statamic addon that allows you to setup and run A/B testing on your sites.
 
+## 📋 Table of Contents
+- [Commercial addon](#commercial-addon)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Configuration](#configuration)
+- [Usage](#usage)
+    - [Creating Goals](#creating-goals)
+    - [Creating Experiments](#creating-experiments)
+    - [Experiment Types](#experiment-types)
+    - [Viewing Results](#viewing-results)
+- [API Reference](#api-reference)
 
 ## Commercial addon
 
-This addon is paid software. You may use it for free during development, but you must purchase a license from the Statamic Marketplace before deploying to production.
+⚠️ **Important**: This addon is paid software. You may use it for free during development, but you must purchase a license from the [Statamic Marketplace](https://statamic.com/addons/thoughtco/statamic-ab-tester) before deploying to production.
 
 ## Installation
 
+Install via Composer:
+
 `composer require thoughtco/statamic-ab-tester`
 
-then run 
+Then run the migration to create the required database table:
 
 `php artisan migrate`
 
-## Custom database connection
-This addon uses your default database to store results, in a new table it creates called `ab_test_results`. If you want to specify a custom connection, use add the connection name to your .env:
+## Quick Start
+
+1. **Create a Goal**: Set up what you want to measure (e.g., "Newsletter Signup")
+2. **Create an Experiment**: Define what you want to test (e.g., different button colors)
+3. **Track Results**: Monitor performance in the control panel
+4. **Apply Winner**: Once you have a clear winner, apply the results
+
+
+## Configuration
+
+### Custom Database Connection
+
+By default, this addon uses your default database connection and creates a table called `ab_test_results`. To use a custom connection, add this to your `.env` file:
 
 `AB_TESTER_RESULTS_CONNECTION=your-connection`
 
+### Static caching
+If you are using the `half` caching strategy, switch to using the provided `ab` driver - this extends half caching but allows ab experiments to continue working.
+
+If you are using `full` static caching, you will need to wrap any experiments in `{{ nocache }}` tags and ensure you are using the tags to record hits, successes and failures.
+
+
+### Field selection
+By default, all fields will be selectable to apply an A/B Test, but you can control this using the `Allow this field to be A/B tested` config field that this add-on provides in the config for each fieldtype.
+
+If it makes sense for you to default to fields __not__ being included, you can set the `statamic-ab-tester.blueblueprint_fields_approach` to be 'opt-out'.
+
+
+#
 ## Usage
 
-### Create a goal
-One installed the first step is to create a goal through the UI. Name it whatever you want (for example "Mailing List Signup" or "Add to Basket") and give it a unique handle. 
+### Creating Goals
+
+The first step is to create a goal through the UI. Name it whatever you want (for example "Mailing List Signup" or "Add to Basket") and give it a unique handle.
 
 Now you want to trigger that handle in your code - to do that simply call:
 `\Thoughtco\StatamicABTester\Facades\Goal::completed('your-goal-handle')`
@@ -40,7 +78,7 @@ You can also (optionally) record failures, if your test requires it:
 
 `{{ ab:goal:failed handle="your-goal-handle" }}`
 
-#### Javacript helper
+#### Javascript helper
 
 If you need to trigger goals from Javascript, include the `{{ ab:js }}` in your layout, then call:
 
@@ -50,55 +88,47 @@ If you need to trigger goals from Javascript, include the `{{ ab:js }}` in your 
 
 `abTester.failed('goal-id', { custom: 'data' })` to register a goal failure
 
+### Creating Experiments
 
-### Create an experiment
 Next you need to make an experiment, which varies something on your site. To do this use the "Create A/B Experiment" action available on an entry.
 
-This will open a modal allowing you to choose what field(s) you want to vary and define their alternate values. 
+This will open a modal allowing you to choose what field(s) you want to vary and define their alternate values.
 
 Finally, ensure you associate them with the goal you created in the first step.
 
+#### Outputting experiments
 
-### Outputting experiments
-This add-on will automate the display of the variants, knowing when the item is augmented and switching it as appropriate. 
+This add-on will automate the display of the variants, knowing when the item is augmented and switching it as appropriate.
 
 If you are using full static caching, Statamic is never booted, so you will need to use `{{ nocache }}` alongside the tags this addon provides to run your experiments.
 
+### Experiment Types
 
-### Static caching
-If you are using the `half` caching strategy, switch to using the provided `ab` driver - this extends half caching but allows ab experiments to continue working.
-
-If you are using `full` static caching, you will need to wrap any experiments in `{{ nocache }}` tags and ensure you are using the tags to record hits, successes and failures.
-
-
-### Field selection
-By default, all fields will be selectable to apply an A/B Test, but you can control this using the `Allow this field to be A/B tested` config field that this add-on provides in the config for each fieldtype.
-
-If it makes sense for you to default to fields __not__ being included, you can set the `statamic-ab-tester.blueblueprint_fields_approach` to be 'opt-out'. 
-
-
-### Experiment types
-There are two types of experiments you can run: 
+There are two types of experiments you can run:
 
 #### Item
+
 An Item experiment lets you select an entry and modify its content from the base entry. These can be created using the `Create A/B Experiment` action on the entry view.
 
 #### Manual
+
 A Manual experiment lets you determine what you want to do inside the experiment, e.g. show a different nav UI, show a different button style. You can use the `variant:handle` to determine what to show to the user.
 
+### Viewing Results
 
-### Viewing results
-Results can be viewed within the control panel. 
+Results can be viewed within the control panel.
 
 Go to the listing view under "A/B Experiments", click on the "View" link for your experiment and you will be presented with a table showing your variations alongside their hits, successes, failures and success rates.
 
-### Applying results
+#### Applying results
 
 If you want to apply one of your variants as the winner, simply click "Complete Experiment", and click "Apply" beside the variant you want to mark as the winner. The experiment will be marked as completed and will no longer be used for testing on your front end site.
 
 If it is an "Item" experiment, the winner's values will be applied to the Entry.
 
-### Tags 
+## API Reference
+
+### Tags
 This package provides tags that you can use in your Statamic templates:
 
 #### ab
@@ -106,38 +136,35 @@ This tag sets an A/B test for the given handle. It will randomly choose a experi
 
 If you want your variant to persist over the session lifetime, set session="true"
 
-```antlers
-{{ ab experiment="experiment_id" session="true" }}
-    {{ experiment:title}} {{ variant }}
-{{ /ab }}
+```antlers 
+{{ ab experiment="experiment_id" session="true" }} {{ experiment:title}} {{ variant }} {{ /ab }}
 ```
 
 #### ab:success
 This tag marks an A/B test as successful.
 
-```antlers
+```antlers 
 {{ ab:success experiment="experiment_id" variant="variant_handle" }}
 ```
 
 or if you've used session="true" on the ab tag:
 
-```antlers
+```antlers 
 {{ ab:success experiment="experiment_id" from_session="true" }}
 ```
 
 #### ab:failure
 This tag marks an A/B test as a failure.
 
-```antlers
+```antlers 
 {{ ab:failure experiment="experiment_id" variant="variant_handle" }}
 ```
 
 or if you've used session="true" on the ab tag:
 
-```antlers
+```antlers 
 {{ ab:failure experiment="experiment_id" from_session="true" }}
 ```
-
 
 ### Experiment Facade
 This package provides a facade for interacting with experiments:
