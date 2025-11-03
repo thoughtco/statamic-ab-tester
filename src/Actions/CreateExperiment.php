@@ -52,7 +52,7 @@ class CreateExperiment extends Action
             return false;
         }
 
-        return $item->collection()->route($item->locale());
+        return true;
     }
 
     public function toArray()
