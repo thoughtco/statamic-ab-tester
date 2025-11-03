@@ -51,7 +51,7 @@ If you need to trigger goals from Javascript, include the `{{ ab:js }}` in your 
 ### Create an experiment
 Next you need to make an experiment, which varies something on your site. To do this use the "Create A/B Experiment" action available on an entry.
 
-This will open a window allowing you to choose what field(s) you want to vary and define their alternate values. 
+This will open a modal allowing you to choose what field(s) you want to vary and define their alternate values. 
 
 Finally, ensure you associate them with the goal you created in the first step.
 
@@ -69,9 +69,9 @@ If you are using `full` static caching, you will need to wrap any experiments in
 
 
 ### Field selection
-By default all fields will be selectable to apply an A/B Test but you can control this using the `Allow this field to be A/B tested` config field that this add-on sets on each fieldtype.
+By default, all fields will be selectable to apply an A/B Test, but you can control this using the `Allow this field to be A/B tested` config field that this add-on provides in the config for each fieldtype.
 
-If it makes sense for you to to default to fields not being included, you can set the `statamic-ab-tester.blueblueprint_fields_approach` to be 'opt-out'. 
+If it makes sense for you to default to fields __not__ being included, you can set the `statamic-ab-tester.blueblueprint_fields_approach` to be 'opt-out'. 
 
 
 ### Experiment types
@@ -143,7 +143,7 @@ Once you have an experiment you can record hits, successes, failures and get res
 
 #### hit
 Mark an experiment as being viewed:
-`$experiment->recordHit($variantHandle,$customData = []);`
+`$experiment->recordHit($variantHandle, $customData = []);`
 
 #### success
 Mark an experiment as being successful:
