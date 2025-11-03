@@ -19,13 +19,13 @@ Statamic.booting(() => {
 
     Statamic.$components.register('ab_tester_experiment_fields-fieldtype', ExperimentFields);
 
-    Statamic.$components.register('Pages/AB/Experiments/Create', ExperimentsCreatePage);
-    Statamic.$components.register('Pages/AB/Experiments/Edit', ExperimentsEditPage);
-    Statamic.$components.register('Pages/AB/Experiments/Index', ExperimentsIndexPage);
-    Statamic.$components.register('Pages/AB/Experiments/Show', ExperimentsShowPage);
+    Statamic.$inertia.register('abtester::Experiments.Create', ExperimentsCreatePage);
+    Statamic.$inertia.register('abtester::Experiments.Edit', ExperimentsEditPage);
+    Statamic.$inertia.register('abtester::Experiments.Index', ExperimentsIndexPage);
+    Statamic.$inertia.register('abtester::Experiments.Show', ExperimentsShowPage);
 
-    Statamic.$components.register('Pages/AB/Goals/Create', GoalsCreatePage);
-    Statamic.$components.register('Pages/AB/Goals/Edit', GoalsEditPage);
-    Statamic.$components.register('Pages/AB/Goals/Index', GoalsIndexPage);
-    Statamic.$components.register('Pages/AB/Goals/Show', GoalsShowPage);
+    Statamic.$inertia.register('abtester::Goals.Create', GoalsCreatePage);
+    Statamic.$inertia.register('abtester::Goals.Edit', GoalsEditPage);
+    Statamic.$inertia.register('abtester::Goals.Index', GoalsIndexPage);
+    Statamic.$inertia.register('abtester::Goals.Show', GoalsShowPage);
 });

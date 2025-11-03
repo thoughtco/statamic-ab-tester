@@ -17,7 +17,7 @@ class GoalsController extends CpController
 
     public function index()
     {
-        return Inertia::render('AB/Goals/Index', [
+        return Inertia::render('abtester::Goals.Index', [
             'routes' => [
                 'actions' => cp_route('ab.goals.actions'),
                 'create' => cp_route('ab.goals.create'),
@@ -57,7 +57,7 @@ class GoalsController extends CpController
 
         $fields = $blueprint->fields()->preProcess();
 
-        return Inertia::render('AB/Goals/Create', [
+        return Inertia::render('abtester::Goals.Create', [
             'blueprint' => $blueprint->toPublishArray(),
             'values' => $fields->values(),
             'meta' => $fields->meta(),
@@ -107,7 +107,7 @@ class GoalsController extends CpController
             ->values()
             ->filter();
 
-        return Inertia::render('AB/Goals/Show', [
+        return Inertia::render('abtester::Goals.Show', [
             'goal' => $goal,
             'hasResults' => $experimentResults->isNotEmpty(),
             'results' => [
@@ -149,7 +149,7 @@ class GoalsController extends CpController
 
         session()->flash('success', __('Goal Created'));
 
-        return ['redirect' => cp_route('ab.goals.show', $goal->handle())];
+        return ['redirect' => cp_route('ab.goals.show', $goal->id())];
     }
 
     public function edit($goal)
@@ -160,7 +160,7 @@ class GoalsController extends CpController
 
         $fields = $blueprint->fields()->addValues($goal->toArray())->preProcess();
 
-        return Inertia::render('AB/Goals/Edit', [
+        return Inertia::render('abtester::Goals.Edit', [
             'goal' => $goal,
             'blueprint' => $blueprint->toPublishArray(),
             'values' => $fields->values(),

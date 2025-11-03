@@ -20,7 +20,7 @@ class ExperimentsController extends CpController
 
     public function index()
     {
-        return Inertia::render('AB/Experiments/Index', [
+        return Inertia::render('abtester::Experiments.Index', [
             'experimentsIsEmpty' => Experiment::query()->count() <= 0,
             'routes' => [
                 'actions' => cp_route('ab.experiments.actions'),
@@ -62,7 +62,7 @@ class ExperimentsController extends CpController
 
         $fields = $blueprint->fields()->preProcess();
 
-        return Inertia::render('AB/Experiments/Create', [
+        return Inertia::render('abtester::Experiments.Create', [
             'blueprint' => $blueprint->toPublishArray(),
             'values' => $fields->values(),
             'meta' => $fields->meta(),
@@ -134,7 +134,7 @@ class ExperimentsController extends CpController
             })
             ->filter();
 
-        return Inertia::render('AB/Experiments/Show', [
+        return Inertia::render('abtester::Experiments.Show', [
             'experiment' => $experiment,
             'hasResults' => count($variantResults) > 0,
             'results' => [
@@ -206,7 +206,7 @@ class ExperimentsController extends CpController
 
         $fields = $fields->addValues($experiment->toArray())->preProcess();
 
-        return Inertia::render('AB/Experiments/Edit', [
+        return Inertia::render('abtester::Experiments.Edit', [
             'experiment' => $experiment,
             'blueprint' => $blueprint->toPublishArray(),
             'values' => $fields->values(),
