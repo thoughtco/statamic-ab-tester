@@ -4,7 +4,7 @@
     "description": "",
     "license": "MIT",
     "require": {
-        "statamic/cms": "v6.0.0-alpha.11",
+        "statamic/cms": "^6.0",
         "laravel/pint": "^1.25",
         "pixelfear/composer-dist-plugin": "^0.1.6"
     },
