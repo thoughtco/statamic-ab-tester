@@ -1,5 +1,8 @@
 # A/B Tester
 
+A Statamic addon that allows you to setup and run A/B testing on your sites.
+
+
 ## Commercial addon
 
 This addon is paid software. You may use it for free during development, but you must purchase a license from the Statamic Marketplace before deploying to production.
@@ -81,7 +84,19 @@ There are two types of experiments you can run:
 An Item experiment lets you select an entry and modify its content from the base entry. These can be created using the `Create A/B Experiment` action on the entry view.
 
 #### Manual
-A Manual experiment lets you determine what you want to do inside the experiment, e.g. show a different nav UI, show a different button style. You can use the `variant:handle` to determine what to show to the user. 
+A Manual experiment lets you determine what you want to do inside the experiment, e.g. show a different nav UI, show a different button style. You can use the `variant:handle` to determine what to show to the user.
+
+
+### Viewing results
+Results can be viewed within the control panel. 
+
+Go to the listing view under "A/B Experiments", click on the "View" link for your experiment and you will be presented with a table showing your variations alongside their hits, successes, failures and success rates.
+
+### Applying results
+
+If you want to apply one of your variants as the winner, simply click "Complete Experiment", and click "Apply" beside the variant you want to mark as the winner. The experiment will be marked as completed and will no longer be used for testing on your front end site.
+
+If it is an "Item" experiment, the winner's values will be applied to the Entry.
 
 ### Tags 
 This package provides tags that you can use in your Statamic templates:
