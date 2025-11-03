@@ -44,8 +44,7 @@
         ],
         "statamic": {
             "name": "A/B Tester",
-            "description": "Run A/B Tests in your Statamic install",
-            "version": "0.1"
+            "description": "Run A/B Tests in your Statamic install"
         },
         "laravel": {
             "providers": [
