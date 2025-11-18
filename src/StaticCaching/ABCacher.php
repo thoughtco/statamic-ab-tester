@@ -57,7 +57,7 @@ class ABCacher extends ApplicationCacher
                 if (! session()->get('statamic.ab.'.$experiment->id())) {
                     session()->put('statamic.ab.'.$experiment->id(), $variation);
 
-                    $experiment->recordHit($variant);
+                    $experiment->recordHit($variation);
                 }
 
                 return $variation;
