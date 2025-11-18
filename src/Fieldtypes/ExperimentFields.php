@@ -34,9 +34,9 @@ class ExperimentFields extends Fieldtype
 
         return array_merge($data, [
             'abTester' => [
-                'meta' => $blueprint->fields()->meta(),
+                'meta' => $blueprint->fields()->only($enabledFields)->meta(),
                 'fields' => $blueprint->fields()->only($enabledFields)->toPublishArray(),
-                'values' => $blueprint->fields()->addValues($item->toArray())->values(),
+                'values' => $blueprint->fields()->only($enabledFields)->addValues($item->toArray())->values(),
             ],
         ]);
     }

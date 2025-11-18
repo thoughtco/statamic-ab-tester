@@ -5,6 +5,7 @@ namespace Thoughtco\StatamicABTester\Actions;
 use Statamic\Actions\Action;
 use Statamic\Contracts\Entries\Entry;
 use Statamic\Statamic;
+use Statamic\Support\Arr;
 use Thoughtco\StatamicABTester\Facades\Experiment;
 use Thoughtco\StatamicABTester\Facades\Goal;
 use Thoughtco\StatamicCacheTracker\Facades\Tracker;
@@ -69,16 +70,20 @@ class CreateExperiment extends Action
             ->where(fn ($query) => $query->whereNull('end_at')->orWhere('end_at', '>=', now()))
             ->first();
 
+        $enabledFields = $blueprint->fields()->all()->filter(fn ($field) => Arr::get($field->config(), 'ab_tester_enable', config('statamic-ab-tester.blueprint_fields_approach') == 'opt-out'))->map->handle()->all();
+
+//        dd($blueprint->fields()->only($enabledFields)->meta());
+
         return [
             ...parent::toArray(),
             'abTester' => [
                 'item_id' => $item->id(),
                 'exists' => $existsQuery ? Statamic::cpRoute('ab.experiments.show', ['experiment' => $existsQuery->id()]) : false,
-                'fields' => $blueprint->fields()->toPublishArray(),
+                'fields' => $blueprint->fields()->only($enabledFields)->toPublishArray(),
                 'goals' => Goal::all()->map(fn ($goal) => ['label' => $goal->title(), 'value' => $goal->handle()])->all(),
-                'meta' => $blueprint->fields()->meta(),
+                'meta' => $blueprint->fields()->only($enabledFields)->meta(),
                 'route' => Statamic::cpRoute('ab.experiments.store'),
-                'values' => $blueprint->fields()->addValues($item->toArray())->values(),
+                'values' => $blueprint->fields()->only($enabledFields)->addValues($item->toArray())->values(),
             ],
         ];
     }
