@@ -1,4 +1,4 @@
-//import ABExperimentResults from './components/ABExperimentResults'
+import { inertia } from '@statamic/cms/api';
 import ABExperimentSetup from './components/ABExperimentSetup.vue';
 import ExperimentFields from "./fieldtypes/ExperimentFields.vue";
 
@@ -19,13 +19,13 @@ Statamic.booting(() => {
 
     Statamic.$components.register('ab_tester_experiment_fields-fieldtype', ExperimentFields);
 
-    Statamic.$inertia.register('abtester::Experiments.Create', ExperimentsCreatePage);
-    Statamic.$inertia.register('abtester::Experiments.Edit', ExperimentsEditPage);
-    Statamic.$inertia.register('abtester::Experiments.Index', ExperimentsIndexPage);
-    Statamic.$inertia.register('abtester::Experiments.Show', ExperimentsShowPage);
+    inertia.register('abtester::Experiments.Create', ExperimentsCreatePage);
+    inertia.register('abtester::Experiments.Edit', ExperimentsEditPage);
+    inertia.register('abtester::Experiments.Index', ExperimentsIndexPage);
+    inertia.register('abtester::Experiments.Show', ExperimentsShowPage);
 
-    Statamic.$inertia.register('abtester::Goals.Create', GoalsCreatePage);
-    Statamic.$inertia.register('abtester::Goals.Edit', GoalsEditPage);
-    Statamic.$inertia.register('abtester::Goals.Index', GoalsIndexPage);
-    Statamic.$inertia.register('abtester::Goals.Show', GoalsShowPage);
+    inertia.register('abtester::Goals.Create', GoalsCreatePage);
+    inertia.register('abtester::Goals.Edit', GoalsEditPage);
+    inertia.register('abtester::Goals.Index', GoalsIndexPage);
+    inertia.register('abtester::Goals.Show', GoalsShowPage);
 });
