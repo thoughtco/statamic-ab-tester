@@ -53,11 +53,11 @@ class ABTesterMiddleware
                 }
             }
 
-            if (! $experiment = $experiments->get($item->id())) {
+            if (! $experiment = $experiments->get($item->id)) {
                 return $next($augmented);
             }
 
-            if ($already = $alreadyAugmented->get($item->id())) {
+            if ($already = $alreadyAugmented->get($item->id)) {
                 return $next($already);
             }
 
