@@ -33,7 +33,7 @@ class ABTesterMiddleware
 
         $response = $next($request);
 
-        $response->headers->set('X-ABTester-Experiments', collect($this->abTesterExperiments)->sort()->join(','));
+        $response->headers->set('X-ABTester-Experiments', collect($this->abTesterExperiments)->filter()->unique()->sort()->join(','));
 
         return $response;
     }
