@@ -1,4 +1,6 @@
 <script setup>
+import { Head } from '@statamic/cms/inertia';
+
 defineProps({
     goal: { type: Object, required: true },
     hasResults: { type: Boolean, required: true, default: true },
@@ -8,6 +10,8 @@ defineProps({
 </script>
 
 <template>
+    <Head :title="__('View Goal')" />
+
     <ui-header :title="goal.title" icon="labs-idea-experimental-flask">
         <ui-button :href="routes.edit" class="btn-primary" v-text="__('Edit')" />
     </ui-header>

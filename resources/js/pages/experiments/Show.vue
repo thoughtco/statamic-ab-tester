@@ -3,6 +3,7 @@ import axios from 'axios';
 import { ref, watch } from "vue";
 import { vConfetti } from '@neoconfetti/vue';
 import { useWindowSize } from '@vueuse/core'
+import { Head } from '@statamic/cms/inertia';
 
 const { width, height } = useWindowSize()
 
@@ -54,6 +55,8 @@ const applyVariant = async (variant) => {
 </script>
 
 <template>
+    <Head :title="__('View Experiment')" />
+
     <ui-header :title="experiment.title" icon="labs-idea-experimental-flask">
         <ui-button variant="primary" v-text="__('Complete Experiment')" @click="showCompleteModal = true" v-if="! experiment.completed_at" />
 

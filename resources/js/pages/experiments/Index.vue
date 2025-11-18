@@ -1,4 +1,6 @@
 <script setup>
+import { Head } from '@statamic/cms/inertia';
+
 defineProps({
     experimentsIsEmpty: { type: Boolean, required: true },
     routes: { type: Object, required: true },
@@ -7,6 +9,8 @@ defineProps({
 
 <template>
     <template v-if="! experimentsIsEmpty">
+
+        <Head :title="__('Experiments')" />
 
         <ui-header :title="__('A/B Experiments')" icon="labs-idea-experimental-flask">
             <ui-button variant="primary" :text="__('Create')" :href="routes.create" />
@@ -32,6 +36,8 @@ defineProps({
     </template>
 
     <template v-else>
+        <Head :title="__('Experiments')" />
+
         <header class="py-8 mt-8 text-center starting-style-transition" v-cloak>
             <h1 class="text-[25px] font-medium antialiased flex justify-center items-center gap-3">
                 <span>A/B Experiments</span>

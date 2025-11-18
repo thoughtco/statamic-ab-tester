@@ -1,10 +1,13 @@
 <script setup>
+import { Head } from '@statamic/cms/inertia';
+
 defineProps({
     routes: { type: Object, required: true },
 });
 </script>
 
 <template>
+    <Head :title="__('Goals')" />
 
     <ui-header :title="__('Goals')" icon="favorite-trophy">
         <ui-button variant="primary" :text="__('Create')" :href="routes.create" />

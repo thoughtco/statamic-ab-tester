@@ -1,4 +1,6 @@
 <script setup>
+import { Head } from '@statamic/cms/inertia';
+
 defineProps({
     blueprint: { type: Object, required: true },
     experiment: { type: Object, required: true },
@@ -9,6 +11,8 @@ defineProps({
 </script>
 
 <template>
+    <Head :title="__('Edit Experiment')" />
+
     <ui-publish-form
         ref="container"
         name="experiment-form"
