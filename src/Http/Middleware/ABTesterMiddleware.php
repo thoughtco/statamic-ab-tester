@@ -73,6 +73,8 @@ class ABTesterMiddleware
                     item: $item,
                     variant: $variant
                 );
+
+                $alreadyAugmented->put($item->id, $item);
             }
 
             if ($variant !== null) {
