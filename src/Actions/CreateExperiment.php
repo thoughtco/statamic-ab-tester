@@ -72,18 +72,18 @@ class CreateExperiment extends Action
 
         $enabledFields = $blueprint->fields()->all()->filter(fn ($field) => Arr::get($field->config(), 'ab_tester_enable', config('statamic-ab-tester.blueprint_fields_approach') == 'opt-out'))->map->handle()->all();
 
-//        dd($blueprint->fields()->only($enabledFields)->meta());
+        $processedFields = $blueprint->fields()->only($enabledFields)->addValues($item->values()->all())->preProcess();
 
         return [
             ...parent::toArray(),
             'abTester' => [
                 'item_id' => $item->id(),
                 'exists' => $existsQuery ? Statamic::cpRoute('ab.experiments.show', ['experiment' => $existsQuery->id()]) : false,
-                'fields' => $blueprint->fields()->only($enabledFields)->toPublishArray(),
+                'fields' => $processedFields->toPublishArray(),
                 'goals' => Goal::all()->map(fn ($goal) => ['label' => $goal->title(), 'value' => $goal->handle()])->all(),
-                'meta' => $blueprint->fields()->only($enabledFields)->meta(),
+                'meta' => $processedFields->meta(),
                 'route' => Statamic::cpRoute('ab.experiments.store'),
-                'values' => $blueprint->fields()->only($enabledFields)->addValues($item->toArray())->values(),
+                'values' => $processedFields->values(),
             ],
         ];
     }

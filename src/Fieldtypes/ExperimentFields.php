@@ -32,11 +32,13 @@ class ExperimentFields extends Fieldtype
 
         $enabledFields = $blueprint->fields()->all()->filter(fn ($field) => Arr::get($field->config(), 'ab_tester_enable', config('statamic-ab-tester.blueprint_fields_approach') == 'opt-out'))->map->handle()->all();
 
+        $processedFields = $blueprint->fields()->only($enabledFields)->addValues($item->values()->all())->preProcess();
+
         return array_merge($data, [
             'abTester' => [
-                'meta' => $blueprint->fields()->only($enabledFields)->meta(),
-                'fields' => $blueprint->fields()->only($enabledFields)->toPublishArray(),
-                'values' => $blueprint->fields()->only($enabledFields)->addValues($item->toArray())->values(),
+                'meta' => $processedFields->meta(),
+                'fields' => $processedFields->toPublishArray(),
+                'values' => $processedFields->values(),
             ],
         ]);
     }
