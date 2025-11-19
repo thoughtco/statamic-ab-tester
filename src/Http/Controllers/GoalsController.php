@@ -5,6 +5,7 @@ namespace Thoughtco\StatamicABTester\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
+use Statamic\Exceptions\NotFoundHttpException;
 use Statamic\Http\Controllers\CP\CpController;
 use Statamic\Query\Scopes\Filters\Concerns\QueriesFilters;
 use Thoughtco\StatamicABTester\Facades\Experiment;
@@ -69,7 +70,7 @@ class GoalsController extends CpController
 
     public function show($goal)
     {
-        abort_unless($goal = Goal::find($goal), 404);
+        throw_unless($goal = Goal::find($goal), NotFoundHttpException::class);
 
         $experimentsWithThisGoal = Experiment::query()
             ->whereJsonContains('goals', $goal->id())
@@ -154,7 +155,7 @@ class GoalsController extends CpController
 
     public function edit($goal)
     {
-        abort_unless($goal = Goal::find($goal), 404);
+        throw_unless($goal = Goal::find($goal), NotFoundHttpException::class);
 
         $blueprint = Goal::blueprint();
 

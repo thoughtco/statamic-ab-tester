@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
+use Statamic\Exceptions\NotFoundHttpException;
+use Statamic\Exceptions\UnauthorizedHttpException;
 use Statamic\Facades\Data;
 use Statamic\Facades\User;
 use Statamic\Http\Controllers\CP\CpController;
@@ -74,7 +76,7 @@ class ExperimentsController extends CpController
 
     public function show($experiment)
     {
-        abort_unless($experiment = Experiment::find($experiment), 404);
+        throw_unless($experiment = Experiment::find($experiment), NotFoundHttpException::class);
 
         $variantResults = $experiment->resultsQuery()
             ->select('variation', DB::raw('count(*) as hits'))
@@ -196,9 +198,9 @@ class ExperimentsController extends CpController
 
     public function edit($experiment)
     {
-        abort_unless($experiment = Experiment::find($experiment), 404);
+        throw_unless($experiment = Experiment::find($experiment), NotFoundHttpException::class);
 
-        abort_if($experiment->completedAt(), 403);
+        throw_if($experiment->completedAt(), UnauthorizedHttpException::class);
 
         $blueprint = Experiment::blueprint(editing: true);
 
