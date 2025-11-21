@@ -5,6 +5,7 @@ namespace Thoughtco\StatamicABTester\Http\Middleware;
 use Closure;
 use Illuminate\Support\Collection;
 use Statamic\Contracts\Entries\Entry;
+use Statamic\Entries\AugmentedEntry;
 use Statamic\Structures\AugmentedPage;
 use Statamic\Structures\Page;
 use Statamic\Support\Arr;
@@ -53,11 +54,13 @@ class ABTesterMiddleware
                 }
             }
 
-            if (! $experiment = $experiments->get($item->id)) {
+            $id = $item instanceof AugmentedEntry ? $item->get('id')->raw() : $item->id;
+
+            if (! $experiment = $experiments->get($id)) {
                 return $next($augmented);
             }
 
-            if ($already = $alreadyAugmented->get($item->id)) {
+            if ($already = $alreadyAugmented->get($id)) {
                 return $next($already);
             }
 
@@ -74,7 +77,7 @@ class ABTesterMiddleware
                     variant: $variant
                 );
 
-                $alreadyAugmented->put($item->id, $item);
+                $alreadyAugmented->put($id, $item);
             }
 
             if ($variant !== null) {
