@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Support\Collection;
 use Statamic\Contracts\Entries\Entry;
 use Statamic\Entries\AugmentedEntry;
+use Statamic\Facades\Entry as EntryFacade;
 use Statamic\Structures\AugmentedPage;
 use Statamic\Structures\Page;
 use Statamic\Support\Arr;
@@ -71,13 +72,13 @@ class ABTesterMiddleware
 
                 $experiment->recordHit($variant);
 
-                $self->populateVariationForItemExperiment(
+                $augmented = $self->populateVariationForItemExperiment(
                     experiment: $experiment,
                     item: $item,
                     variant: $variant
                 );
 
-                $alreadyAugmented->put($id, $item);
+                $alreadyAugmented->put($id, $augmented);
             }
 
             if ($variant !== null) {
@@ -98,15 +99,27 @@ class ABTesterMiddleware
     public function populateVariationForItemExperiment($experiment, $item, $variant)
     {
         if ($variant == 1) {
-            return;
+            return $item;
         }
 
         $values = Arr::get($experiment->get('experiment_fields'), 'values', []);
 
+        $entry = $item;
+
+        if ($item instanceof AugmentedEntry) {
+            $entry = EntryFacade::find($item->get('id')->raw());
+        }
+
         // $data is private, so :shrug:
-        $reflection = new \ReflectionClass($item);
+        $reflection = new \ReflectionClass($entry);
         $property = $reflection->getProperty('data');
         $property->setAccessible(true);
-        $property->setValue($item, $item->data()->merge($values));
+        $property->setValue($entry, $entry->data()->merge($values));
+
+        if ($item instanceof AugmentedEntry) {
+            $entry = new AugmentedEntry($entry);
+        }
+
+        return $entry;
     }
 }
