@@ -108,7 +108,7 @@ describe('AB Tester Middleware', function () {
                 'content_blocks' => [
                     [
                         'type' => 'image_block',
-                        'image' => $asset->id(),
+                        'image' => $asset->path(),
                         'caption' => 'Original Caption',
                     ],
                 ],
@@ -147,13 +147,10 @@ describe('AB Tester Middleware', function () {
             expect($contentBlocks)->toHaveCount(1);
 
             $block = $contentBlocks[0];
-            //expect($block['caption'])->toBe('Updated Caption');
 
             // Verify asset reference is valid and correct
-            dd($block);
-            //expect($block['image'])->not->toBeNull();
+            expect($block['image'])->not->toBeNull();
             $imageAsset = $block['image'];
-            dd($imageAsset);
             expect($imageAsset->path())->toBe('test-image.jpg');
             expect($imageAsset->container()->handle())->toBe('assets');
 
