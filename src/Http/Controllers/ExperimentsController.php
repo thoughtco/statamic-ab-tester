@@ -163,6 +163,8 @@ class ExperimentsController extends CpController
             'type' => ['required', 'in:item,manual'],
         ]);
 
+        $experimentFields = $request->input('experiment_fields');
+
         if ($request->input('type') === 'item') {
             $fields = Data::find($request->input('item_id'))->blueprint()->fields()
                 ->only($request->input('experiment_fields.fields', []))
@@ -173,6 +175,8 @@ class ExperimentsController extends CpController
             } catch (ValidationException $e) {
                 throw ValidationException::withMessages(collect($e->errors())->mapWithKeys(fn ($errors, $key) => ['experiment_fields.values.'.$key => $errors])->all());
             }
+
+            $experimentFields['values'] = $fields->process()->values();
         }
 
         $experiment = tap(
@@ -184,7 +188,7 @@ class ExperimentsController extends CpController
                 ->endAt($request->input('end_at'))
                 ->data(Arr::removeNullValues([
                     'item_id' => $request->input('item_id'),
-                    'experiment_fields' => $request->input('experiment_fields'),
+                    'experiment_fields' => $experimentFields,
                     'manual_fields' => $request->input('manual_fields'),
                 ]))
                 ->published($request->input('published', true))
@@ -233,6 +237,8 @@ class ExperimentsController extends CpController
 
         $fields->validate();
 
+        $experimentFields = $request->input('experiment_fields');
+
         if ($request->input('type') === 'item') {
             $fields = Data::find($experiment->get('item_id'))
                 ->blueprint()->fields()
@@ -244,6 +250,8 @@ class ExperimentsController extends CpController
             } catch (ValidationException $e) {
                 throw ValidationException::withMessages(collect($e->errors())->mapWithKeys(fn ($errors, $key) => ['experiment_fields.values.'.$key => $errors])->all());
             }
+
+            $experimentFields['values'] = $fields->process()->values();
         }
 
         $experiment->title($request->input('title'))
@@ -252,7 +260,7 @@ class ExperimentsController extends CpController
             ->startAt($request->input('start_at'))
             ->endAt($request->input('end_at'))
             ->merge([
-                'experiment_fields' => $request->input('experiment_fields'),
+                'experiment_fields' => $experimentFields,
             ])
             ->published($request->input('published', false))
             ->save();
