@@ -176,7 +176,7 @@ class ExperimentsController extends CpController
                 throw ValidationException::withMessages(collect($e->errors())->mapWithKeys(fn ($errors, $key) => ['experiment_fields.values.'.$key => $errors])->all());
             }
 
-            $experimentFields['values'] = $fields->process()->values();
+            $experimentFields['values'] = $fields->process()->values()->all();
         }
 
         $experiment = tap(
@@ -251,7 +251,7 @@ class ExperimentsController extends CpController
                 throw ValidationException::withMessages(collect($e->errors())->mapWithKeys(fn ($errors, $key) => ['experiment_fields.values.'.$key => $errors])->all());
             }
 
-            $experimentFields['values'] = $fields->process()->values();
+            $experimentFields['values'] = $fields->process()->values()->all();
         }
 
         $experiment->title($request->input('title'))
