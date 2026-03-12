@@ -8,6 +8,7 @@ use Statamic\Facades\Collection;
 use Statamic\Facades\Entry;
 use Statamic\Facades\User;
 use Thoughtco\StatamicABTester\Facades\Experiment;
+use Thoughtco\StatamicABTester\Models\AbTestResult;
 
 beforeEach(function () {
     $this->actingAs(User::make()->makeSuper()->save());
@@ -248,7 +249,7 @@ describe('Experiments Controller', function () {
         // to control exact counts: 200 hits each, 10% vs 20% conversion
         $insertRows = function (string $type, int|string $variant, int $count) use ($experiment) {
             for ($i = 0; $i < $count; $i++) {
-                \Thoughtco\StatamicABTester\Models\AbTestResult::create([
+                AbTestResult::create([
                     'experiment_id' => $experiment->id(),
                     'variation' => $variant,
                     'type' => $type,
@@ -282,7 +283,7 @@ describe('Experiments Controller', function () {
 
         $insertRows = function (string $type, int|string $variant, int $count) use ($experiment) {
             for ($i = 0; $i < $count; $i++) {
-                \Thoughtco\StatamicABTester\Models\AbTestResult::create([
+                AbTestResult::create([
                     'experiment_id' => $experiment->id(),
                     'variation' => $variant,
                     'type' => $type,
@@ -326,7 +327,7 @@ describe('Experiments Controller', function () {
 
     it('stores traffic_split when creating an item experiment', function () {
         // Create blueprint and collection for item experiment
-        $blueprint = \Statamic\Facades\Blueprint::make('article');
+        $blueprint = Blueprint::make('article');
         $blueprint->setContents([
             'fields' => [
                 ['handle' => 'title', 'field' => ['type' => 'text']],
@@ -334,11 +335,11 @@ describe('Experiments Controller', function () {
         ])->setNamespace('collections.articles');
         $blueprint->save();
 
-        $collection = \Statamic\Facades\Collection::make('articles');
+        $collection = Collection::make('articles');
         $collection->entryBlueprints(['article']);
         $collection->save();
 
-        $entry = tap(\Statamic\Facades\Entry::make()
+        $entry = tap(Entry::make()
             ->collection('articles')
             ->blueprint('article')
             ->slug('test-article')
