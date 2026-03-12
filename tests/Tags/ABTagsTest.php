@@ -15,7 +15,7 @@ it('returns a variant', function () {
         ])
         ->save();
 
-    $content = (string) Facades\Antlers::parse('{{ ab experiment="test" }}{{ variant }}{{ /ab }}');
+    $content = (string) Facades\Antlers::parse('{{ ab experiment="test" }}{{ variant }}{{ /ab }}', trusted: true);
 
     $this->assertSame($content, 'one');
 });
@@ -32,7 +32,7 @@ it('does nothing when start date is in the future', function () {
         ])
         ->save();
 
-    $content = (string) Facades\Antlers::parse('{{ ab experiment="test" }}{{ variant }}{{ /ab }}');
+    $content = (string) Facades\Antlers::parse('{{ ab experiment="test" }}{{ variant }}{{ /ab }}', trusted: true);
 
     $this->assertSame($content, '');
 });
@@ -49,7 +49,7 @@ it('works when start date is in the past', function () {
         ])
         ->save();
 
-    $content = (string) Facades\Antlers::parse('{{ ab experiment="test" }}{{ variant }}{{ /ab }}');
+    $content = (string) Facades\Antlers::parse('{{ ab experiment="test" }}{{ variant }}{{ /ab }}', trusted: true);
 
     $this->assertSame($content, 'one');
 });
@@ -66,7 +66,7 @@ it('does nothing when end date is in the past', function () {
         ])
         ->save();
 
-    $content = (string) Facades\Antlers::parse('{{ ab experiment="test" }}{{ variant }}{{ /ab }}');
+    $content = (string) Facades\Antlers::parse('{{ ab experiment="test" }}{{ variant }}{{ /ab }}', trusted: true);
 
     $this->assertSame($content, '');
 });
@@ -83,19 +83,19 @@ it('works when start date is in the future', function () {
         ])
         ->save();
 
-    $content = (string) Facades\Antlers::parse('{{ ab experiment="test" }}{{ variant }}{{ /ab }}');
+    $content = (string) Facades\Antlers::parse('{{ ab experiment="test" }}{{ variant }}{{ /ab }}', trusted: true);
 
     $this->assertSame($content, 'one');
 });
 
 it('completes a goal', function () {
-    $string = (string) Facades\Antlers::parse('{{ ab:goal:completed handle="test" }}');
+    $string = (string) Facades\Antlers::parse('{{ ab:goal:completed handle="test" }}', trusted: true);
 
     $this->assertStringContainsString('<script>abTester.completed', $string);
 });
 
 it('fails a goal', function () {
-    $string = (string) Facades\Antlers::parse('{{ ab:goal:failed handle="test" }}');
+    $string = (string) Facades\Antlers::parse('{{ ab:goal:failed handle="test" }}', trusted: true);
 
     $this->assertStringContainsString('<script>abTester.failed', $string);
 });
