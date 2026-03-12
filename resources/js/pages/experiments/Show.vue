@@ -11,6 +11,7 @@ const props = defineProps({
     experiment: { type: Object, required: true },
     hasResults: { type: Boolean, required: true, default: true },
     results: { type: Array, required: true, default: [] },
+    significance: { type: Object, default: null },
     routes: { type: Object, required: true },
 });
 
@@ -142,6 +143,48 @@ const applyVariant = async (variant) => {
                 </ui-card>
             </ui-panel>
         </div>
+
+        <ui-panel class="mt-2" v-if="results.variant.length >= 2">
+            <ui-panel-header>
+                <ui-heading :text="__('Statistical significance')"></ui-heading>
+            </ui-panel-header>
+            <ui-card>
+                <template v-if="significance">
+                    <div class="flex items-center gap-6 flex-wrap">
+                        <div class="flex items-center gap-2">
+                            <ui-badge :color="significance.is_significant ? 'green' : significance.confidence >= 80 ? 'yellow' : 'gray'">
+                                {{ significance.is_significant ? __('Significant') : significance.confidence >= 80 ? __('Trending') : __('Not significant') }}
+                            </ui-badge>
+                            <ui-heading>{{ significance.confidence.toFixed(1) }}%</ui-heading>
+                            <ui-description class="text-sm">{{ __('confidence') }}</ui-description>
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <ui-description class="text-sm">
+                                <span class="font-semibold">{{ significance.leader }}</span>
+                                {{ __('is the current leader') }}
+                                <template v-if="significance.uplift !== null">
+                                    &mdash;
+                                    <span :class="significance.uplift >= 0 ? 'text-green-600' : 'text-red-600'" class="font-semibold">
+                                        {{ significance.uplift >= 0 ? '+' : '' }}{{ significance.uplift }}%
+                                    </span>
+                                    {{ __('relative to control') }}
+                                </template>
+                            </ui-description>
+                            <ui-description v-if="! significance.is_significant">
+                                {{ __('Not yet significant — collect more data before drawing conclusions.') }}
+                            </ui-description>
+                        </div>
+                        <ui-description class="flex gap-4 ml-auto self-center">
+                            <span>{{ __('Z-score') }}: <span class="font-mono">{{ significance.z_score }}</span></span>
+                            <span>{{ __('P-value') }}: <span class="font-mono">{{ significance.p_value }}</span></span>
+                        </ui-description>
+                    </div>
+                </template>
+                <template v-else>
+                    <p class="text-sm text-gray-500">{{ __('Insufficient data to calculate significance. Keep running the experiment to collect more results.') }}</p>
+                </template>
+            </ui-card>
+        </ui-panel>
 
         <div class="absolute top-0 right-0 w-full h-full flex items-center justify-center" v-if="showConfetti">
             <div v-confetti="{ stageWidth: width, stageHeight: height, force: 1 }" />

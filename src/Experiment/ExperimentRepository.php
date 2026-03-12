@@ -78,6 +78,15 @@ abstract class ExperimentRepository implements RepositoryContract
                                     'validate' => 'required',
                                 ],
                             ],
+                            [
+                                'handle' => 'weight',
+                                'field' => [
+                                    'label' => __('Weight'),
+                                    'type' => 'integer',
+                                    'default' => 50,
+                                    'instructions' => __('Relative weight for traffic distribution. Leave equal for an even split.'),
+                                ],
+                            ],
                         ],
                         'validate' => 'array',
                         'if' => [
@@ -94,6 +103,16 @@ abstract class ExperimentRepository implements RepositoryContract
             ],
             'sidebar' => [
                 'fields' => [
+                    'traffic_split' => [
+                        'type' => 'integer',
+                        'label' => __('Traffic split (% to control)'),
+                        'default' => 50,
+                        'instructions' => __('Percentage of visitors shown the original (control). The remainder see the variant. Default is 50/50.'),
+                        'validate' => 'nullable|integer|min:0|max:100',
+                        'if' => [
+                            'type' => 'equals item',
+                        ],
+                    ],
                     'start_at' => [
                         'type' => 'date',
                         'label' => __('Start at'),

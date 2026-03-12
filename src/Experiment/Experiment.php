@@ -242,7 +242,35 @@ abstract class Experiment implements Arrayable, ExperimentContract
             }
         }
 
-        return $this->variants()->keys()->random();
+        if ($this->type == 'item') {
+            $split = min(100, max(0, (int) ($this->get('traffic_split') ?? 50)));
+
+            return rand(1, 100) <= $split ? 1 : 2;
+        }
+
+        $variants = collect($this->get('manual_fields') ?? []);
+
+        if ($variants->isEmpty()) {
+            return null;
+        }
+
+        $totalWeight = $variants->sum('weight');
+
+        if (! $totalWeight) {
+            return $variants->random()['handle'];
+        }
+
+        $random = rand(1, $totalWeight);
+        $cumulative = 0;
+
+        foreach ($variants as $variant) {
+            $cumulative += (int) ($variant['weight'] ?? 0);
+            if ($random <= $cumulative) {
+                return $variant['handle'];
+            }
+        }
+
+        return $variants->last()['handle'];
     }
 
     public function variants(): Collection

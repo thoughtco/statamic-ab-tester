@@ -15,6 +15,7 @@ use Statamic\Query\Scopes\Filters\Concerns\QueriesFilters;
 use Statamic\Support\Arr;
 use Thoughtco\StatamicABTester\Facades\Experiment;
 use Thoughtco\StatamicABTester\Http\Resources\ExperimentsResource;
+use Thoughtco\StatamicABTester\Support\StatisticalSignificance;
 
 class ExperimentsController extends CpController
 {
@@ -136,6 +137,21 @@ class ExperimentsController extends CpController
             })
             ->filter();
 
+        $significance = null;
+        if (count($variantResults) >= 2) {
+            $a = $variantResults[0];
+            $b = $variantResults[1];
+            $significance = StatisticalSignificance::calculate($a['hits'], $a['success'], $b['hits'], $b['success']);
+
+            if ($significance) {
+                $leader = $a['rate'] >= $b['rate'] ? $a : $b;
+                $significance['leader'] = $leader['label'];
+                $significance['uplift'] = $a['rate'] > 0
+                    ? round(($b['rate'] - $a['rate']) / $a['rate'] * 100, 1)
+                    : null;
+            }
+        }
+
         return Inertia::render('abtester::Experiments.Show', [
             'experiment' => $experiment,
             'hasResults' => count($variantResults) > 0,
@@ -144,6 +160,7 @@ class ExperimentsController extends CpController
                 'user' => $userResults,
                 'variant' => $variantResults,
             ],
+            'significance' => $significance,
             'routes' => [
                 'edit' => cp_route('ab.experiments.edit', $experiment->id()),
                 'complete' => cp_route('ab.experiments.complete', $experiment->id()),
@@ -160,6 +177,7 @@ class ExperimentsController extends CpController
             'manual_fields' => ['required_if:type,manual', 'array'],
             'goals' => ['required', 'array'],
             'published' => ['nullable', 'boolean'],
+            'traffic_split' => ['nullable', 'integer', 'min:0', 'max:100'],
             'type' => ['required', 'in:item,manual'],
         ]);
 
@@ -190,6 +208,7 @@ class ExperimentsController extends CpController
                     'item_id' => $request->input('item_id'),
                     'experiment_fields' => $experimentFields,
                     'manual_fields' => $request->input('manual_fields'),
+                    'traffic_split' => $request->input('traffic_split'),
                 ]))
                 ->published($request->input('published', true))
         )
@@ -261,6 +280,7 @@ class ExperimentsController extends CpController
             ->endAt($request->input('end_at'))
             ->merge([
                 'experiment_fields' => $experimentFields,
+                'traffic_split' => $request->input('traffic_split'),
             ])
             ->published($request->input('published', false))
             ->save();

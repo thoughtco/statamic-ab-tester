@@ -239,6 +239,129 @@ describe('Experiments Controller', function () {
         expect($experimentFields['values']['view_count'])->toBeInt();
     });
 
+    it('includes significance in experiment show when results exist for two variants', function () {
+        $experiment = tap(Experiment::make('sig-test')
+            ->title('Significance Test'))
+            ->save();
+
+        // recordSuccess() deduplicates per variant+goal, so insert results directly
+        // to control exact counts: 200 hits each, 10% vs 20% conversion
+        $insertRows = function (string $type, int|string $variant, int $count) use ($experiment) {
+            for ($i = 0; $i < $count; $i++) {
+                \Thoughtco\StatamicABTester\Models\AbTestResult::create([
+                    'experiment_id' => $experiment->id(),
+                    'variation' => $variant,
+                    'type' => $type,
+                    'data' => [],
+                ]);
+            }
+        };
+
+        $insertRows('hit', 1, 200);
+        $insertRows('success', 1, 20);
+        $insertRows('hit', 2, 200);
+        $insertRows('success', 2, 40);
+
+        $this->get(cp_route('ab.experiments.show', $experiment->id()))
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page
+                ->has('significance')
+                ->where('significance.is_significant', true)
+                ->has('significance.z_score')
+                ->has('significance.p_value')
+                ->has('significance.confidence')
+                ->has('significance.leader')
+                ->has('significance.uplift')
+            );
+    });
+
+    it('sets the leader to the variant with the higher conversion rate', function () {
+        $experiment = tap(Experiment::make('leader-test')
+            ->title('Leader Test'))
+            ->save();
+
+        $insertRows = function (string $type, int|string $variant, int $count) use ($experiment) {
+            for ($i = 0; $i < $count; $i++) {
+                \Thoughtco\StatamicABTester\Models\AbTestResult::create([
+                    'experiment_id' => $experiment->id(),
+                    'variation' => $variant,
+                    'type' => $type,
+                    'data' => [],
+                ]);
+            }
+        };
+
+        // Variant 1 (A): 10% conversion; variant 2 (B): 20% conversion — B should lead
+        $insertRows('hit', 1, 200);
+        $insertRows('success', 1, 20);
+        $insertRows('hit', 2, 200);
+        $insertRows('success', 2, 40);
+
+        $response = $this->get(cp_route('ab.experiments.show', $experiment->id()));
+        $response->assertOk()
+            ->assertInertia(fn ($page) => $page
+                // variant 2 has double the conversion rate so it must be the leader
+                ->where('significance.leader', '2')
+                ->has('significance.uplift')
+            );
+
+        $significance = $response->original->getData()['page']['props']['significance'];
+        expect($significance['uplift'])->toBeGreaterThan(0);
+    });
+
+    it('passes null significance when only one variant has results', function () {
+        $experiment = tap(Experiment::make('one-variant')
+            ->title('One Variant'))
+            ->save();
+
+        $experiment->recordHit(1);
+        $experiment->recordSuccess(1, null);
+
+        $this->get(cp_route('ab.experiments.show', $experiment->id()))
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page
+                ->where('significance', null)
+            );
+    });
+
+    it('stores traffic_split when creating an item experiment', function () {
+        // Create blueprint and collection for item experiment
+        $blueprint = \Statamic\Facades\Blueprint::make('article');
+        $blueprint->setContents([
+            'fields' => [
+                ['handle' => 'title', 'field' => ['type' => 'text']],
+            ],
+        ])->setNamespace('collections.articles');
+        $blueprint->save();
+
+        $collection = \Statamic\Facades\Collection::make('articles');
+        $collection->entryBlueprints(['article']);
+        $collection->save();
+
+        $entry = tap(\Statamic\Facades\Entry::make()
+            ->collection('articles')
+            ->blueprint('article')
+            ->slug('test-article')
+            ->data(['title' => 'Original']))
+            ->save();
+
+        $this->post(cp_route('ab.experiments.store'), [
+            'title' => 'Split Test',
+            'type' => 'item',
+            'item_id' => $entry->id(),
+            'published' => true,
+            'goals' => [1],
+            'traffic_split' => 25,
+            'experiment_fields' => [
+                'fields' => ['title'],
+                'values' => ['title' => 'Variant Title'],
+            ],
+        ])->assertStatus(200);
+
+        $experiment = Experiment::all()->first();
+        expect($experiment->get('traffic_split'))->toBe(25);
+    });
+
     it('does not process experiment_fields for manual type experiments', function () {
         $data = [
             'title' => 'Manual Experiment',
