@@ -57,6 +57,17 @@ The `FrontendActionsController` handles the API endpoint that the JS tracker cal
 
 Built with Inertia.js + Vue 3. Pages live in `resources/js/pages/`. The `ServiceProvider` registers CP nav items, permissions (`view experiments`, `edit experiments`, etc.), and CP routes from `routes/cp.php`.
 
+**Always use Statamic's `ui-*` component library** for all CP output — never write raw Tailwind classes. These components are globally registered Vue components that render consistent Statamic-styled UI.
+
+Available components (non-exhaustive):
+- Layout: `ui-widget`, `ui-panel`, `ui-panel-header`, `ui-card`, `ui-header`
+- Typography: `ui-heading`, `ui-description`
+- Data: `ui-table`, `ui-table-columns`, `ui-table-column`, `ui-table-rows`, `ui-table-row`, `ui-table-cell`
+- Inline: `ui-badge` (accepts `color` prop: `green`, `red`, `yellow`, `blue`, `gray`), `ui-button`
+- Overlays: `ui-modal`, `ui-modal-close`
+
+**Widget Blade views** are rendered via Statamic's `DynamicHtmlRenderer`, which compiles the HTML string as `defineComponent({ template: html })`. This means all `ui-*` components work in Blade widget views exactly as in Vue templates. Blade `@foreach`/`@if` are resolved server-side first; the resulting HTML (with `ui-*` tags intact) is then compiled by Vue client-side. Named slots (`<template #footer>`) also work in widget HTML for this reason.
+
 ### Key relationships
 
 - `ServiceProvider` → wires everything together (routes, middleware, bindings, events, nav, permissions)
