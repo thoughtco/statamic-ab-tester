@@ -3,8 +3,8 @@
 uses(\Thoughtco\StatamicABTester\Tests\TestCase::class);
 
 use Statamic\Facades\File;
-use Thoughtco\StatamicABTester\Experiment\Stache\Experiment;
-use Thoughtco\StatamicABTester\Experiment\Stache\ExperimentQueryBuilder;
+use Thoughtco\StatamicABTester\Events\Experiment\Stache\Experiment;
+use Thoughtco\StatamicABTester\Events\Experiment\Stache\ExperimentQueryBuilder;
 use Thoughtco\StatamicABTester\Facades\Experiment as ExperimentApi;
 
 it('can make an experiment', function () {
