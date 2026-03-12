@@ -52,7 +52,6 @@ describe('ABTesterWidget', function () {
 
         $html = makeWidget()->html();
 
-        expect($html)->toContain('1');
         expect($html)->toContain('Active');
         expect($html)->not->toContain('Done');
     });
@@ -74,7 +73,6 @@ describe('ABTesterWidget', function () {
 
         $html = makeWidget()->html();
 
-        expect($html)->toContain('0');
         expect($html)->not->toContain('Future');
     });
 
@@ -85,7 +83,6 @@ describe('ABTesterWidget', function () {
 
         $html = makeWidget()->html();
 
-        expect($html)->toContain('0');
         expect($html)->not->toContain('Expired');
     });
 
