@@ -4,6 +4,7 @@ namespace Thoughtco\StatamicABTester\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Statamic\Exceptions\NotFoundHttpException;
@@ -164,7 +165,41 @@ class ExperimentsController extends CpController
             'routes' => [
                 'edit' => cp_route('ab.experiments.edit', $experiment->id()),
                 'complete' => cp_route('ab.experiments.complete', $experiment->id()),
+                'export' => cp_route('ab.experiments.export', $experiment->id()),
             ],
+        ]);
+    }
+
+    public function export($experiment)
+    {
+        throw_unless($experiment = Experiment::find($experiment), NotFoundHttpException::class);
+
+        $filename = Str::slug($experiment->title()).'-results.csv';
+
+        return response()->stream(function () use ($experiment) {
+            $handle = fopen('php://output', 'w');
+
+            fputcsv($handle, ['id', 'variation', 'type', 'goal_id', 'ip_address', 'user_id', 'created_at', 'data']);
+
+            $experiment->resultsQuery()->chunk(500, function ($rows) use ($handle) {
+                foreach ($rows as $row) {
+                    fputcsv($handle, [
+                        $row->id,
+                        $row->variation,
+                        $row->type,
+                        $row->goal_id,
+                        $row->ip_address,
+                        $row->user_id,
+                        $row->created_at,
+                        json_encode($row->data),
+                    ]);
+                }
+            });
+
+            fclose($handle);
+        }, 200, [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
         ]);
     }
 
