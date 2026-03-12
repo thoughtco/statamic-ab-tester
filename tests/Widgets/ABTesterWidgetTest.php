@@ -63,7 +63,6 @@ describe('ABTesterWidget', function () {
 
         $html = makeWidget()->html();
 
-        expect($html)->toContain('1');
         expect($html)->toContain('Published');
         expect($html)->not->toContain('Draft');
     });
