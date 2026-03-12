@@ -63,7 +63,7 @@ const applyVariant = async (variant) => {
 
         <ui-button :href="routes.edit" class="btn-primary" v-text="__('Edit')" v-if="! experiment.completed_at" />
 
-        <ui-badge color="red" v-if="experiment.completed_at">Completed</ui-badge>
+        <ui-badge color="red" v-if="experiment.completed_at">{{ __('Completed') }}</ui-badge>
     </ui-header>
 
     <template v-if="! hasResults">
@@ -216,7 +216,7 @@ const applyVariant = async (variant) => {
             <template #footer>
                 <div class="flex items-center justify-end space-x-3 pt-3 pb-1">
                     <ui-modal-close>
-                        <ui-button text="Cancel" variant="ghost" />
+                        <ui-button :text="__('Cancel')" variant="ghost" />
                     </ui-modal-close>
                 </div>
             </template>
