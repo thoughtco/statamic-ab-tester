@@ -124,6 +124,6 @@ abstract class Goal implements Arrayable, GoalContract
 
     public function fresh()
     {
-        return \Thoughtco\StatamicABTester\Facades\Goal::find($this->id);
+        return GoalFacade::find($this->id);
     }
 }

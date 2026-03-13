@@ -284,6 +284,6 @@ abstract class Experiment implements Arrayable, ExperimentContract
 
     public function fresh()
     {
-        return \Thoughtco\StatamicABTester\Facades\Experiment::find($this->id);
+        return ExperimentFacade::find($this->id);
     }
 }
