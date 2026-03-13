@@ -10,7 +10,7 @@ const { width, height } = useWindowSize()
 const props = defineProps({
     experiment: { type: Object, required: true },
     hasResults: { type: Boolean, required: true, default: true },
-    results: { type: Array, required: true, default: [] },
+    results: { type: Object, required: true, default: [] },
     significance: { type: Object, default: null },
     routes: { type: Object, required: true },
 });
@@ -61,7 +61,9 @@ const applyVariant = async (variant) => {
     <ui-header :title="experiment.title" icon="labs-idea-experimental-flask">
         <ui-button variant="primary" v-text="__('Complete Experiment')" @click="showCompleteModal = true" v-if="! experiment.completed_at" />
 
-        <ui-button :href="routes.edit" class="btn-primary" v-text="__('Edit')" v-if="! experiment.completed_at" />
+        <ui-button :href="routes.edit" v-text="__('Edit')" v-if="! experiment.completed_at" />
+
+        <ui-button as="a" :href="routes.export" v-if="hasResults">{{ __('Export CSV') }}</ui-button>
 
         <ui-badge color="red" v-if="experiment.completed_at">Completed</ui-badge>
     </ui-header>
