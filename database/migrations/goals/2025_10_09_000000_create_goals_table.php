@@ -11,16 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('experiments', function (Blueprint $table) {
+        Schema::create('goals', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('title');
-            $table->string('type');
+            $table->string('handle');
             $table->jsonb('data')->nullable();
-            $table->jsonb('goals')->nullable();
-            $table->datetime('start_at')->nullable();
-            $table->datetime('end_at')->nullable();
-            $table->datetime('completed_at')->nullable();
-            $table->boolean('published')->default(false);
             $table->timestamps();
         });
     }
@@ -30,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('experiments');
+        Schema::dropIfExists('goals');
     }
 };

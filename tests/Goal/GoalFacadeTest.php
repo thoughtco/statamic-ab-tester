@@ -1,10 +1,12 @@
 <?php
 
-uses(\Thoughtco\StatamicABTester\Tests\TestCase::class);
-
 use Illuminate\Support\Facades\Session;
 use Statamic\Data\DataCollection;
+use Statamic\Fields\Blueprint;
 use Thoughtco\StatamicABTester\Facades\Goal;
+use Thoughtco\StatamicABTester\Tests\TestCase;
+
+uses(TestCase::class);
 
 beforeEach(function () {
     // Clear session data before each test
@@ -36,13 +38,13 @@ describe('Goal facade', function () {
         $goal = Goal::make();
 
         expect($goal)->not->toBeNull();
-        expect($goal)->toBeInstanceOf(\Thoughtco\StatamicABTester\Contracts\Goal::class);
+        expect($goal)->toBeInstanceOf(Thoughtco\StatamicABTester\Contracts\Goal::class);
     });
 
     it('returns correct blueprint structure', function () {
         $blueprint = Goal::blueprint();
 
-        expect($blueprint)->toBeInstanceOf(\Statamic\Fields\Blueprint::class);
+        expect($blueprint)->toBeInstanceOf(Blueprint::class);
 
         $fields = $blueprint->fields()->all()->toArray();
         expect($fields)->toHaveKey('title');

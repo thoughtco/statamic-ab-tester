@@ -1,8 +1,9 @@
 <?php
 
-uses(\Thoughtco\StatamicABTester\Tests\TestCase::class);
-
 use Thoughtco\StatamicABTester\Facades\Experiment;
+use Thoughtco\StatamicABTester\Tests\TestCase;
+
+uses(TestCase::class);
 
 describe('Traffic split', function () {
     describe('item experiments', function () {
