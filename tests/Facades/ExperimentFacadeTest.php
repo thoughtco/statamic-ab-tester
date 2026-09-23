@@ -1,11 +1,11 @@
 
 <?php
 
-uses(TestCase::class);
-
 use Statamic\Data\DataCollection;
 use Thoughtco\StatamicABTester\Facades\Experiment;
 use Thoughtco\StatamicABTester\Tests\TestCase;
+
+uses(TestCase::class);
 
 describe('Experiment Facade', function () {
     it('can get all experiments', function () {

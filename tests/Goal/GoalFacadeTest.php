@@ -1,12 +1,12 @@
 <?php
 
-uses(TestCase::class);
-
 use Illuminate\Support\Facades\Session;
 use Statamic\Data\DataCollection;
 use Statamic\Fields\Blueprint;
 use Thoughtco\StatamicABTester\Facades\Goal;
 use Thoughtco\StatamicABTester\Tests\TestCase;
+
+uses(TestCase::class);
 
 beforeEach(function () {
     // Clear session data before each test

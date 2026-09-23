@@ -1,7 +1,5 @@
 <?php
 
-uses(TestCase::class);
-
 use Illuminate\Http\Request;
 use Statamic\Facades\Asset;
 use Statamic\Facades\AssetContainer;
@@ -11,6 +9,8 @@ use Statamic\Facades\Entry;
 use Thoughtco\StatamicABTester\Facades\Experiment;
 use Thoughtco\StatamicABTester\Http\Middleware\ABTesterMiddleware;
 use Thoughtco\StatamicABTester\Tests\TestCase;
+
+uses(TestCase::class);
 
 describe('AB Tester Middleware', function () {
     it('processes request without experiments', function () {

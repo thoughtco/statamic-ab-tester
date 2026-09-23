@@ -1,10 +1,10 @@
 <?php
 
-uses(TestCase::class);
-
 use Thoughtco\StatamicABTester\Facades\Experiment;
 use Thoughtco\StatamicABTester\Facades\Goal;
 use Thoughtco\StatamicABTester\Tests\TestCase;
+
+uses(TestCase::class);
 
 describe('A/B Testing Flow Integration', function () {
     it('completes full ab testing flow', function () {

@@ -1,12 +1,12 @@
 
 <?php
 
-uses(TestCase::class);
-
 use Statamic\Facades\Permission;
 use Thoughtco\StatamicABTester\Contracts\ExperimentRepository;
 use Thoughtco\StatamicABTester\Contracts\GoalRepository;
 use Thoughtco\StatamicABTester\Tests\TestCase;
+
+uses(TestCase::class);
 
 describe('Service Provider', function () {
     it('registers repositories', function () {

@@ -1,12 +1,12 @@
 <?php
 
-uses(TestCase::class);
-
 use Statamic\Facades\File;
 use Thoughtco\StatamicABTester\Experiment\Stache\Experiment;
 use Thoughtco\StatamicABTester\Experiment\Stache\ExperimentQueryBuilder;
 use Thoughtco\StatamicABTester\Facades\Experiment as ExperimentApi;
 use Thoughtco\StatamicABTester\Tests\TestCase;
+
+uses(TestCase::class);
 
 it('can make an experiment', function () {
     $this->assertInstanceOf(Experiment::class, ExperimentApi::make());
