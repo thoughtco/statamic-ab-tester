@@ -1,9 +1,10 @@
 <?php
 
-uses(\Thoughtco\StatamicABTester\Tests\TestCase::class);
+uses(TestCase::class);
 
 use Thoughtco\StatamicABTester\Facades\Experiment;
 use Thoughtco\StatamicABTester\Models\AbTestResult;
+use Thoughtco\StatamicABTester\Tests\TestCase;
 use Thoughtco\StatamicABTester\Widgets\ABTesterWidget;
 
 function makeWidget(): ABTesterWidget

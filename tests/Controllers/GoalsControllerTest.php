@@ -1,9 +1,10 @@
 <?php
 
-uses(\Thoughtco\StatamicABTester\Tests\TestCase::class);
+uses(TestCase::class);
 
 use Statamic\Facades\User;
 use Thoughtco\StatamicABTester\Facades\Goal;
+use Thoughtco\StatamicABTester\Tests\TestCase;
 
 beforeEach(function () {
     $this->actingAs(User::make()->makeSuper()->save());

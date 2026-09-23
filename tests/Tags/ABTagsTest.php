@@ -1,9 +1,10 @@
 <?php
 
-uses(\Thoughtco\StatamicABTester\Tests\TestCase::class);
+uses(TestCase::class);
 
 use Statamic\Facades;
 use Thoughtco\StatamicABTester\Experiment\Stache\Experiment;
+use Thoughtco\StatamicABTester\Tests\TestCase;
 
 it('returns a variant', function () {
     (new Experiment)

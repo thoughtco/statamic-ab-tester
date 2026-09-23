@@ -1,8 +1,9 @@
 <?php
 
-uses(\Thoughtco\StatamicABTester\Tests\TestCase::class);
+uses(TestCase::class);
 
 use Thoughtco\StatamicABTester\Models\ABTestResult;
+use Thoughtco\StatamicABTester\Tests\TestCase;
 
 describe('AB Test Result Model', function () {
     it('can create hit result', function () {

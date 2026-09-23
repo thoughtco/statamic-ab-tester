@@ -1,8 +1,9 @@
 <?php
 
-uses(\Thoughtco\StatamicABTester\Tests\TestCase::class);
+uses(TestCase::class);
 
 use Thoughtco\StatamicABTester\Facades\Experiment as ExperimentApi;
+use Thoughtco\StatamicABTester\Tests\TestCase;
 
 it('queries experiments', function () {
     $experiment = tap(ExperimentApi::make()

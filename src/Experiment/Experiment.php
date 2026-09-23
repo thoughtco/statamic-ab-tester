@@ -127,7 +127,7 @@ abstract class Experiment implements Arrayable, ExperimentContract
             'goal_id' => $goalId,
             'ip_address' => request()->ip(),
             'type' => $type,
-            'user_id' => auth()->user()?->id(),
+            'user_id' => auth()?->id(),
         ]);
     }
 

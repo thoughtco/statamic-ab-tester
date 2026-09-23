@@ -1,6 +1,6 @@
 <?php
 
-uses(\Thoughtco\StatamicABTester\Tests\TestCase::class);
+uses(TestCase::class);
 
 use Illuminate\Http\Request;
 use Statamic\Facades\Asset;
@@ -10,6 +10,7 @@ use Statamic\Facades\Collection;
 use Statamic\Facades\Entry;
 use Thoughtco\StatamicABTester\Facades\Experiment;
 use Thoughtco\StatamicABTester\Http\Middleware\ABTesterMiddleware;
+use Thoughtco\StatamicABTester\Tests\TestCase;
 
 describe('AB Tester Middleware', function () {
     it('processes request without experiments', function () {
@@ -136,7 +137,7 @@ describe('AB Tester Middleware', function () {
         $middleware = new ABTesterMiddleware;
         $request = Request::create('/');
 
-        $response = $middleware->handle($request, function ($req) use ($entry, $asset) {
+        $response = $middleware->handle($request, function ($req) use ($entry) {
             $augmented = $entry->toAugmentedCollection();
 
             // Verify variant 2 data is applied

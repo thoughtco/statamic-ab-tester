@@ -1,8 +1,9 @@
 <?php
 
-uses(\Thoughtco\StatamicABTester\Tests\TestCase::class);
+uses(TestCase::class);
 
 use Thoughtco\StatamicABTester\Support\StatisticalSignificance;
+use Thoughtco\StatamicABTester\Tests\TestCase;
 
 describe('StatisticalSignificance', function () {
     it('returns null when variant A has no hits', function () {
