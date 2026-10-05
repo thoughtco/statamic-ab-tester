@@ -58,7 +58,8 @@ class ABTags extends Tags
         const abTester = {
             hit: (experiment, data) => abTester.run('hit', experiment, data),
             completed: (goal, data) => abTester.run('success', goal, data),
-            failure: (goal, data) => abTester.run('failure', goal, data),
+            failed: (goal, data) => abTester.run('failure', goal, data),
+            failure: (goal, data) => abTester.failed(goal, data),
 
             run: (type, source, data) => {
                 fetch('".route('statamic.ab-tester.front-end-js')."', {
@@ -102,7 +103,7 @@ class ABTags extends Tags
             return $this->parse();
         }
 
-        $experiment->recordFailure($variantHandle, $params->pull('goal'), $params->all());
+        $experiment->recordFailure($variantHandle, $this->params->pull('goal'), $this->params->all());
 
         if (! $this->isPair) {
             return;
@@ -136,7 +137,7 @@ class ABTags extends Tags
             return $this->parse();
         }
 
-        $experiment->recordSuccess($variantHandle, $params->pull('goal'), $params->all());
+        $experiment->recordSuccess($variantHandle, $this->params->pull('goal'), $this->params->all());
 
         if (! $this->isPair) {
             return;

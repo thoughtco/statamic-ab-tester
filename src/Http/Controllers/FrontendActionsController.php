@@ -21,7 +21,9 @@ class FrontendActionsController extends Controller
         $data = request()->input('data', []);
 
         if ($type == 'hit') {
-            Experiment::find($source)?->recordHit($data);
+            if ($variant = session()->get('statamic.ab.'.$source)) {
+                Experiment::find($source)?->recordHit($variant, $data);
+            }
 
             return [];
         }
@@ -33,7 +35,7 @@ class FrontendActionsController extends Controller
         }
 
         if ($type == 'failure') {
-            Goal::failure($source, $data);
+            Goal::failed($source, $data);
 
             return [];
         }

@@ -81,6 +81,7 @@ class ExperimentsController extends CpController
         throw_unless($experiment = Experiment::find($experiment), NotFoundHttpException::class);
 
         $variantResults = $experiment->resultsQuery()
+            ->where('type', 'hit')
             ->select('variation', DB::raw('count(*) as hits'))
             ->groupBy('variation')
             ->get()
@@ -92,13 +93,14 @@ class ExperimentsController extends CpController
                     'label' => $row['variation'],
                     'hits' => $row['hits'],
                     'success' => $success,
-                    'failed' => $experiment->resultsQuery()->where('variation', $row['variation'])->where('type', 'failures')->count() ?? 0,
+                    'failed' => $experiment->resultsQuery()->where('variation', $row['variation'])->where('type', 'failure')->count() ?? 0,
                     'rate' => 100 * round($success / ($row['hits'] ?? 1), 4),
                 ];
             })
             ->all();
 
         $userResults = $experiment->resultsQuery()
+            ->where('type', 'hit')
             ->select('user_id', DB::raw('count(*) as hits'))
             ->groupBy('user_id')
             ->orderBy('hits')
@@ -121,6 +123,7 @@ class ExperimentsController extends CpController
             ->filter();
 
         $ipResults = $experiment->resultsQuery()
+            ->where('type', 'hit')
             ->select('ip_address', DB::raw('count(*) as hits'))
             ->groupBy('ip_address')
             ->orderBy('hits')
