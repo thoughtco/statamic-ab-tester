@@ -12,6 +12,7 @@ use Thoughtco\StatamicABTester\Contracts\Experiment as ExperimentContract;
 use Thoughtco\StatamicABTester\Events;
 use Thoughtco\StatamicABTester\Facades\Experiment as ExperimentFacade;
 use Thoughtco\StatamicABTester\Models\AbTestResult;
+use Thoughtco\StatamicABTester\Support\Visitor;
 
 abstract class Experiment implements Arrayable, ExperimentContract
 {
@@ -128,12 +129,29 @@ abstract class Experiment implements Arrayable, ExperimentContract
             'ip_address' => request()->ip(),
             'type' => $type,
             'user_id' => auth()?->id(),
+            'visitor_id' => Visitor::id(),
         ]);
+    }
+
+    private function visitorResultsQuery()
+    {
+        return $this->resultsQuery()->where('visitor_id', Visitor::id());
+    }
+
+    public function visitorVariation()
+    {
+        if ($variant = session()->get('statamic.ab.'.$this->id())) {
+            return $variant;
+        }
+
+        return $this->visitorResultsQuery()->where('type', 'hit')->value('variation');
     }
 
     public function recordHit($variantId, $data = [])
     {
-        $this->createResultModel('hit', $variantId, null, $data);
+        if (! $this->visitorResultsQuery()->where('type', 'hit')->exists()) {
+            $this->createResultModel('hit', $variantId, null, $data);
+        }
 
         return $this;
     }
@@ -150,15 +168,9 @@ abstract class Experiment implements Arrayable, ExperimentContract
 
     private function recordGoalResult($type, $variantId, $goalId, $data)
     {
-        $key = implode(':', [$this->id(), $type, $goalId]);
-
-        if (in_array($key, session()->get('statamic.ab-recorded', []))) {
-            return $this;
+        if (! $this->visitorResultsQuery()->where('type', $type)->where('goal_id', $goalId)->exists()) {
+            $this->createResultModel($type, $variantId, $goalId, $data);
         }
-
-        session()->push('statamic.ab-recorded', $key);
-
-        $this->createResultModel($type, $variantId, $goalId, $data);
 
         return $this;
     }
@@ -244,7 +256,7 @@ abstract class Experiment implements Arrayable, ExperimentContract
     public function chooseVariation($fromSession = true)
     {
         if ($fromSession) {
-            if ($variant = session()->get('statamic.ab.'.$this->id())) {
+            if ($variant = $this->visitorVariation()) {
                 return $variant;
             }
         }

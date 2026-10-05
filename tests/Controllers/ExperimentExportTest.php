@@ -31,7 +31,7 @@ describe('Experiment CSV export', function () {
         $lines = array_filter(explode("\n", $csv));
         $header = str_getcsv(reset($lines));
 
-        expect($header)->toBe(['id', 'variation', 'type', 'goal_id', 'ip_address', 'user_id', 'created_at', 'data']);
+        expect($header)->toBe(['id', 'variation', 'type', 'goal_id', 'ip_address', 'user_id', 'visitor_id', 'created_at', 'data']);
     });
 
     it('exports one data row per result record', function () {
@@ -74,7 +74,7 @@ describe('Experiment CSV export', function () {
         expect($dataRow[3])->toBe('');            // goal_id (null → empty)
         expect($dataRow[4])->toBe('127.0.0.1');   // ip_address
         expect($dataRow[5])->toBe('');            // user_id (null → empty)
-        expect(json_decode($dataRow[7], true))->toBe(['page' => '/home']); // data
+        expect(json_decode($dataRow[8], true))->toBe(['page' => '/home']); // data
     });
 
     it('exports only results for the requested experiment', function () {

@@ -56,10 +56,11 @@ describe('A/B Testing Flow Integration', function () {
             ]))
             ->save();
 
-        // Record hits for different variants
-        $experiment->recordHit('control');
-        $experiment->recordHit('variant_a');
-        $experiment->recordHit('variant_b');
+        // Record hits for different variants, each from a new visitor
+        foreach (['control', 'variant_a', 'variant_b'] as $variant) {
+            session()->flush();
+            $experiment->recordHit($variant);
+        }
 
         $results = $experiment->resultsQuery()->get();
 
@@ -71,14 +72,18 @@ describe('A/B Testing Flow Integration', function () {
     it('tracks conversion rates correctly', function () {
         $experiment = tap(Experiment::make('conversion-test'))->save();
 
-        // Record 100 hits for control
+        // 100 visitors hit control, and the first 20 of them convert
         for ($i = 0; $i < 100; $i++) {
-            $experiment->recordHit('control');
-        }
+            session()->flush();
 
-        // Record 20 successes for control
-        for ($i = 0; $i < 20; $i++) {
-            $experiment->recordSuccess('control', 'purchase');
+            // repeat views and conversions from the same visitor only count once
+            $experiment->recordHit('control');
+            $experiment->recordHit('control');
+
+            if ($i < 20) {
+                $experiment->recordSuccess('control', 'purchase');
+                $experiment->recordSuccess('control', 'purchase');
+            }
         }
 
         $results = $experiment->resultsQuery()->get();
@@ -86,11 +91,11 @@ describe('A/B Testing Flow Integration', function () {
         $successes = $results->where('type', 'success')->count();
 
         expect($hits)->toBe(100);
-        expect($successes)->toBe(1);
+        expect($successes)->toBe(20);
 
         // Conversion rate should be 20%
         $conversionRate = ($successes / $hits) * 100;
-        expect($conversionRate)->toBe(1.0);
+        expect($conversionRate)->toBe(20.0);
     });
 
     it('handles session persistence', function () {

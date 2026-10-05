@@ -56,4 +56,25 @@ return [
         'database_connection' => env('AB_TESTER_RESULTS_CONNECTION'),
     ],
 
+    /*
+    * Config related to visitors
+    */
+    'visitor' => [
+
+        /*
+        * Visitors are identified by a random ID held in their session, so by
+        * default a visitor is remembered for as long as their session lasts.
+        *
+        * Set a cookie name here to also store the ID in a cookie, so returning
+        * visitors keep their variant and are only counted once. You may need
+        * to cover this cookie in your consent banner.
+        */
+        'cookie' => env('AB_TESTER_VISITOR_COOKIE'),
+
+        /*
+        * How long the visitor cookie lasts, in minutes
+        */
+        'cookie_lifetime' => 60 * 24 * 30,
+    ],
+
 ];

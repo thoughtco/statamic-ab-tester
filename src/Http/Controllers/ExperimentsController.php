@@ -182,7 +182,7 @@ class ExperimentsController extends CpController
         return response()->stream(function () use ($experiment) {
             $handle = fopen('php://output', 'w');
 
-            fputcsv($handle, ['id', 'variation', 'type', 'goal_id', 'ip_address', 'user_id', 'created_at', 'data']);
+            fputcsv($handle, ['id', 'variation', 'type', 'goal_id', 'ip_address', 'user_id', 'visitor_id', 'created_at', 'data']);
 
             $experiment->resultsQuery()->chunk(500, function ($rows) use ($handle) {
                 foreach ($rows as $row) {
@@ -193,6 +193,7 @@ class ExperimentsController extends CpController
                         $row->goal_id,
                         $row->ip_address,
                         $row->user_id,
+                        $row->visitor_id,
                         $row->created_at,
                         json_encode($row->data),
                     ]);
