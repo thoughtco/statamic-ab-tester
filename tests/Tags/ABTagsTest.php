@@ -100,3 +100,43 @@ it('fails a goal', function () {
 
     $this->assertStringContainsString('<script>abTester.failed', $string);
 });
+
+it('records a completed goal for an experiment', function () {
+    (new Experiment)
+        ->id('test')
+        ->title('Test')
+        ->type('manual')
+        ->data([
+            'manual_fields' => [['handle' => 'one', 'label' => 'One']],
+        ])
+        ->save();
+
+    Facades\Antlers::parse('{{ ab:completed experiment="test" variant="one" goal="signup" }}', trusted: true);
+
+    $this->assertDatabaseHas('ab_test_results', [
+        'experiment_id' => 'test',
+        'goal_id' => 'signup',
+        'type' => 'success',
+        'variation' => 'one',
+    ]);
+});
+
+it('records a failed goal for an experiment', function () {
+    (new Experiment)
+        ->id('test')
+        ->title('Test')
+        ->type('manual')
+        ->data([
+            'manual_fields' => [['handle' => 'one', 'label' => 'One']],
+        ])
+        ->save();
+
+    Facades\Antlers::parse('{{ ab:failure experiment="test" variant="one" goal="signup" }}', trusted: true);
+
+    $this->assertDatabaseHas('ab_test_results', [
+        'experiment_id' => 'test',
+        'goal_id' => 'signup',
+        'type' => 'failure',
+        'variation' => 'one',
+    ]);
+});

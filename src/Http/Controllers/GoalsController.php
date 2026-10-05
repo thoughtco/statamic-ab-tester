@@ -99,7 +99,7 @@ class GoalsController extends CpController
                     ],
                     'hits' => $hits,
                     'success' => $success,
-                    'failed' => $experiment->resultsQuery()->where('type', 'failures')->count() ?? 0,
+                    'failed' => $experiment->resultsQuery()->where('type', 'failure')->count() ?? 0,
                     'rate' => 100 * round($success / ($hits ?: 1), 4),
                     'show_url' => cp_route('ab.experiments.show', $experiment->id()),
                 ];

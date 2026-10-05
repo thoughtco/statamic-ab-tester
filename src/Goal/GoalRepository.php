@@ -55,7 +55,7 @@ abstract class GoalRepository implements RepositoryContract
         }
 
         $experimentsWithThisGoal->each(function ($experiment) use ($data, $goal) {
-            if (! $variantId = session()->has('statamic.ab.'.$experiment->id())) {
+            if (! $variantId = session()->get('statamic.ab.'.$experiment->id())) {
                 return;
             }
 
@@ -75,7 +75,7 @@ abstract class GoalRepository implements RepositoryContract
         }
 
         $experimentsWithThisGoal->each(function ($experiment) use ($data, $goal) {
-            if (! $variantId = session()->has('statamic.ab.'.$experiment->id())) {
+            if (! $variantId = session()->get('statamic.ab.'.$experiment->id())) {
                 return;
             }
 
@@ -96,7 +96,7 @@ abstract class GoalRepository implements RepositoryContract
             ->where(fn ($query) => $query->whereNull('start_at')->orWhere('start_at', '<=', now()))
             ->where(fn ($query) => $query->whereNull('end_at')->orWhere('end_at', '>=', now()))
             ->get()
-            ->filter(fn ($experiment) => in_array($goal->id(), $experiment->goals()->all()));
+            ->filter(fn ($experiment) => in_array($goal->id(), $experiment->goals()));
 
         if ($experimentsWithThisGoal->isEmpty()) {
             return false;

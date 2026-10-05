@@ -140,18 +140,25 @@ abstract class Experiment implements Arrayable, ExperimentContract
 
     public function recordFailure($variantId, $goalId, $data = [])
     {
-        if (! $this->resultsQuery()->where('goal_id', $goalId)->where('variation', $variantId)->where('type', 'failure')->exists()) {
-            $this->createResultModel('failure', $variantId, $goalId, $data);
-        }
-
-        return $this;
+        return $this->recordGoalResult('failure', $variantId, $goalId, $data);
     }
 
     public function recordSuccess($variantId, $goalId, $data = [])
     {
-        if (! $this->resultsQuery()->where('goal_id', $goalId)->where('variation', $variantId)->where('type', 'success')->exists()) {
-            $this->createResultModel('success', $variantId, $goalId, $data);
+        return $this->recordGoalResult('success', $variantId, $goalId, $data);
+    }
+
+    private function recordGoalResult($type, $variantId, $goalId, $data)
+    {
+        $key = implode(':', [$this->id(), $type, $goalId]);
+
+        if (in_array($key, session()->get('statamic.ab-recorded', []))) {
+            return $this;
         }
+
+        session()->push('statamic.ab-recorded', $key);
+
+        $this->createResultModel($type, $variantId, $goalId, $data);
 
         return $this;
     }
