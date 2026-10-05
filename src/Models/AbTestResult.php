@@ -11,7 +11,7 @@ use Thoughtco\StatamicABTester\Facades\Goal;
 
 class AbTestResult extends Model
 {
-    protected $fillable = ['data', 'experiment_id', 'goal_id', 'ip_address', 'type', 'user_id', 'variation'];
+    protected $fillable = ['data', 'experiment_id', 'goal_id', 'ip_address', 'type', 'user_id', 'variation', 'visitor_id'];
 
     public function getConnectionName()
     {
