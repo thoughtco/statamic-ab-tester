@@ -55,7 +55,7 @@ abstract class GoalRepository implements RepositoryContract
         }
 
         $experimentsWithThisGoal->each(function ($experiment) use ($data, $goal) {
-            if (! $variantId = session()->get('statamic.ab.'.$experiment->id())) {
+            if (! $variantId = $experiment->visitorVariation()) {
                 return;
             }
 
@@ -75,7 +75,7 @@ abstract class GoalRepository implements RepositoryContract
         }
 
         $experimentsWithThisGoal->each(function ($experiment) use ($data, $goal) {
-            if (! $variantId = session()->get('statamic.ab.'.$experiment->id())) {
+            if (! $variantId = $experiment->visitorVariation()) {
                 return;
             }
 

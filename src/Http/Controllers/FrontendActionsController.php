@@ -21,8 +21,8 @@ class FrontendActionsController extends Controller
         $data = request()->input('data', []);
 
         if ($type == 'hit') {
-            if ($variant = session()->get('statamic.ab.'.$source)) {
-                Experiment::find($source)?->recordHit($variant, $data);
+            if (($experiment = Experiment::find($source)) && ($variant = $experiment->visitorVariation())) {
+                $experiment->recordHit($variant, $data);
             }
 
             return [];
