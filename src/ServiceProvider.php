@@ -2,7 +2,6 @@
 
 namespace Thoughtco\StatamicABTester;
 
-use Illuminate\Cache\Repository;
 use Illuminate\Support\Facades\Route;
 use Statamic\Facades\CP\Nav;
 use Statamic\Facades\Permission;
@@ -131,8 +130,11 @@ class ServiceProvider extends AddonServiceProvider
             'driver' => 'ab',
         ]);
 
+        // use the same store as Statamic's own strategies - the dedicated
+        // static_cache store when the app defines one, so clearing the
+        // default cache doesn't wipe statically cached pages too
         app(StaticCacheManager::class)->extend('ab', function ($app, $config) {
-            return new ABCacher($app[Repository::class], $config);
+            return new ABCacher($app[StaticCacheManager::class]->cacheStore(), $config);
         });
 
         return $this;

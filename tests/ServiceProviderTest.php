@@ -1,9 +1,12 @@
 
 <?php
 
+use Illuminate\Support\Facades\Cache;
 use Statamic\Facades\Permission;
+use Statamic\StaticCaching\StaticCacheManager;
 use Thoughtco\StatamicABTester\Contracts\ExperimentRepository;
 use Thoughtco\StatamicABTester\Contracts\GoalRepository;
+use Thoughtco\StatamicABTester\StaticCaching\ABCacher;
 use Thoughtco\StatamicABTester\Tests\TestCase;
 
 uses(TestCase::class);
@@ -26,6 +29,21 @@ describe('Service Provider', function () {
 
         expect($strategies)->toHaveKey('ab');
         expect($strategies['ab']['driver'])->toBe('ab');
+    });
+
+    it('uses the static_cache store for the cache strategy when the app defines one', function () {
+        config(['cache.stores.static_cache' => ['driver' => 'array']]);
+
+        $cacher = app(StaticCacheManager::class)->driver('ab');
+
+        expect($cacher)->toBeInstanceOf(ABCacher::class)
+            ->and((fn () => $this->cache)->call($cacher))->toBe(Cache::store('static_cache'));
+    });
+
+    it('uses the default store for the cache strategy otherwise', function () {
+        $cacher = app(StaticCacheManager::class)->driver('ab');
+
+        expect((fn () => $this->cache)->call($cacher))->toBe(Cache::store());
     });
 
     it('loads config correctly', function () {
